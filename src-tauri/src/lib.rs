@@ -1,6 +1,7 @@
 mod db;
 mod models;
 mod repos;
+mod commands;
 
 use std::sync::{Arc, Mutex};
 use rusqlite::Connection;
@@ -38,6 +39,18 @@ pub fn run() {
             log::info!("Maibook initialized successfully");
             Ok(())
         })
+        .plugin(tauri_plugin_dialog::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::get_papers,
+            commands::get_paper,
+            commands::get_recent_papers,
+            commands::import_pdf,
+            commands::delete_paper,
+            commands::update_paper_meta,
+            commands::update_reading_progress,
+            commands::pick_pdf_files,
+            commands::get_app_data_dir,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
