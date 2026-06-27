@@ -130,3 +130,22 @@ pub fn get_app_data_dir(app: tauri::AppHandle) -> Result<String, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     Ok(dir.to_string_lossy().to_string())
 }
+// ==================== Settings Commands ====================
+
+#[tauri::command]
+pub fn get_settings(state: State<'_, AppState>) -> Result<Vec<Setting>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_settings(&conn).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_setting(state: State<'_, AppState>, key: String) -> Result<Option<String>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_setting(&conn, &key).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn update_setting(state: State<'_, AppState>, key: String, value: String) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::update_setting(&conn, &key, &value).map_err(|e| e.to_string())
+}
