@@ -1,16 +1,18 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { invoke } from "@tauri-apps/api/core";
 import type { Paper } from "../types";
+import ChatPanel from "../components/ChatPanel";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function ReaderPage() {
   const { paperId } = useParams();
   const navigate = useNavigate();
+  const [showChat, setShowChat] = useState(false);
 
   const [pdfData, setPdfData] = useState<string | null>(null);
   const [numPages, setNumPages] = useState(0);
@@ -38,12 +40,10 @@ export default function ReaderPage() {
     })();
   }, [paperId]);
 
-  if (loading) {
+  if (loading)
     return <div className="flex items-center justify-center h-full text-gray-400">Loading PDF...</div>;
-  }
-  if (error) {
+  if (error)
     return <div className="flex items-center justify-center h-full text-red-500">{error}</div>;
-  }
 
   return (
     <div className="h-full flex flex-col">
@@ -74,9 +74,7 @@ export default function ReaderPage() {
           >
             &#9664;
           </button>
-          <span className="text-sm text-gray-600">
-            {pageNumber} / {numPages || "?"}
-          </span>
+          <span className="text-sm text-gray-600">{pageNumber} / {numPages || "?"}</span>
           <button
             onClick={() => setPageNumber((p) => Math.min(numPages, p + 1))}
             disabled={pageNumber >= numPages}
@@ -84,22 +82,41 @@ export default function ReaderPage() {
           >
             &#9654;
           </button>
+          <span className="text-gray-300">|</span>
+          <button
+            onClick={() => setShowChat((v) => !v)}
+            className={`px-3 py-1 text-sm rounded transition-colors ${
+              showChat ? "bg-blue-100 text-blue-700" : "border hover:bg-gray-50 text-gray-600"
+            }`}
+          >
+            AI Chat
+          </button>
         </div>
       </div>
 
-      {/* Viewer */}
-      <div className="flex-1 overflow-auto bg-gray-100">
-        <div className="flex justify-center py-4">
-          {pdfData && (
-            <Document
-              file={pdfData}
-              onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-              loading={<div className="text-gray-400 p-8">Loading page...</div>}
-            >
-              <Page pageNumber={pageNumber} scale={scale} />
-            </Document>
-          )}
+      {/* Main area: PDF viewer + Chat sidebar */}
+      <div className="flex-1 flex min-h-0">
+        {/* PDF Viewer */}
+        <div className="flex-1 overflow-auto bg-gray-100">
+          <div className="flex justify-center py-4">
+            {pdfData && (
+              <Document
+                file={pdfData}
+                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                loading={<div className="text-gray-400 p-8">Loading page...</div>}
+              >
+                <Page pageNumber={pageNumber} scale={scale} />
+              </Document>
+            )}
+          </div>
         </div>
+
+        {/* Chat Sidebar */}
+        {showChat && (
+          <div className="w-80 border-l bg-white flex flex-col shrink-0">
+            <ChatPanel />
+          </div>
+        )}
       </div>
     </div>
   );

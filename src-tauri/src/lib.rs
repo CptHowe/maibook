@@ -54,6 +54,7 @@ pub fn run() {
             commands::get_setting,
             commands::update_setting,
             commands::read_pdf_base64,
+            commands::chat_completion,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

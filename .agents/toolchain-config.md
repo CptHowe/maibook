@@ -32,3 +32,7 @@ When running commands that need these tools, set the PATH:
 
 ## npm Mirror (China)
 - Configured via .npmrc: registry=https://registry.npmmirror.com
+## Updated Rust Toolchain Config
+RUSTUP_HOME = D:\chenhao\AICoding\maibook\.rustup
+CARGO_HOME = D:\chenhao\AICoding\maibook\.cargo
+BINARY_PATH = D:\chenhao\AICoding\maibook\.cargo\bin

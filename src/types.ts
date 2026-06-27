@@ -79,3 +79,8 @@ export interface Setting {
   key: string;
   value: string;
 }
+
+export interface ChatMessage {
+  role: string;
+  content: string;
+}

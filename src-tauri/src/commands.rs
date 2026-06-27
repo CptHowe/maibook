@@ -1,4 +1,4 @@
-﻿use crate::models::*;
+use crate::models::*;
 use crate::repos;
 use crate::AppState;
 use tauri::State;
@@ -153,6 +153,7 @@ pub fn update_setting(state: State<'_, AppState>, key: String, value: String) ->
 
 #[tauri::command]
 pub fn read_pdf_base64(file_path: String) -> Result<String, String> {
+    use base64::Engine;
     use std::io::Read;
     let mut file = std::fs::File::open(&file_path)
         .map_err(|e| format!("Failed to open PDF: {}", e))?;
@@ -160,4 +161,48 @@ pub fn read_pdf_base64(file_path: String) -> Result<String, String> {
     file.read_to_end(&mut data)
         .map_err(|e| format!("Failed to read PDF: {}", e))?;
     Ok(base64::engine::general_purpose::STANDARD.encode(&data))
+}
+// ==================== AI Chat Commands ====================
+
+#[tauri::command]
+pub async fn chat_completion(
+    messages: Vec<ChatMessage>,
+    api_key: String,
+    endpoint: String,
+    model: String,
+) -> Result<String, String> {
+    let client = reqwest::Client::new();
+
+    let request_body = ChatCompletionRequest {
+        model,
+        messages,
+        temperature: Some(0.7),
+        max_tokens: Some(2048),
+    };
+
+    let ep = endpoint.trim_end_matches('/');
+    let response = client
+        .post(format!("{}/chat/completions", ep))
+        .header("Authorization", format!("Bearer {}", api_key))
+        .json(&request_body)
+        .send()
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let text = response.text().await.unwrap_or_default();
+        return Err(format!("API error {}: {}", status, text));
+    }
+
+    let body: ChatCompletionResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Parse failed: {}", e))?;
+
+    body.choices
+        .into_iter()
+        .next()
+        .map(|c| c.message.content)
+        .ok_or_else(|| "No response from model".to_string())
 }

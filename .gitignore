@@ -29,3 +29,7 @@ build/
 
 # Tauri specific
 src-tauri/target/
+
+# Rust toolchain (local copies inside project)
+.cargo/
+.rustup/
