@@ -206,3 +206,97 @@ pub async fn chat_completion(
         .map(|c| c.message.content)
         .ok_or_else(|| "No response from model".to_string())
 }
+// ==================== Annotation Commands ====================
+
+#[tauri::command]
+pub fn get_annotations(state: State<'_, AppState>, paper_id: String) -> Result<Vec<Annotation>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_annotations(&conn, &paper_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn create_annotation(
+    state: State<'_, AppState>,
+    paper_id: String,
+    annotation_type: String,
+    page_number: Option<i32>,
+    color: Option<String>,
+    rects: Option<String>,
+    selected_text: Option<String>,
+    content: Option<String>,
+    extra_data: Option<String>,
+) -> Result<Annotation, String> {
+    let id = uuid::Uuid::new_v4().to_string();
+    let data = CreateAnnotation {
+        paper_id,
+        annotation_type,
+        page_number,
+        color,
+        rects,
+        selected_text,
+        content,
+        extra_data,
+    };
+    let pid = data.paper_id.clone();
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::create_annotation(&conn, &id, &data).map_err(|e| e.to_string())?;
+    repos::get_annotations(&conn, &pid)
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .find(|a| a.id == id)
+        .ok_or_else(|| "Annotation not found after creation".to_string())
+}
+
+#[tauri::command]
+pub fn update_annotation(
+    state: State<'_, AppState>,
+    id: String,
+    content: Option<String>,
+    color: Option<String>,
+) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::update_annotation(&conn, &id, content.as_deref(), color.as_deref()).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn delete_annotation(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::delete_annotation(&conn, &id).map_err(|e| e.to_string())
+}
+
+// ==================== Bookmark Commands ====================
+
+#[tauri::command]
+pub fn get_bookmarks(state: State<'_, AppState>, paper_id: String) -> Result<Vec<Bookmark>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_bookmarks(&conn, &paper_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn create_bookmark(
+    state: State<'_, AppState>,
+    paper_id: String,
+    page_number: i32,
+    label: Option<String>,
+) -> Result<Bookmark, String> {
+    let id = uuid::Uuid::new_v4().to_string();
+    let data = CreateBookmark {
+        paper_id,
+        page_number,
+        label,
+    };
+    let pid = data.paper_id.clone();
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::create_bookmark(&conn, &id, &data).map_err(|e| e.to_string())?;
+    repos::get_bookmarks(&conn, &pid)
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .find(|b| b.id == id)
+        .ok_or_else(|| "Bookmark not found after creation".to_string())
+}
+
+#[tauri::command]
+pub fn delete_bookmark(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::delete_bookmark(&conn, &id).map_err(|e| e.to_string())
+}

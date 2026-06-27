@@ -40,22 +40,29 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![
-            commands::get_papers,
-            commands::get_paper,
-            commands::get_recent_papers,
-            commands::import_pdf,
-            commands::delete_paper,
-            commands::update_paper_meta,
-            commands::update_reading_progress,
-            commands::pick_pdf_files,
-            commands::get_app_data_dir,
-            commands::get_settings,
-            commands::get_setting,
-            commands::update_setting,
-            commands::read_pdf_base64,
-            commands::chat_completion,
-        ])
+       .invoke_handler(tauri::generate_handler![
+           commands::get_papers,
+           commands::get_paper,
+           commands::get_recent_papers,
+           commands::import_pdf,
+           commands::delete_paper,
+           commands::update_paper_meta,
+           commands::update_reading_progress,
+           commands::pick_pdf_files,
+           commands::get_app_data_dir,
+           commands::get_settings,
+           commands::get_setting,
+           commands::update_setting,
+           commands::read_pdf_base64,
+           commands::chat_completion,
+            commands::get_annotations,
+            commands::create_annotation,
+            commands::update_annotation,
+            commands::delete_annotation,
+            commands::get_bookmarks,
+            commands::create_bookmark,
+            commands::delete_bookmark,
+       ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
