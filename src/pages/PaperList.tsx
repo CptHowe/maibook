@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { Paper } from "../types";
@@ -51,9 +52,10 @@ export default function PaperList() {
     }
   };
 
+  const navigate = useNavigate();
+
   const handleCardClick = (id: string) => {
-    // Navigate to reader - will be wired up with react-router
-    console.log("Open reader for paper:", id);
+    navigate(`/reader/${id}`);
   };
 
   return (

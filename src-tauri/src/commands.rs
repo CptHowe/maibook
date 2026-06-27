@@ -149,3 +149,15 @@ pub fn update_setting(state: State<'_, AppState>, key: String, value: String) ->
     let conn = state.db.lock().map_err(|e| e.to_string())?;
     repos::update_setting(&conn, &key, &value).map_err(|e| e.to_string())
 }
+// ==================== PDF Commands ====================
+
+#[tauri::command]
+pub fn read_pdf_base64(file_path: String) -> Result<String, String> {
+    use std::io::Read;
+    let mut file = std::fs::File::open(&file_path)
+        .map_err(|e| format!("Failed to open PDF: {}", e))?;
+    let mut data = Vec::new();
+    file.read_to_end(&mut data)
+        .map_err(|e| format!("Failed to read PDF: {}", e))?;
+    Ok(base64::engine::general_purpose::STANDARD.encode(&data))
+}
