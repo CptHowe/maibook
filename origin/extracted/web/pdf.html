@@ -1,0 +1,1988 @@
+<!-- <!DOCTYPE html> -->
+<!--
+Copyright 2012 Mozilla Foundation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Adobe CMap resources are covered by their own copyright but the same license:
+
+    Copyright 1990-2015 Adobe Systems Incorporated.
+
+See https://github.com/adobe-type-tools/cmap-resources
+-->
+<!DOCTYPE html>
+<html dir="ltr" mozdisallowselectionprint>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1,  viewport-fit=cover"
+    />
+    <meta name="google" content="notranslate" />
+    <title>PDF.js viewer</title>
+
+    <!-- This snippet is used in production (included from viewer.html) -->
+    <link rel="resource" type="application/l10n" href="locale/locale.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- 주요 스크립트 미리 다운로드 시작 -->
+    <link rel="modulepreload" href="../build/pdf.mjs" />
+    <link rel="modulepreload" href="viewer.mjs" />
+    <script src="../build/pdf.mjs" type="module"></script>
+
+    <link rel="stylesheet" href="viewer.css" />
+    <link rel="stylesheet" href="viewer-custom.css" />
+    <link rel="stylesheet" href="katex.min.css" />
+    <link rel="stylesheet" href="../milkdown-styles.css" />
+
+    <script src="viewer.mjs" type="module"></script>
+    <link rel="stylesheet" href="../lib/three-dots.min.css" />
+    <!-- defer: HTML 파싱 완료 후 실행하여 초기 로딩 블로킹 방지 -->
+    <script src="../pdfScript.js" defer></script>
+    <link rel="stylesheet" href="../pdfScript.css" />
+    <link rel="stylesheet" href="../github-markdown.css" />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
+    />
+  </head>
+
+  <body tabindex="1">
+    <div style="display: flex; height: 100vh; width: 100vw; overflow: hidden">
+      <div id="main" style="height: 100%; overflow: hidden; flex-grow: 1">
+        <div class="toolbar" data-html2canvas-ignore="true">
+          <div id="toolbarContainer">
+            <div
+              id="toolbarViewer"
+              style="
+                display: flex;
+                height: 56px;
+                padding: 0 15px;
+                justify-content: space-between;
+                align-items: center;
+                flex-shrink: 0;
+                align-self: stretch;
+              "
+            >
+              <div
+                id="toolbarViewerLeft"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  margin-right: 10px;
+                "
+              >
+                <div
+                  id="moonlight-logo-toolbar"
+                  style="display: flex; cursor: pointer"
+                >
+                  <img
+                    id="moonlight-logo-icon"
+                    alt="Moonlight Logo"
+                    src="images/moonlight-logo.png"
+                    style="height: 36px; width: auto"
+                  />
+                </div>
+              </div>
+              <div
+                id="toolbarViewerCenter"
+                style="display: flex; align-items: center; gap: 30px"
+              >
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <button
+                    id="sidebarToggle"
+                    class="toolbarButton"
+                    title="Toggle Sidebar"
+                    tabindex="11"
+                    aria-expanded="false"
+                    aria-controls="sidebarContainer"
+                  ></button>
+                  <button
+                    id="paper-info-button"
+                    title="Paper Info"
+                    class="toolbarButton"
+                  >
+                    <div
+                      id="tooltipPaperInfo"
+                      class="citation-container tooltipFeature"
+                    >
+                      <div class="citation-header">
+                        <div class="citation-name">
+                          <span class="citation-title"></span>
+                          <div class="citation-title-copy">
+                            <img
+                              src="../images/copy-citation-title.svg"
+                              alt="copy"
+                            />
+                          </div>
+                          <div class="citation-connection-type">
+                            <img class="citation-connection-icon" />
+                            <div class="citation-connection-tooltip">
+                              <span></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="citation-info">
+                          <div class="citation-authors"></div>
+                          <span class="citation-journal"></span>
+                          <span class="citation-year"></span>
+                        </div>
+                      </div>
+                      <div class="citation-footer">
+                        <div class="citation-footer-toolbar">
+                          <div class="citation-footer-bottom">
+                            <div class="citation-footer-left">
+                              <a
+                                class="citation-citation-count"
+                                target="_blank"
+                              ></a>
+                              <a
+                                class="citation-bibtex"
+                                id="citationDetailBibTeXButton"
+                                >BibTeX</a
+                              >
+                            </div>
+                            <div class="citation-footer-right">
+                              <a
+                                class="citation-button"
+                                id="citationDetailWorthButton"
+                                data-l10n-id="smart-citation-worth-reading"
+                              >
+                                Worth reading?
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="citation-details">
+                          <div
+                            class="citation-detail"
+                            id="citationDetailBibTeX"
+                          >
+                            <div class="citation-detail-header">
+                              <span>BibTeX</span>
+                              <img
+                                src="../images/copy-bibtex.svg"
+                                alt="Copy BibTeX"
+                                id="bibTeXCopy"
+                              />
+                            </div>
+                            <div class="citation-detail-body">
+                              <pre id="citationDetailBibTeXText"></pre>
+                            </div>
+                          </div>
+                          <div class="citation-detail" id="citationDetailWorth">
+                            <div class="citation-detail-header">
+                              <span data-l10n-id="smart-citation-worth-reading">
+                                Worth reading?
+                              </span>
+                              <div id="citationDetailWorthLevels">
+                                <div
+                                  class="citation-detail-worth-level"
+                                  data-worth="full-read"
+                                  data-l10n-id="smart-citation-full-read"
+                                >
+                                  Full read
+                                </div>
+                                <div
+                                  class="citation-detail-worth-level"
+                                  data-worth="skim"
+                                  data-l10n-id="smart-citation-skim"
+                                >
+                                  Skim
+                                </div>
+                                <div
+                                  class="citation-detail-worth-level"
+                                  data-worth="abstract-only"
+                                  data-l10n-id="smart-citation-abstract-only"
+                                >
+                                  Abstract only
+                                </div>
+                                <div
+                                  class="citation-detail-worth-level"
+                                  data-worth="pass"
+                                  data-l10n-id="smart-citation-pass"
+                                >
+                                  Pass
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="citation-detail-body markdown-body"
+                              id="citationDetailWorthText"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    id="viewFind"
+                    class="toolbarButton"
+                    title="Find in Document"
+                    tabindex="17"
+                    data-l10n-id="pdfjs-findbar-button"
+                    aria-expanded="false"
+                    aria-controls="findbar"
+                  ></button>
+                </div>
+
+                <div
+                  id="navigationButtonsContainer"
+                  style="display: flex; align-items: center; gap: 10px"
+                >
+                  <div style="display: flex; align-items: center; gap: 4px">
+                    <div id="marginForScaleSelect" style="display: none"></div>
+                    <span
+                      id="scaleSelectContainer"
+                      class="dropdownToolbarButton"
+                    >
+                      <select
+                        id="scaleSelect"
+                        title="Zoom"
+                        tabindex="16"
+                        data-l10n-id="pdfjs-zoom-select"
+                      >
+                        <option
+                          id="pageAutoOption"
+                          title=""
+                          value="auto"
+                          selected="selected"
+                          data-l10n-id="pdfjs-page-scale-auto"
+                        >
+                          Automatic Zoom
+                        </option>
+                        <option
+                          id="pageActualOption"
+                          title=""
+                          value="page-actual"
+                          data-l10n-id="pdfjs-page-scale-actual"
+                        >
+                          Actual Size
+                        </option>
+                        <option
+                          id="pageFitOption"
+                          title=""
+                          value="page-fit"
+                          data-l10n-id="pdfjs-page-scale-fit"
+                        >
+                          Page Fit
+                        </option>
+                        <option
+                          id="pageWidthOption"
+                          title=""
+                          value="page-width"
+                          data-l10n-id="pdfjs-page-scale-width"
+                        >
+                          Page Width
+                        </option>
+                        <option
+                          id="customScaleOption"
+                          title=""
+                          value="custom"
+                          disabled="disabled"
+                          hidden="true"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 0 }'
+                        >
+                          0%
+                        </option>
+                        <option
+                          title=""
+                          value="0.5"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 50 }'
+                        >
+                          50%
+                        </option>
+                        <option
+                          title=""
+                          value="0.75"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 75 }'
+                        >
+                          75%
+                        </option>
+                        <option
+                          title=""
+                          value="1"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 100 }'
+                        >
+                          100%
+                        </option>
+                        <option
+                          title=""
+                          value="1.25"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 125 }'
+                        >
+                          125%
+                        </option>
+                        <option
+                          title=""
+                          value="1.5"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 150 }'
+                        >
+                          150%
+                        </option>
+                        <option
+                          title=""
+                          value="2"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 200 }'
+                        >
+                          200%
+                        </option>
+                        <option
+                          title=""
+                          value="3"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 300 }'
+                        >
+                          300%
+                        </option>
+                        <option
+                          title=""
+                          value="4"
+                          data-l10n-id="pdfjs-page-scale-percent"
+                          data-l10n-args='{ "scale": 400 }'
+                        >
+                          400%
+                        </option>
+                      </select>
+                    </span>
+                    <button
+                      id="zoomOut"
+                      class="toolbarButton zoomButton"
+                      title="Zoom Out"
+                      tabindex="10001"
+                      data-l10n-id="pdfjs-zoom-out-button"
+                    >
+                      <span data-l10n-id="pdfjs-zoom-out-button-label"
+                        >Zoom Out</span
+                      >
+                    </button>
+                    <button
+                      id="zoomIn"
+                      class="toolbarButton zoomButton"
+                      title="Zoom In"
+                      tabindex="10000"
+                    >
+                      <span data-l10n-id="pdfjs-zoom-in-button-label"
+                        >Zoom In</span
+                      >
+                    </button>
+                  </div>
+                  <div style="display: flex; align-items: center">
+                    <div class="splitToolbarButton hiddenSmallView">
+                      <button id="firstPage" style="display: none"></button>
+                      <button id="previous" style="display: none"></button>
+                      <span class="loadingInput start">
+                        <input
+                          type="number"
+                          id="pageNumber"
+                          class="toolbarField"
+                          title="Page"
+                          value="1"
+                          min="1"
+                          tabindex="14"
+                          data-l10n-id="pdfjs-page-input"
+                          autocomplete="off"
+                        />
+                      </span>
+                      <span id="numPages" class="toolbarLabel"></span>
+                      <button
+                        class="toolbarButton"
+                        title="Next Page"
+                        id="next"
+                        tabindex="15"
+                        data-l10n-id="pdfjs-next-button"
+                        style="display: none"
+                      >
+                        <span data-l10n-id="pdfjs-next-button-label">Next</span>
+                      </button>
+                      <button
+                        id="lastPage"
+                        class="toolbarButton"
+                        title="Go to Last Page"
+                        tabindex="57"
+                        data-l10n-id="pdfjs-last-page-button"
+                        style="display: none"
+                      >
+                        <span data-l10n-id="pdfjs-last-page-button-label"
+                          >Go to Last Page</span
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <button id="home-button" title="Home" class="toolbarButton">
+                  <span
+                    class="description"
+                    data-l10n-id="pdfjs-home-button-text"
+                    >Home</span
+                  >
+                </button>
+
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <!-- Auto Highlight Popover Container -->
+                  <div id="auto-highlight-popover-container" class="popover-container">
+                    <button id="auto-highlight-trigger" class="toolbarButton description-button"
+                            aria-haspopup="true" aria-expanded="false" aria-controls="auto-highlight-popover-panel">
+                      <span class="description" data-l10n-id="pdfjs-auto-highlight-button-text">Auto Highlight</span>
+                    </button>
+                    <!-- Popover panel is created dynamically by JS -->
+                  </div>
+                  <button id="image-explanation-button"></button>
+                  <button id="auto-translate-button"></button>
+                </div>
+              </div>
+
+              <div id="editorModeButtons" style="display: none !important">
+                <button id="editorHighlight"></button>
+                <button id="editorFreeText"></button>
+                <button id="editorInk"></button>
+                <button id="editorStamp"></button>
+              </div>
+
+              <div
+                id="toolbarViewerRight"
+                style="display: flex; align-items: center; gap: 12px"
+              >
+                <div class="usage">
+                  <!-- subscription-badge는 UserMenu.tsx로 이동됨 -->
+                  <a href="/" target="_blank" class="home-button-link">
+                    <div class="home-button">
+                      <img
+                        src="../images/icon128.png"
+                        alt="Moonlight Icon"
+                        class="icon"
+                      />
+                      <div
+                        class="home-button-text"
+                        data-l10n-id="join-moonlight"
+                      >
+                        Join&nbsp;<strong>Moonlight</strong>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+
+                <!-- 모바일 전용 버튼 -->
+                <div id="additionalToolsRight">
+                  <button
+                    id="touch-explain-button"
+                    type="button"
+                    class="toolbarButton"
+                    style="display: none"
+                  ></button>
+                  <button
+                    id="touch-translate-button"
+                    type="button"
+                    class="toolbarButton"
+                    style="display: none"
+                  ></button>
+                  <button
+                    id="draw-button"
+                    type="button"
+                    class="toolbarButton"
+                    style="display: none"
+                  ></button>
+                </div>
+
+                <button
+                  id="secondaryToolbarToggle"
+                  style="display: none"
+                ></button>
+
+                <div id="toolsRight"></div>
+
+                <button
+                  id="rightSidebarToggle"
+                  class="toolbarButton"
+                  title="Toggle Right Sidebar"
+                  tabindex="12"
+                  data-l10n-id="pdfjs-toggle-activity-button"
+                  aria-expanded="false"
+                  aria-controls="rightSidebarContainer"
+                ></button>
+              </div>
+            </div>
+            <div id="loadingBar">
+              <div class="progress">
+                <div class="glimmer"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="findbar hidden doorHanger" id="findbar">
+            <span class="loadingInput end">
+              <input
+                id="findInput"
+                class="toolbarField"
+                title="Find"
+                placeholder="Find in document…"
+                tabindex="91"
+                data-l10n-id="pdfjs-find-input"
+                aria-invalid="false"
+              />
+            </span>
+            <div class="splitToolbarButton">
+              <button
+                id="findPrevious"
+                class="toolbarButton"
+                title="Find the previous occurrence of the phrase"
+                tabindex="92"
+                data-l10n-id="pdfjs-find-previous-button"
+              >
+                <span data-l10n-id="pdfjs-find-previous-button-label"
+                  >Previous</span
+                >
+              </button>
+              <button
+                id="findNext"
+                class="toolbarButton"
+                title="Find the next occurrence of the phrase"
+                tabindex="93"
+                data-l10n-id="pdfjs-find-next-button"
+              >
+                <span data-l10n-id="pdfjs-find-next-button-label">Next</span>
+              </button>
+            </div>
+
+            <div id="findbarMessageContainer" aria-live="polite">
+              <span id="findResultsCount" class="toolbarLabel"></span>
+              <span id="findMsg" class="toolbarLabel"></span>
+            </div>
+
+            <input
+              type="checkbox"
+              id="findHighlightAll"
+              style="display: none"
+              class="toolbarField"
+              tabindex="94"
+            />
+            <label
+              for="findHighlightAll"
+              class="toolbarLabel"
+              style="display: none"
+              data-l10n-id="pdfjs-find-highlight-checkbox"
+              >Highlight All</label
+            >
+            <input
+              type="checkbox"
+              id="findMatchCase"
+              class="toolbarField"
+              tabindex="95"
+            />
+            <label
+              for="findMatchCase"
+              class="toolbarLabel"
+              data-l10n-id="pdfjs-find-match-case-checkbox-label"
+              >Match Case</label
+            >
+            <button
+              id="findTurnOff"
+              class="toolbarButton"
+              tabindex="93"
+            ></button>
+
+            <div
+              id="findbarOptionsTwoContainer"
+              style="display: none !important"
+            >
+              <input id="findMatchDiacritics" />
+              <input id="findEntireWord" />
+            </div>
+          </div>
+          <!-- findbar -->
+
+          <div id="secondaryToolbar" style="display: none !important">
+            <div id="secondaryToolbarButtonContainer">
+              <button id="secondaryOpenFile"></button>
+              <button id="secondaryPrint"></button>
+              <button id="secondaryDownload"></button>
+
+              <button id="presentationMode"></button>
+
+              <a href="#" id="viewBookmark"> </a>
+              <button id="pageRotateCw"></button>
+              <button id="pageRotateCcw"></button>
+              <div id="cursorToolButtons">
+                <button id="cursorSelectTool"></button>
+                <button id="cursorHandTool"></button>
+              </div>
+
+              <div id="scrollModeButtons">
+                <button id="scrollPage"></button>
+                <button id="scrollVertical"></button>
+                <button id="scrollHorizontal"></button>
+                <button id="scrollWrapped"></button>
+              </div>
+
+              <div id="spreadModeButtons">
+                <button id="spreadNone"></button>
+                <button id="spreadOdd"></button>
+                <button id="spreadEven"></button>
+              </div>
+
+              <button id="signOut"></button>
+            </div>
+          </div>
+        </div>
+
+        <div id="outerContainer">
+          <div id="localNavigationBar"></div>
+
+          <div
+            id="sidebarContainer"
+            class="sidebarContainer"
+            data-html2canvas-ignore="true"
+          >
+            <div id="toolbarSidebar">
+              <div id="toolbarSidebarLeft">
+                <div
+                  id="sidebarViewButtons"
+                  class="splitToolbarButton toggled gap-[10px]"
+                  role="radiogroup"
+                >
+                  <button
+                    id="viewThumbnail"
+                    class="toolbarButton toggled"
+                    title="Show Thumbnails"
+                    tabindex="2"
+                    data-l10n-id="pdfjs-thumbs-button"
+                    role="radio"
+                    aria-checked="true"
+                    aria-controls="thumbnailView"
+                  >
+                    <span data-l10n-id="pdfjs-thumbs-button-label"
+                      >Thumbnails</span
+                    >
+                  </button>
+                  <button
+                    id="viewOutline"
+                    class="toolbarButton"
+                    title="Show Document Outline (double-click to expand/collapse all items)"
+                    tabindex="3"
+                    data-l10n-id="pdfjs-document-outline-button"
+                    role="radio"
+                    aria-checked="false"
+                    aria-controls="outlineView"
+                  >
+                    <span data-l10n-id="pdfjs-document-outline-button-label"
+                      >Document Outline</span
+                    >
+                  </button>
+                  <button
+                    id="viewAttachments"
+                    style="display: none !important"
+                  ></button>
+                  <button
+                    id="viewLayers"
+                    style="display: none !important"
+                  ></button>
+                </div>
+              </div>
+
+              <div id="toolbarSidebarRight" style="display: none !important">
+                <div id="outlineOptionsContainer">
+                  <button id="currentOutlineItem"></button>
+                </div>
+              </div>
+            </div>
+            <div id="sidebarContent">
+              <div id="thumbnailView"></div>
+              <div id="outlineView" class="hidden"></div>
+              <div id="attachmentsView" class="hidden"></div>
+              <div id="layersView" class="hidden"></div>
+            </div>
+            <div id="sidebarResizer" class="hidden"></div>
+          </div>
+          <!-- sidebarContainer -->
+
+          <div id="mainContainer">
+            <div>
+              <!-- dummy div for xpath metadata (highlight & comment) -->
+            </div>
+            <div
+              class="editorParamsToolbar hidden doorHangerRight"
+              id="editorHighlightParamsToolbar"
+            >
+              <div
+                id="highlightParamsToolbarContainer"
+                class="editorParamsToolbarContainer"
+              >
+                <div id="editorHighlightColorPicker" class="colorPicker">
+                  <span
+                    id="highlightColorPickerLabel"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-highlight-colorpicker-label"
+                    >Highlight color</span
+                  >
+                </div>
+                <div id="editorHighlightThickness">
+                  <label
+                    for="editorFreeHighlightThickness"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-free-highlight-thickness-input"
+                    >Thickness</label
+                  >
+                  <div class="thicknessPicker">
+                    <input
+                      type="range"
+                      id="editorFreeHighlightThickness"
+                      class="editorParamsSlider"
+                      data-l10n-id="pdfjs-editor-free-highlight-thickness-title"
+                      value="12"
+                      min="8"
+                      max="24"
+                      step="1"
+                      tabindex="101"
+                    />
+                  </div>
+                </div>
+                <div id="editorHighlightVisibility">
+                  <div class="divider"></div>
+                  <div class="toggler">
+                    <label
+                      for="editorHighlightShowAll"
+                      class="editorParamsLabel"
+                      data-l10n-id="pdfjs-editor-highlight-show-all-button-label"
+                      >Show all</label
+                    >
+                    <button
+                      id="editorHighlightShowAll"
+                      class="toggle-button"
+                      data-l10n-id="pdfjs-editor-highlight-show-all-button"
+                      aria-pressed="true"
+                      tabindex="102"
+                    ></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="editorParamsToolbar hidden doorHangerRight"
+              id="editorFreeTextParamsToolbar"
+            >
+              <div class="editorParamsToolbarContainer">
+                <div class="editorParamsSetter">
+                  <label
+                    for="editorFreeTextColor"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-free-text-color-input"
+                    >Color</label
+                  >
+                  <input
+                    type="color"
+                    id="editorFreeTextColor"
+                    class="editorParamsColor"
+                    tabindex="103"
+                  />
+                </div>
+                <div class="editorParamsSetter">
+                  <label
+                    for="editorFreeTextFontSize"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-free-text-size-input"
+                    >Size</label
+                  >
+                  <input
+                    type="range"
+                    id="editorFreeTextFontSize"
+                    class="editorParamsSlider"
+                    value="10"
+                    min="5"
+                    max="100"
+                    step="1"
+                    tabindex="104"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="editorParamsToolbar hidden doorHangerRight"
+              id="editorInkParamsToolbar"
+            >
+              <div class="editorParamsToolbarContainer">
+                <div class="editorParamsSetter">
+                  <label
+                    for="editorInkColor"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-ink-color-input"
+                    >Color</label
+                  >
+                  <input
+                    type="color"
+                    id="editorInkColor"
+                    class="editorParamsColor"
+                    tabindex="105"
+                  />
+                </div>
+                <div class="editorParamsSetter">
+                  <label
+                    for="editorInkThickness"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-ink-thickness-input"
+                    >Thickness</label
+                  >
+                  <input
+                    type="range"
+                    id="editorInkThickness"
+                    class="editorParamsSlider"
+                    value="1"
+                    min="1"
+                    max="20"
+                    step="1"
+                    tabindex="106"
+                  />
+                </div>
+                <div class="editorParamsSetter">
+                  <label
+                    for="editorInkOpacity"
+                    class="editorParamsLabel"
+                    data-l10n-id="pdfjs-editor-ink-opacity-input"
+                    >Opacity</label
+                  >
+                  <input
+                    type="range"
+                    id="editorInkOpacity"
+                    class="editorParamsSlider"
+                    value="100"
+                    min="1"
+                    max="100"
+                    step="1"
+                    tabindex="107"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="editorParamsToolbar hidden doorHangerRight"
+              id="editorStampParamsToolbar"
+            >
+              <div class="editorParamsToolbarContainer">
+                <button id="editorStampAddImage"></button>
+              </div>
+            </div>
+
+            <div>
+              <!-- This is a placeholder div for xpath metadata (highlight & comment) -->
+            </div>
+
+            <div id="viewerContainer" tabindex="0" style="position: absolute;">
+              <div id="viewer" class="pdfViewer"></div>
+            </div>
+          </div>
+
+          <div id="rightSidebarHeader"></div>
+          <div
+            id="rightSidebarContainer"
+            class="sidebarContainer"
+            data-html2canvas-ignore="true"
+          >
+            <div id="colResizeHandleForRightSidebar"></div>
+            <div id="rightSidebarTabButtons">
+              <div class="right-sidebar-tab-strip">
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonWithAI"
+                  data-tab="rightSidebarTabWithAI"
+                  data-tab-name="withAI"
+                  title="With AI"
+                  data-l10n-id="activity-tab-button-withAI"
+                >
+                  <img src="images/main-icon-feature-with-ai.svg" alt="withAI" />
+                </button>
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonQuiz"
+                  data-tab="rightSidebarTabQuiz"
+                  data-tab-name="quiz"
+                  title="Quiz"
+                  data-l10n-id="activity-tab-button-quiz"
+                >
+                  <img src="images/main-icon-feature-quiz.svg" alt="quiz" />
+                  <span class="quiz-beta-badge">Beta</span>
+                </button>
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonHighlights"
+                  data-tab="rightSidebarTabHighlights"
+                  data-tab-name="highlight"
+                  title="Highlight"
+                  data-l10n-id="activity-tab-button-highlights"
+                >
+                  <img src="images/main-icon-feature-highlight-sidebar.svg" alt="highlight" />
+                </button>
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonExplanations"
+                  data-tab="rightSidebarTabExplanations"
+                  data-tab-name="explanation"
+                  title="Explanation"
+                  data-l10n-id="activity-tab-button-explanations"
+                >
+                  <img
+                    src="images/main-icon-feature-explanation.svg"
+                    alt="explanation"
+                  />
+                </button>
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonCitations"
+                  data-tab="rightSidebarTabCitations"
+                  data-tab-name="citation"
+                  title="Citation"
+                  data-l10n-id="activity-tab-button-citations"
+                >
+                  <img src="images/main-icon-feature-citation.svg" alt="citation" />
+                </button>
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonComments"
+                  data-tab="rightSidebarTabComments"
+                  data-tab-name="comment"
+                  title="Comment"
+                  data-l10n-id="activity-tab-button-comments"
+                >
+                  <img src="images/main-icon-feature-comment.svg" alt="comment" />
+                </button>
+                <button
+                  class="sidebar-tab-button"
+                  id="sidebarTabButtonNote"
+                  data-tab="rightSidebarTabNote"
+                  data-tab-name="note"
+                  title="Note"
+                  data-l10n-id="activity-tab-button-note"
+                >
+                  <img src="images/main-icon-feature-note.svg" alt="note" />
+                </button>
+              </div>
+              <button
+                id="rightSidebarCloseButton"
+                class="sidebar-close-button"
+                title="Close sidebar"
+              >
+                <img src="images/sidebar-close.svg" alt="close" />
+              </button>
+            </div>
+            <div
+              class="sidebar-tab-panel active"
+              id="rightSidebarTabWithAI"
+            ></div>
+            <div class="sidebar-tab-panel" id="rightSidebarTabHighlights">
+              <div class="sidebar-header-section">
+                <div class="header-with-copy-export">
+                  <div
+                    class="right-sidebar-tab-title"
+                    data-l10n-id="activity-panel-highlights"
+                  >
+                    Highlights
+                  </div>
+                  <div id="highlightExportToolbar" class="exportToolbar sidebar-action-toolbar">
+                    <button
+                      id="sidebarHighlightCopyButton"
+                      class="toolbar-icon-button sidebar-action-button"
+                      title="Copy"
+                      data-l10n-id="activity-header-copy"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                    </button>
+                    <button
+                      id="sidebarHighlightExportButton"
+                      class="toolbar-icon-button sidebar-action-button"
+                      title="Export"
+                      data-l10n-id="activity-header-export"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>
+                    </button>
+                    <div
+                      id="sidebarHighlightExportDropdown"
+                      class="exportDropdown"
+                      style="display: none"
+                    >
+                      <div
+                        id="sidebarHighlightExportMarkdown"
+                        class="exportOption"
+                      >
+                        <span data-l10n-id="activity-header-export-markdown">
+                          Export to Markdown
+                        </span>
+                        <a></a>
+                      </div>
+                      <div id="sidebarHighlightExportCSV" class="exportOption">
+                        <span data-l10n-id="activity-header-export-csv">
+                          Export to CSV
+                        </span>
+                        <a></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid var(--color-zinc-300, #d4d4d8);
+                  "
+                >
+                  <div class="sidebar-checkbox-container">
+                    <div class="sidebar-checkbox">
+                      <input
+                        type="checkbox"
+                        id="sidebarHighlightAllCheckbox"
+                        checked
+                      />
+                      <label for="sidebarHighlightAllCheckbox"></label>
+                    </div>
+                    <span data-l10n-id="activity-highlight-all">All</span>
+                  </div>
+                  <div id="highlightColorPalette"></div>
+                </div>
+                <div
+                  id="auto-highlight-header-container"
+                  style="display: flex; align-items: center; gap: 10px"
+                ></div>
+                <div class="auto-highlight-container">
+                  <div class="auto-highlight-main-controls">
+                    <div class="sidebar-checkbox-container">
+                      <div class="sidebar-checkbox">
+                        <input
+                          type="checkbox"
+                          id="sidebarAutoHighlightCheckbox"
+                          checked
+                        />
+                        <label for="sidebarAutoHighlightCheckbox"></label>
+                      </div>
+                      <span data-l10n-id="activity-highlight-auto-highlight">
+                        Auto Highlight
+                      </span>
+                    </div>
+                    <div class="sidebar-checkbox-container">
+                      <div class="sidebar-checkbox">
+                        <input
+                          type="checkbox"
+                          id="sidebarAutoHighlightLabelCheckbox"
+                        />
+                        <label for="sidebarAutoHighlightLabelCheckbox"></label>
+                      </div>
+                      <span data-l10n-id="activity-highlight-label">Label</span>
+                    </div>
+                  </div>
+                  <div class="auto-highlight-type-controls">
+                    <div class="sidebar-checkbox-container">
+                      <div class="sidebar-checkbox">
+                        <input
+                          type="checkbox"
+                          id="sidebarHighlightNoveltyCheckbox"
+                          class="highlight-color-checkbox"
+                          data-color-alias="novelty"
+                          checked
+                        />
+                        <label for="sidebarHighlightNoveltyCheckbox"></label>
+                      </div>
+                      <span
+                        class="highlight-type novelty"
+                        data-l10n-id="auto-highlight-novelty"
+                        >Novelty</span
+                      >
+                    </div>
+                    <div class="sidebar-checkbox-container">
+                      <div class="sidebar-checkbox">
+                        <input
+                          type="checkbox"
+                          id="sidebarHighlightMethodsCheckbox"
+                          class="highlight-color-checkbox"
+                          data-color-alias="methods"
+                          checked
+                        />
+                        <label for="sidebarHighlightMethodsCheckbox"></label>
+                      </div>
+                      <span
+                        class="highlight-type methods"
+                        data-l10n-id="auto-highlight-methods"
+                        >Methods</span
+                      >
+                    </div>
+                    <div class="sidebar-checkbox-container">
+                      <div class="sidebar-checkbox">
+                        <input
+                          type="checkbox"
+                          id="sidebarHighlightResultsCheckbox"
+                          class="highlight-color-checkbox"
+                          data-color-alias="results"
+                          checked
+                        />
+                        <label for="sidebarHighlightResultsCheckbox"></label>
+                      </div>
+                      <span
+                        class="highlight-type results"
+                        data-l10n-id="auto-highlight-results"
+                        >Results</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  id="rightSidebarHighlightSearchContainer"
+                  class="sidebar-search-container"
+                >
+                  <img
+                    src="images/table-search-icon.svg"
+                    alt="search"
+                    class="search-icon"
+                  />
+                  <input
+                    type="text"
+                    id="rightSidebarHighlightSearch"
+                    class="sidebar-search"
+                    placeholder="Search"
+                    data-l10n-id="activity-search-placeholder"
+                  />
+                  <img
+                    id="rightSidebarHighlightSearchReset"
+                    src="images/table-search-reset-icon.svg"
+                    alt="reset"
+                    class="search-reset-icon"
+                  />
+                </div>
+              </div>
+              <div
+                id="rightSidebarHighlightContent"
+                class="sidebar-content"
+              ></div>
+            </div>
+            <div class="sidebar-tab-panel" id="rightSidebarTabExplanations">
+              <div class="sidebar-header-section">
+                <div class="header-with-copy-export">
+                  <div
+                    class="right-sidebar-tab-title"
+                    data-l10n-id="activity-panel-explanations"
+                  >
+                    Explanations
+                  </div>
+                  <div id="explanationExportToolbar" class="exportToolbar sidebar-action-toolbar">
+                    <button
+                      id="sidebarExplanationCopyButton"
+                      class="toolbar-icon-button sidebar-action-button"
+                      title="Copy"
+                      data-l10n-id="activity-header-copy"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                    </button>
+                    <button
+                      id="sidebarExplanationExportButton"
+                      class="toolbar-icon-button sidebar-action-button"
+                      title="Export"
+                      data-l10n-id="activity-header-export"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>
+                    </button>
+                    <div
+                      id="sidebarExplanationExportDropdown"
+                      class="exportDropdown"
+                      style="display: none"
+                    >
+                      <div
+                        id="sidebarExplanationExportMarkdown"
+                        class="exportOption"
+                      >
+                        <span data-l10n-id="activity-header-export-markdown">
+                          Export to Markdown
+                        </span>
+                        <a></a>
+                      </div>
+                      <div
+                        id="sidebarExplanationExportCSV"
+                        class="exportOption"
+                      >
+                        <span data-l10n-id="activity-header-export-csv">
+                          Export to CSV
+                        </span>
+                        <a></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    width: 100%;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    padding-bottom: 10px;
+                  "
+                >
+                  <div
+                    class="sidebar-checkbox-container"
+                    id="sidebarExplanationAllCheckboxContainer"
+                  >
+                    <div class="sidebar-checkbox">
+                      <input
+                        type="checkbox"
+                        id="sidebarExplanationAllCheckbox"
+                        checked
+                      />
+                      <label for="sidebarExplanationAllCheckbox"></label>
+                    </div>
+                    <span data-l10n-id="activity-explanation-all">All</span>
+                  </div>
+                  <div class="explanation-source-type-container">
+                    <div>
+                      <div class="sidebar-checkbox-container">
+                        <div class="sidebar-checkbox">
+                          <input
+                            type="checkbox"
+                            id="sidebarExplanationTextCheckbox"
+                            class="explanation-checkbox"
+                            data-type="text"
+                            checked
+                          />
+                          <label for="sidebarExplanationTextCheckbox"></label>
+                        </div>
+                        <span
+                          class="explanation-type text"
+                          data-l10n-id="activity-explanation-text"
+                          >Text</span
+                        >
+                      </div>
+                      <div class="sidebar-checkbox-container">
+                        <div class="sidebar-checkbox">
+                          <input
+                            type="checkbox"
+                            id="sidebarExplanationImageCheckbox"
+                            class="explanation-checkbox"
+                            data-type="image"
+                            checked
+                          />
+                          <label for="sidebarExplanationImageCheckbox"></label>
+                        </div>
+                        <span
+                          class="explanation-type image"
+                          data-l10n-id="activity-explanation-image"
+                          >Image</span
+                        >
+                      </div>
+                      <div class="sidebar-checkbox-container">
+                        <div class="sidebar-checkbox">
+                          <input
+                            type="checkbox"
+                            id="sidebarExplanationURLCheckbox"
+                            class="explanation-checkbox"
+                            data-type="url"
+                            checked
+                          />
+                          <label for="sidebarExplanationURLCheckbox"></label>
+                        </div>
+                        <span
+                          class="explanation-type url"
+                          data-l10n-id="activity-explanation-url"
+                          >URL</span
+                        >
+                      </div>
+                    </div>
+                    <div>
+                      <div class="sidebar-checkbox-container">
+                        <div class="sidebar-checkbox">
+                          <input
+                            type="checkbox"
+                            id="sidebarExplanationTableCheckbox"
+                            class="explanation-checkbox"
+                            data-type="table"
+                            checked
+                          />
+                          <label for="sidebarExplanationTableCheckbox"></label>
+                        </div>
+                        <span
+                          class="explanation-type table"
+                          data-l10n-id="activity-explanation-table"
+                          >Table</span
+                        >
+                      </div>
+                      <div class="sidebar-checkbox-container">
+                        <div class="sidebar-checkbox">
+                          <input
+                            type="checkbox"
+                            id="sidebarExplanationFormulaCheckbox"
+                            class="explanation-checkbox"
+                            data-type="formula"
+                            checked
+                          />
+                          <label
+                            for="sidebarExplanationFormulaCheckbox"
+                          ></label>
+                        </div>
+                        <span
+                          class="explanation-type formula"
+                          data-l10n-id="activity-explanation-formula"
+                          >Formula</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  id="rightSidebarExplanationSearchContainer"
+                  class="sidebar-search-container"
+                >
+                  <img
+                    src="images/table-search-icon.svg"
+                    alt="search"
+                    class="search-icon"
+                  />
+                  <input
+                    type="text"
+                    id="rightSidebarExplanationSearch"
+                    class="sidebar-search"
+                    placeholder="Search"
+                    data-l10n-id="activity-search-placeholder"
+                  />
+                  <img
+                    id="rightSidebarExplanationSearchReset"
+                    src="images/table-search-reset-icon.svg"
+                    alt="reset"
+                    class="search-reset-icon"
+                  />
+                </div>
+              </div>
+              <div
+                id="rightSidebarExplanationContent"
+                class="sidebar-content"
+              ></div>
+            </div>
+            <div class="sidebar-tab-panel" id="rightSidebarTabCitations"></div>
+            <div class="sidebar-tab-panel" id="rightSidebarTabComments">
+              <div class="sidebar-header-section">
+                <div class="header-with-copy-export">
+                  <div
+                    class="right-sidebar-tab-title"
+                    data-l10n-id="activity-panel-comments"
+                  >
+                    Comments
+                  </div>
+                  <div id="commentExportToolbar" class="exportToolbar sidebar-action-toolbar">
+                    <button
+                      id="sidebarCommentCopyButton"
+                      class="toolbar-icon-button sidebar-action-button"
+                      title="Copy"
+                      data-l10n-id="activity-header-copy"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                    </button>
+                    <button
+                      id="sidebarCommentExportButton"
+                      class="toolbar-icon-button sidebar-action-button"
+                      title="Export"
+                      data-l10n-id="activity-header-export"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>
+                    </button>
+                    <div
+                      id="sidebarCommentExportDropdown"
+                      class="exportDropdown"
+                      style="display: none"
+                    >
+                      <div
+                        id="sidebarCommentExportMarkdown"
+                        class="exportOption"
+                      >
+                        <span data-l10n-id="activity-header-export-markdown">
+                          Export to Markdown
+                        </span>
+                        <a></a>
+                      </div>
+                      <div id="sidebarCommentExportCSV" class="exportOption">
+                        <span data-l10n-id="activity-header-export-csv">
+                          Export to CSV
+                        </span>
+                        <a></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="rightToolbarSidebar">
+                  <img src="images/rightmouse.svg" alt="rightmouse" />
+                  <div>
+                    <p class="title" data-l10n-id="activity-comment-how-to-add">
+                      How to add
+                    </p>
+                    <p
+                      class="description"
+                      data-l10n-id="activity-comment-how-to-add-description"
+                    >
+                      Right-click anywhere in the paper to add a comment
+                    </p>
+                  </div>
+                </div>
+                <button id="addCommentButton" class="add-comment-button">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                  >
+                    <path
+                      d="M10.0001 4.16406V15.8307M4.16675 9.9974H15.8334"
+                      stroke="white"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div
+                id="rightSidebarCommentContent"
+                class="sidebar-content"
+              ></div>
+            </div>
+            <div class="sidebar-tab-panel" id="rightSidebarTabNote"></div>
+            <div class="sidebar-tab-panel" id="rightSidebarTabQuiz"></div>
+          </div>
+          <!-- mainContainer -->
+          <div id="dialogContainer">
+            <dialog id="passwordDialog">
+              <div class="row">
+                <label
+                  for="password"
+                  id="passwordText"
+                  data-l10n-id="pdfjs-password-label"
+                  >Enter the password to open this PDF file:</label
+                >
+              </div>
+              <div class="row">
+                <input type="password" id="password" class="toolbarField" />
+              </div>
+              <div class="buttonRow">
+                <button id="passwordCancel" class="dialogButton">
+                  <span data-l10n-id="pdfjs-password-cancel-button"
+                    >Cancel</span
+                  >
+                </button>
+                <button id="passwordSubmit" class="dialogButton">
+                  <span data-l10n-id="pdfjs-password-ok-button">OK</span>
+                </button>
+              </div>
+            </dialog>
+            <dialog id="documentPropertiesDialog">
+              <div class="row">
+                <span
+                  id="fileNameLabel"
+                  data-l10n-id="pdfjs-document-properties-file-name"
+                  >File name:</span
+                >
+                <p id="fileNameField" aria-labelledby="fileNameLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="fileSizeLabel"
+                  data-l10n-id="pdfjs-document-properties-file-size"
+                  >File size:</span
+                >
+                <p id="fileSizeField" aria-labelledby="fileSizeLabel">-</p>
+              </div>
+              <div class="separator"></div>
+              <div class="row">
+                <span
+                  id="titleLabel"
+                  data-l10n-id="pdfjs-document-properties-title"
+                  >Title:</span
+                >
+                <p id="titleField" aria-labelledby="titleLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="authorLabel"
+                  data-l10n-id="pdfjs-document-properties-author"
+                  >Author:</span
+                >
+                <p id="authorField" aria-labelledby="authorLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="subjectLabel"
+                  data-l10n-id="pdfjs-document-properties-subject"
+                  >Subject:</span
+                >
+                <p id="subjectField" aria-labelledby="subjectLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="keywordsLabel"
+                  data-l10n-id="pdfjs-document-properties-keywords"
+                  >Keywords:</span
+                >
+                <p id="keywordsField" aria-labelledby="keywordsLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="creationDateLabel"
+                  data-l10n-id="pdfjs-document-properties-creation-date"
+                  >Creation Date:</span
+                >
+                <p id="creationDateField" aria-labelledby="creationDateLabel">
+                  -
+                </p>
+              </div>
+              <div class="row">
+                <span
+                  id="modificationDateLabel"
+                  data-l10n-id="pdfjs-document-properties-modification-date"
+                  >Modification Date:</span
+                >
+                <p
+                  id="modificationDateField"
+                  aria-labelledby="modificationDateLabel"
+                >
+                  -
+                </p>
+              </div>
+              <div class="row">
+                <span
+                  id="creatorLabel"
+                  data-l10n-id="pdfjs-document-properties-creator"
+                  >Creator:</span
+                >
+                <p id="creatorField" aria-labelledby="creatorLabel">-</p>
+              </div>
+              <div class="separator"></div>
+              <div class="row">
+                <span
+                  id="producerLabel"
+                  data-l10n-id="pdfjs-document-properties-producer"
+                  >PDF Producer:</span
+                >
+                <p id="producerField" aria-labelledby="producerLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="versionLabel"
+                  data-l10n-id="pdfjs-document-properties-version"
+                  >PDF Version:</span
+                >
+                <p id="versionField" aria-labelledby="versionLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="pageCountLabel"
+                  data-l10n-id="pdfjs-document-properties-page-count"
+                  >Page Count:</span
+                >
+                <p id="pageCountField" aria-labelledby="pageCountLabel">-</p>
+              </div>
+              <div class="row">
+                <span
+                  id="pageSizeLabel"
+                  data-l10n-id="pdfjs-document-properties-page-size"
+                  >Page Size:</span
+                >
+                <p id="pageSizeField" aria-labelledby="pageSizeLabel">-</p>
+              </div>
+              <div class="separator"></div>
+              <div class="row">
+                <span
+                  id="linearizedLabel"
+                  data-l10n-id="pdfjs-document-properties-linearized"
+                  >Fast Web View:</span
+                >
+                <p id="linearizedField" aria-labelledby="linearizedLabel">-</p>
+              </div>
+              <div class="buttonRow">
+                <button id="documentPropertiesClose" class="dialogButton">
+                  <span data-l10n-id="pdfjs-document-properties-close-button"
+                    >Close</span
+                  >
+                </button>
+              </div>
+            </dialog>
+            <dialog
+              id="altTextDialog"
+              aria-labelledby="dialogLabel"
+              aria-describedby="dialogDescription"
+            >
+              <div id="altTextContainer">
+                <div id="overallDescription">
+                  <span
+                    id="dialogLabel"
+                    data-l10n-id="pdfjs-editor-alt-text-dialog-label"
+                    class="title"
+                    >Choose an option</span
+                  >
+                  <span
+                    id="dialogDescription"
+                    data-l10n-id="pdfjs-editor-alt-text-dialog-description"
+                  >
+                    Alt text (alternative text) helps when people can't see the
+                    image or when it doesn't load.
+                  </span>
+                </div>
+                <div id="addDescription">
+                  <div class="radio">
+                    <div class="radioButton">
+                      <input
+                        type="radio"
+                        id="descriptionButton"
+                        name="altTextOption"
+                        tabindex="0"
+                        aria-describedby="descriptionAreaLabel"
+                        checked
+                      />
+                      <label
+                        for="descriptionButton"
+                        data-l10n-id="pdfjs-editor-alt-text-add-description-label"
+                        >Add a description</label
+                      >
+                    </div>
+                    <div class="radioLabel">
+                      <span
+                        id="descriptionAreaLabel"
+                        data-l10n-id="pdfjs-editor-alt-text-add-description-description"
+                      >
+                        Aim for 1-2 sentences that describe the subject,
+                        setting, or actions.
+                      </span>
+                    </div>
+                  </div>
+                  <div class="descriptionArea">
+                    <textarea
+                      id="descriptionTextarea"
+                      placeholder="For example, A young man sits down at a table to eat a meal."
+                      aria-labelledby="descriptionAreaLabel"
+                      data-l10n-id="pdfjs-editor-alt-text-textarea"
+                      tabindex="0"
+                    ></textarea>
+                  </div>
+                </div>
+                <div id="markAsDecorative">
+                  <div class="radio">
+                    <div class="radioButton">
+                      <input
+                        type="radio"
+                        id="decorativeButton"
+                        name="altTextOption"
+                        aria-describedby="decorativeLabel"
+                      />
+                      <label
+                        for="decorativeButton"
+                        data-l10n-id="pdfjs-editor-alt-text-mark-decorative-label"
+                        >Mark as decorative</label
+                      >
+                    </div>
+                    <div class="radioLabel">
+                      <span
+                        id="decorativeLabel"
+                        data-l10n-id="pdfjs-editor-alt-text-mark-decorative-description"
+                      >
+                        This is used for ornamental images, like borders or
+                        watermarks.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div id="buttons">
+                  <button id="altTextCancel" tabindex="0">
+                    <span data-l10n-id="pdfjs-editor-alt-text-cancel-button"
+                      >Cancel</span
+                    >
+                  </button>
+                  <button id="altTextSave" tabindex="0">
+                    <span data-l10n-id="pdfjs-editor-alt-text-save-button"
+                      >Save</span
+                    >
+                  </button>
+                </div>
+              </div>
+            </dialog>
+            <dialog id="printServiceDialog" style="min-width: 200px">
+              <div class="row">
+                <span data-l10n-id="pdfjs-print-progress-message"
+                  >Preparing document for printing…</span
+                >
+              </div>
+              <div class="row">
+                <progress value="0" max="100"></progress>
+                <span
+                  data-l10n-id="pdfjs-print-progress-percent"
+                  data-l10n-args='{ "progress": 0 }'
+                  class="relative-progress"
+                  >0%</span
+                >
+              </div>
+              <div class="buttonRow">
+                <button id="printCancel" class="dialogButton">
+                  <span data-l10n-id="pdfjs-print-progress-close-button"
+                    >Cancel</span
+                  >
+                </button>
+              </div>
+            </dialog>
+          </div>
+          <!-- dialogContainer -->
+        </div>
+        <!-- outerContainer -->
+        <div id="printContainer"></div>
+        <div id="limitReachedContainerV2"></div>
+        <div class="toggle-container moonlight"></div>
+        <div class="add-to-library-alert-modal moonlight">
+          <div>
+            <img id="added-to-library-icon" src="images/landing-icon-add-to-library-on.svg" />
+            <img
+              id="removed-from-library-icon"
+              src="images/removed-from-library.svg"
+            />
+            <div class="add-to-library-alert-title">Added to Library</div>
+          </div>
+          <button id="library-button">
+            <span class="icon"></span>
+            <p data-l10n-id="add-to-library-alert-view-library">View Library</p>
+          </button>
+        </div>
+        <div id="select-folder-modal-wrapper"></div>
+
+        <!-- Share 버튼 클릭 시 노출되는 모달 창 -->
+        <div class="share-modal">
+          <div class="share-modal-header">
+            <div class="share-modal-title" data-l10n-id="share-modal-title">
+              Share
+            </div>
+            <img
+              class="share-modal-close"
+              src="../images/close.svg"
+              alt="close"
+            />
+          </div>
+          <div class="share-modal-content">
+            <span
+              class="share-modal-link-title"
+              data-l10n-id="share-modal-link-title"
+              >Link URL</span
+            >
+            <div class="share-modal-link-row">
+              <div class="share-modal-link-container">
+                <img src="../images/link-icon.svg" />
+                <div class="share-modal-link"></div>
+              </div>
+              <div class="share-modal-copy-button">
+                <img src="../images/share-copy-off.svg" />
+                <span data-l10n-id="share-modal-copy-button">Copy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="whats-new">
+          <div id="overlay" style="height: unset">
+            <div class="header">
+              <div class="header-left">
+                <span class="header-text" data-l10n-id="whats-new-header-text"
+                  >What's New</span
+                >
+                <span class="header-version">v1.8.25</span>
+              </div>
+              <img class="close" src="../images/close.svg" alt="close" />
+            </div>
+            <div class="body">
+              <div class="feature">
+                <div
+                  class="feature-title"
+                  data-l10n-id="whats-new-feature-1-title"
+                ></div>
+                <div
+                  style="font-size: 16px; font-weight: 500; color: #000"
+                  data-l10n-id="whats-new-feature-1-oneline"
+                ></div>
+              </div>
+              <div class="feature">
+                <div
+                  class="feature-title"
+                  data-l10n-id="whats-new-feature-2-title"
+                ></div>
+                <div
+                  style="font-size: 16px; font-weight: 500; color: #000"
+                  data-l10n-id="whats-new-feature-2-oneline"
+                ></div>
+              </div>
+            </div>
+            <div class="footer">
+              <div class="footer-left"></div>
+              <div class="footer-right">
+                <img
+                  src="images/previous-feature.svg"
+                  id="previous"
+                  alt="previous-feature"
+                />
+                <img
+                  src="images/next-feature.svg"
+                  id="next"
+                  alt="next-feature"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 캠페인 모달: 내용은 campaign.ts에서 API 데이터로 동적 렌더링 -->
+        <div id="campaign-modal">
+          <div id="campaign-overlay" class="campaign-gradient-container">
+            <div id="campaign-content">
+              <!-- 동적으로 렌더링됨 -->
+            </div>
+          </div>
+        </div>
+        <div id="user-survey"></div>
+      </div>
+    </div>
+    <!-- popUpModal이 floating 모달의 body/footer를 옮기므로, 여기에는 복원용 헤더 버튼 템플릿만 둔다. -->
+    <div id="popped-up-modal-wrapper">
+      <div class="modal-header modal-hidden">
+        <div class="modal-header-text">
+          <p class="modal-title"></p>
+        </div>
+        <div class="modal-right-header">
+          <button type="button" class="modal-window-control modal-minimize" title="Minimize" aria-label="Minimize"></button>
+        </div>
+      </div>
+    </div>
+    <div id="direct-touch-chat-wrapper">
+      <input
+        id="direct-touch-chat-input"
+        placeholder="Ask AI anything you are wondering about"
+      />
+      <img
+        id="direct-touch-chat-send"
+        src="../images/chat-send-icon.svg"
+        alt="send"
+      />
+    </div>
+    <div id="draw-toolbar">
+      <button id="draw-drag-handle">
+        <img src="../images/draw-drag-handle.svg" alt="drag-handle" />
+      </button>
+      <div class="draw-colors-wrapper"></div>
+      <div class="draw-toolbar-splitter"></div>
+      <div class="draw-strokes-wrapper"></div>
+      <div class="draw-toolbar-splitter"></div>
+      <button id="draw-erase">
+        <img src="../images/draw-erase.svg" alt="erase" />
+      </button>
+      <button id="draw-undo">
+        <img src="../images/draw-undo.svg" alt="undo" />
+      </button>
+      <button id="draw-redo">
+        <img src="../images/draw-redo.svg" alt="redo" />
+      </button>
+      <button id="draw-clear">
+        <img src="../images/draw-clear.svg" alt="clear" />
+      </button>
+      <div class="draw-toolbar-splitter"></div>
+      <button id="draw-close">
+        <img src="../images/draw-close.svg" alt="close" />
+      </button>
+    </div>
+    <div id="touch-explain-guide" class="fading-guide">
+      <img
+        src="./images/touch-explain-icon.svg"
+        alt="touch-explain-guide"
+        class="fading-guide-image"
+      />
+      <div class="fading-guide-text-wrapper">
+        <div
+          class="fading-guide-text-header"
+          data-l10n-id="touch-explain-guide"
+        >
+          Explanation
+        </div>
+        <div
+          class="fading-guide-text-description"
+          data-l10n-id="touch-explain-guide-description"
+        >
+          Drag a word or sentence in the paper.
+        </div>
+      </div>
+    </div>
+    <div id="touch-translate-guide" class="fading-guide">
+      <img
+        src="./images/touch-translate-icon.svg"
+        alt="touch-translate-guide"
+        class="fading-guide-image"
+      />
+      <div class="fading-guide-text-wrapper">
+        <div
+          class="fading-guide-text-header"
+          data-l10n-id="touch-translate-guide"
+        >
+          Translation
+        </div>
+        <div
+          class="fading-guide-text-description"
+          data-l10n-id="touch-translate-guide-description"
+        >
+          Drag a word or sentence in the paper.
+        </div>
+      </div>
+    </div>
+    <div id="welcome-modal"></div>
+    <div id="tutorial-end-modal-wrapper">
+      <div id="tutorial-end-modal">
+        <div class="tutorial-end-modal-header">
+          <img
+            src="../images/end-tutorial-checked.svg"
+            alt="Moonlight Icon"
+            class="icon"
+          />
+          <div class="tutorial-end-modal-header-text">
+            <p class="modal-title" data-l10n-id="tutorial-end-modal-title">
+              You're all set!
+            </p>
+            <p
+              class="modal-description"
+              data-l10n-id="tutorial-end-modal-description"
+            >
+              Get on your research journey with Moonlight.<br />Log in to start
+              using Moonlight to its full potential.
+            </p>
+          </div>
+        </div>
+        <div class="tutorial-end-modal-body">
+          <button class="tutorial-end-modal-body-button">
+            <span data-l10n-id="tutorial-end-modal-body-button-text"
+              >Log in</span
+            >
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="alert-modal-wrapper"></div>
+    <div id="documentLoading">
+      <img src="./images/loading.svg" alt="document-loading" />
+      <div id="documentLoadingText">0%</div>
+    </div>
+    <div id="login-modal-wrapper"></div>
+  </body>
+</html>

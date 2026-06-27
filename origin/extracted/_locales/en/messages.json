@@ -1,0 +1,44 @@
+{
+   "anyProblems": {
+      "message": "Any problems? Email us at "
+   },
+   "conflictingExtension": {
+      "message": "Moonlight is not working because you have other conflicting PDF viewers installed."
+   },
+   "deactivateOtherExtensions": {
+      "message": "Deactivate Other PDF Viewers"
+   },
+   "extDescription": {
+      "message": "Everything you need to read a paper: explanation, summary, translation, chat, and reference search."
+   },
+   "extName": {
+      "message": "Moonlight: AI Colleague for Research Papers"
+   },
+   "faqs": {
+      "message": "FAQs"
+   },
+   "homepage": {
+      "message": "Homepage"
+   },
+   "library": {
+      "message": "Library"
+   },
+   "localFileNotEnabled": {
+      "message": "Local file access is not enabled."
+   },
+   "noThanks": {
+      "message": "No Thanks"
+   },
+   "openAnyPDFLink": {
+      "message": "Open any pdf link or open a local pdf file to start using Moonlight. (Moonlight may not work if you have other PDF viewers installed.)"
+   },
+   "openSettings": {
+      "message": "Open Settings"
+   },
+   "toReadLocalPDFs": {
+      "message": "To read local PDFs with Moonlight, enable access to file URLs in the settings, and then reload the PDF."
+   },
+   "tutorial": {
+      "message": "Tutorial"
+   }
+}

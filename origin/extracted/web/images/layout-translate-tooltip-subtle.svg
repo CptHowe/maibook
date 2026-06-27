@@ -1,0 +1,47 @@
+<svg width="144" height="112" viewBox="0 0 144 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pageFill" x1="15" y1="11" x2="66" y2="98" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F8F9FA"/>
+    </linearGradient>
+    <linearGradient id="translatedFill" x1="83" y1="13" x2="132" y2="97" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F9FAFB"/>
+    </linearGradient>
+    <linearGradient id="sourceBlock" x1="24" y1="31" x2="60" y2="69" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2F3F4"/>
+      <stop offset="1" stop-color="#E0E2E4"/>
+    </linearGradient>
+    <linearGradient id="translatedBlock" x1="92" y1="30" x2="124" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F5F6"/>
+      <stop offset="1" stop-color="#E3E5E7"/>
+    </linearGradient>
+    <filter id="softShadow" x="5" y="5" width="133" height="104" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#AAACAF" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <path d="M20 14H56L68 26V92C68 95.3137 65.3137 98 62 98H20C16.6863 98 14 95.3137 14 92V20C14 16.6863 16.6863 14 20 14Z" fill="url(#pageFill)" stroke="#AAACAF" stroke-width="2.5"/>
+    <path d="M56 14V25C56 26.6569 57.3431 28 59 28H68" stroke="#AAACAF" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M26 31H57" stroke="#B9BCC0" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 4"/>
+    <path d="M26 31H57V45H26V31Z" fill="url(#sourceBlock)" fill-opacity="0.72"/>
+    <path d="M26 53H40V67H26V53Z" fill="#ECEDEF" stroke="#B9BCC0" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M45 53H59V67H45V53Z" fill="#ECEDEF" stroke="#B9BCC0" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M26 75H42" stroke="#B0B3B8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M26 83H58" stroke="#D0D2D5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M47 75H59" stroke="#B0B3B8" stroke-width="3" stroke-linecap="round"/>
+
+    <path d="M88 14H122L134 26V92C134 95.3137 131.314 98 128 98H88C84.6863 98 82 95.3137 82 92V20C82 16.6863 84.6863 14 88 14Z" fill="url(#translatedFill)" stroke="#AAACAF" stroke-width="2.5"/>
+    <path d="M122 14V25C122 26.6569 123.343 28 125 28H134" stroke="#AAACAF" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M94 31H123V45H94V31Z" fill="url(#translatedBlock)" fill-opacity="0.86"/>
+    <path d="M94 53H108V67H94V53Z" fill="#EFF0F2"/>
+    <path d="M113 53H127V67H113V53Z" fill="#EFF0F2"/>
+    <path d="M94 75H110" stroke="#B0B3B8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M94 83H126" stroke="#D0D2D5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M115 75H127" stroke="#B0B3B8" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <path d="M72 51H75.5" stroke="#AAACAF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M74 47L78 51L74 55" stroke="#AAACAF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

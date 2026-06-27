@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moonlight Popup</title>
+    <link rel="stylesheet" href="popup_style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="images/icon128.png" alt="Moonlight Icon" class="icon" />
+        <div data-l10n-id="extName">
+          Moonlight | AI Colleague for Research Papers
+        </div>
+      </div>
+      <div class="content">
+        <p>
+          <span data-l10n-id="openAnyPDFLink">
+            Open any pdf link or open a local pdf file to start using Moonlight.
+            (Moonlight may not work if you have other PDF viewers installed.)
+          </span>
+          <br />
+          <a
+            href="https://www.themoonlight.io"
+            target="_blank"
+            data-l10n-id="homepage"
+            >Homepage</a
+          >
+          |
+          <a
+            href="https://www.themoonlight.io/library"
+            target="_blank"
+            data-l10n-id="library"
+            >Library</a
+          >
+          |
+          <a
+            href="https://docs.themoonlight.io/help"
+            target="_blank"
+            data-l10n-id="faqs"
+            >User Guide</a
+          >
+          |
+          <a
+            href="https://www.themoonlight.io/welcome-to-moonlight.pdf"
+            target="_blank"
+            data-l10n-id="tutorial"
+            >Tutorial</a
+          >
+        </p>
+      </div>
+      <div id="deactivate-other-extensions" class="content">
+        <p>
+          <span class="warning-icon">!</span>
+          <b data-l10n-id="conflictingExtension">
+            >Moonlight is not working because you have other conflicting PDF
+            viewers installed.</b
+          >
+        </p>
+        <br />
+        <button
+          class="deactivate-other-extensions"
+          data-l10n-id="deactivateOtherExtensions"
+        >
+          Deactivate Other PDF Viewers
+        </button>
+      </div>
+      <div id="local-file-access-guide" class="content">
+        <p>
+          <span class="warning-icon">!</span>
+          <b data-l10n-id="localFileNotEnabled">
+            >Local file access is not enabled.</b
+          >
+        </p>
+        <p data-l10n-id="localFileAccessGuide">
+          To read local PDFs with Moonlight, enable access to file URLs in the
+          settings, and then reload the PDF.
+        </p>
+        <button class="open-settings" data-l10n-id="openSettings">
+          Open Settings
+        </button>
+      </div>
+      <div class="content contact">
+        <span data-l10n-id="anyProblems">Any problems? Email us at</span>
+        <a href="mailto:moonlight@corca.ai">moonlight@corca.ai</a>
+      </div>
+    </div>
+  </body>
+  <script src="popup.js"></script>
+</html>

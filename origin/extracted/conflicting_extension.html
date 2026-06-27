@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moonlight Popup</title>
+    <link rel="stylesheet" href="popup_style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="images/icon128.png" alt="Moonlight Icon" class="icon" />
+        <div data-l10n-id="extName">
+          Moonlight | AI Colleague for Research Papers
+        </div>
+      </div>
+      <div id="deactivate-other-extensions" class="content">
+        <p>
+          <span class="warning-icon">!</span>
+          <b data-l10n-id="conflictingExtension">
+            >Moonlight is not working because you have other conflicting PDF
+            viewers installed.</b
+          >
+        </p>
+        <br />
+        <button
+          class="deactivate-other-extensions"
+          data-l10n-id="deactivateOtherExtensions"
+        >
+          Deactivate Other PDF Viewers
+        </button>
+        <button class="no-thanks" data-l10n-id="noThanks">No Thanks</button>
+      </div>
+      <div class="content contact">
+        <span data-l10n-id="anyProblems"> Any problems? Email us at </span>
+        <a href="mailto:moonlight@corca.ai">moonlight@corca.ai</a>
+      </div>
+    </div>
+  </body>
+  <script src="popup.js"></script>
+</html>

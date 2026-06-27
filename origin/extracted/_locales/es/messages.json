@@ -1,0 +1,44 @@
+{
+   "anyProblems": {
+      "message": "¿Problemas? Envíanos un correo electrónico a "
+   },
+   "conflictingExtension": {
+      "message": "Moonlight no funciona porque tienes otros lectores de PDF instalados."
+   },
+   "deactivateOtherExtensions": {
+      "message": "Desactivar otros lectores de PDF"
+   },
+   "extDescription": {
+      "message": "Todo lo que necesitas para leer un artículo: explicación, resumen, traducción, chat y búsqueda de referencias."
+   },
+   "extName": {
+      "message": "Moonlight: Colega de AI para trabajos de investigación"
+   },
+   "faqs": {
+      "message": "Preguntas frecuentes"
+   },
+   "homepage": {
+      "message": "Página de inicio"
+   },
+   "library": {
+      "message": "Biblioteca"
+   },
+   "localFileNotEnabled": {
+      "message": "El acceso a archivos locales no está habilitado."
+   },
+   "noThanks": {
+      "message": "No gracias"
+   },
+   "openAnyPDFLink": {
+      "message": "Abra cualquier enlace de PDF o abra un archivo PDF local para comenzar a usar Moonlight. (Moonlight puede no funcionar si tiene otros lectores de PDF instalados.)"
+   },
+   "openSettings": {
+      "message": "Abrir configuraciones"
+   },
+   "toReadLocalPDFs": {
+      "message": "Para leer PDFs locales con Moonlight, habilite el acceso a URLs de archivos en las configuraciones y luego vuelva a cargar el PDF."
+   },
+   "tutorial": {
+      "message": "Tutoriales"
+   }
+}
