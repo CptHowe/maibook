@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../stores/settingsStore";
 import { invoke } from "@tauri-apps/api/core";
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                     onChange={(e) => setLanguage(e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value="zh">涓枃</option>
+                    <option value="zh">中文</option>
                     <option value="en">English</option>
                   </select>
                 </div>

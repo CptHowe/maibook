@@ -1,4 +1,4 @@
-import { useBookmarkStore } from "../stores/bookmarkStore";
+﻿import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useTranslation } from "react-i18next";
 
 interface BookmarkPanelProps {
@@ -46,7 +46,7 @@ export default function BookmarkPanel({ onJumpToPage }: BookmarkPanelProps) {
                   className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                   title={t("reader.removeBookmark")}
                 >
-                  ✕
+                  ★
                 </button>
               </div>
             ))}

@@ -1,4 +1,4 @@
-﻿use crate::models::*;
+use crate::models::*;
 use crate::repos;
 use crate::AppState;
 use tauri::State;
@@ -202,30 +202,53 @@ async fn call_api_completion(
         temperature: Some(0.7),
         max_tokens: Some(2048),
     };
-    let ep = endpoint.trim_end_matches('/');
-    let response = client
-        .post(format!("{}/chat/completions", ep))
-        .header("Authorization", format!("Bearer {}", api_key))
-        .json(&request_body)
-        .send()
-        .await
-        .map_err(|e| format!("Request failed: {}", e))?;
-    if !response.status().is_success() {
-        let status = response.status();
-        let text = response.text().await.unwrap_or_default();
-        return Err(format!("API error {}: {}", status, text));
+    let ep = endpoint.trim_end_matches('/').to_string();
+    let mut last_error = String::new();
+
+    for attempt in 0..3 {
+        if attempt > 0 {
+            let delay = std::time::Duration::from_secs(1 << (attempt - 1));
+            tokio::time::sleep(delay).await;
+        }
+
+        let response = match client
+            .post(format!("{}/chat/completions", ep))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .json(&request_body)
+            .send()
+            .await
+        {
+            Ok(resp) => resp,
+            Err(e) => {
+                last_error = format!("Request failed (attempt {}): {}", attempt + 1, e);
+                continue;
+            }
+        };
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let text = response.text().await.unwrap_or_default();
+            last_error = format!("API error {} (attempt {}): {}", status, attempt + 1, text);
+            continue;
+        }
+
+        let body: ChatCompletionResponse = match response.json().await {
+            Ok(b) => b,
+            Err(e) => {
+                last_error = format!("Parse failed (attempt {}): {}", attempt + 1, e);
+                continue;
+            }
+        };
+
+        if let Some(choice) = body.choices.into_iter().next() {
+            return Ok(choice.message.content);
+        }
+        last_error = format!("No response from model (attempt {})", attempt + 1);
     }
-    let body: ChatCompletionResponse = response
-        .json()
-        .await
-        .map_err(|e| format!("Parse failed: {}", e))?;
-    body.choices
-        .into_iter()
-        .next()
-        .map(|c| c.message.content)
-        .ok_or_else(|| "No response from model".to_string())
+
+    Err(last_error)
 }
- 
+
 #[tauri::command]
 pub async fn chat_completion(
     messages: Vec<ChatMessage>,
@@ -617,7 +640,7 @@ pub async fn export_maibook(
     use std::io::Write;
 
     let app_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
-    let db_path = app_dir.join("maibook.db");
+    let _db_path = app_dir.join("maibook.db");
 
     // Create a temporary backup copy of the DB using VACUUM INTO
     let temp_backup = app_dir.join("maibook_temp_export.db");
@@ -803,7 +826,7 @@ fn format_bibtex_entry(paper: &Paper) -> String {
 
     let author_entry = paper.authors.as_deref().unwrap_or("Unknown");
     let title_entry = &paper.title;
-    let journal_entry = paper.journal.as_deref().unwrap_or("Unknown");
+    let journal_entry = paper.journal.as_deref().unwrap_or("");
     let doi_entry = paper.doi.as_deref().unwrap_or("");
 
     let doi_line = if doi_entry.is_empty() {
@@ -812,9 +835,36 @@ fn format_bibtex_entry(paper: &Paper) -> String {
         format!("  doi     = {{{}}},\n", doi_entry)
     };
 
+    // Detect BibTeX entry type based on journal name
+    let journal_lower = journal_entry.to_lowercase();
+    let (entry_type, venue_field) = if journal_entry.is_empty() {
+        ("misc", "")
+    } else if journal_lower.contains("proc")
+        || journal_lower.contains("conference")
+        || journal_lower.contains("symposium")
+        || journal_lower.contains("workshop")
+        || journal_lower.contains("meeting")
+        || journal_lower.contains("annual")
+    {
+        ("inproceedings", "booktitle")
+    } else if journal_lower.contains("book")
+        || journal_lower.contains("press")
+        || journal_lower.contains("publisher")
+    {
+        ("book", "publisher")
+    } else {
+        ("article", "journal")
+    };
+
+    let venue_line = if venue_field.is_empty() {
+        String::new()
+    } else {
+        format!("  {:<8}= {{{}}},\n", venue_field, journal_entry)
+    };
+
     format!(
-        "@article{{{},\n  author  = {{{}}},\n  title   = {{{}}},\n  journal = {{{}}},\n  year    = {{{}}},\n{}}}",
-        citation_key, author_entry, title_entry, journal_entry, year, doi_line
+        "@{}{{{},\n  author  = {{{}}},\n  title   = {{{}}},\n{}{}  year    = {{{}}},\n}}",
+        entry_type, citation_key, author_entry, title_entry, venue_line, doi_line, year
     )
 }
 

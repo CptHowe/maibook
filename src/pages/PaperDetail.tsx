@@ -110,7 +110,7 @@ export default function PaperDetail() {
           {error}
         </div>
         <Link to="/" className="text-sm text-blue-600 hover:text-blue-800">
-          锟斤拷 Back to Library
+          ← Back to Library
         </Link>
       </div>
     );
@@ -146,7 +146,7 @@ export default function PaperDetail() {
           to="/"
           className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
-          锟斤拷 Back to Library
+          ← Back to Library
         </Link>
         <div className="flex items-center gap-2">
           <button
@@ -184,12 +184,12 @@ export default function PaperDetail() {
           <p className="mt-3 text-base text-gray-600">{paper.authors}</p>
         )}
 
-        {/* Journal 锟斤拷 Year 锟斤拷 DOI */}
+        {/* Journal · Year · DOI */}
         <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
           {paper.journal && <span>{paper.journal}</span>}
-          {paper.journal && paper.year && <span>锟斤拷</span>}
+          {paper.journal && paper.year && <span>·</span>}
           {paper.year && <span>{paper.year}</span>}
-          {(paper.journal || paper.year) && paper.doi && <span>锟斤拷</span>}
+          {(paper.journal || paper.year) && paper.doi && <span>·</span>}
           {paper.doi && (
             <a
               href={`https://doi.org/${paper.doi}`}

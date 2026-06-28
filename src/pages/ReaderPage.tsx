@@ -106,8 +106,8 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
           return;
         }
         setPaper(paper);
-        const _b64 = await invoke<string>("read_pdf_base64", { filePath: paper.file_path });
-        setPdfData(_b64);
+        const b64 = await invoke<string>("read_pdf_base64", { filePath: paper.file_path });
+        setPdfData(`data:application/pdf;base64,${b64}`);
       } catch (e) {
         setError(String(e));
       } finally {
@@ -313,7 +313,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
            }`}
             title={bookmarks.some((b) => b.page_number === pageNumber) ? t("reader.removeBookmark") : t("reader.addBookmark")}
           >
-            {bookmarks.some((b) => b.page_number === pageNumber) ? "★" : "☆"}
+{bookmarks.some((b) => b.page_number === pageNumber) ? "★" : "☆"}
           </button>
           <button
             onClick={() => setShowBookmarks((v) => !v)}

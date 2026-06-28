@@ -123,7 +123,7 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
                     className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                     title={t("common.delete")}
                   >
-                    鉁?
+                    ✕
                   </button>
                 </div>
                 {ann.selected_text && (

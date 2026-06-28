@@ -60,7 +60,7 @@ export default function PaperCard({ paper, onClick, onEditTags }: Props) {
           className="px-1.5 py-0.5 text-[10px] text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
           title="Edit tags & group"
         >
-          鉁?
+          ✎
         </button>
       </div>
       {paper.reading_progress !== null && paper.reading_progress! > 0 && (
