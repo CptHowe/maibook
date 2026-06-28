@@ -1,18 +1,21 @@
-ï»¿import { useBookmarkStore } from "../stores/bookmarkStore";
+import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useTranslation } from "react-i18next";
 
 interface BookmarkPanelProps {
   onJumpToPage?: (page: number) => void;
+  onClose: () => void;
+  onJumpToPage?: (page: number) => void;
 }
 
-export default function BookmarkPanel({ onJumpToPage }: BookmarkPanelProps) {
+export default function BookmarkPanel({ onJumpToPage, onClose }: BookmarkPanelProps) {
   const { t } = useTranslation();
   const { bookmarks, loading } = useBookmarkStore();
 
   return (
     <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
-      <div className="px-4 py-3 border-b">
+      <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("bookmarks.title")}</h2>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">?</button>
         <p className="text-xs text-gray-400 mt-0.5">{bookmarks.length} total</p>
       </div>
 
@@ -46,7 +49,7 @@ export default function BookmarkPanel({ onJumpToPage }: BookmarkPanelProps) {
                   className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                   title={t("reader.removeBookmark")}
                 >
-                  â˜…
+                  ¡ï
                 </button>
               </div>
             ))}

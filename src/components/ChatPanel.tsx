@@ -6,6 +6,7 @@ import type { ChatMessage, Conversation } from "../types";
 interface ChatPanelProps {
   paperId?: string;
   pdfText?: string;
+  onClose?: () => void;
 }
 
 export default function ChatPanel({ paperId }: ChatPanelProps) {
@@ -222,6 +223,14 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
         >
           +
         </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="text-xs text-gray-400 hover:text-gray-600 ml-1"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       <div className="flex flex-1 min-h-0">

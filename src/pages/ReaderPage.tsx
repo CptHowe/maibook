@@ -479,21 +479,21 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
         {/* Annotation Sidebar */}
        {showAnnotations && (
          <div className="w-80 border-l bg-white flex flex-col shrink-0">
-           <AnnotationPanel onJumpToPage={(page) => setPageNumber(page)} />
+           <AnnotationPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowAnnotations(false)} />
          </div>
        )}
 
         {/* Bookmark Sidebar */}
         {showBookmarks && (
           <div className="w-80 border-l bg-white flex flex-col shrink-0">
-            <BookmarkPanel onJumpToPage={(page) => setPageNumber(page)} />
+            <BookmarkPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowBookmarks(false)} />
           </div>
         )}
 
        {/* Chat Sidebar */}
         {showChat && (
           <div className="w-80 border-l bg-white flex flex-col shrink-0">
-            <ChatPanel pdfText={pdfText} />
+            <ChatPanel pdfText={pdfText} onClose={() => setShowChat(false)} />
           </div>
         )}
 

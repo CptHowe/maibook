@@ -1,4 +1,4 @@
-﻿import { useAnnotationStore } from "../stores/annotationStore";
+import { useAnnotationStore } from "../stores/annotationStore";
 import { useTranslation } from "react-i18next";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -18,7 +18,7 @@ interface AnnotationPanelProps {
   onJumpToPage?: (page: number) => void;
 }
 
-export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) {
+export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPanelProps) {
   const { t } = useTranslation();
   const getTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -47,8 +47,9 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
   return (
     <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
       {/* Header */}
-      <div className="px-4 py-3 border-b">
+      <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("annotations.title")}</h2>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">?</button>
         <p className="text-xs text-gray-400 mt-0.5">{filtered.length} total</p>
       </div>
 
@@ -123,7 +124,7 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
                     className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                     title={t("common.delete")}
                   >
-                    ✕
+                    ?
                   </button>
                 </div>
                 {ann.selected_text && (

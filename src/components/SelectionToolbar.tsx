@@ -35,7 +35,7 @@ export default function SelectionToolbar({
 
   return (
     <div
-      className="fixed z-50 flex items-center gap-1 px-2 py-1 bg-white border rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-600"
+      className="fixed z-50 flex items-center gap-1 px-2 py-1 bg-white border rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-600 selection-toolbar"
       style={{ left: toolbarLeft, top: Math.max(8, toolbarTop) }}
     >
       {/* Highlight color buttons */}
