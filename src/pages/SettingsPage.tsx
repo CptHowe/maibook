@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../stores/settingsStore";
 import { invoke } from "@tauri-apps/api/core";
@@ -7,16 +7,17 @@ import { save, open } from "@tauri-apps/plugin-dialog";
 type Tab = "api" | "general";
 
 const TARGET_LANGS = [
-  { value: "Chinese", label: "涓枃" },
+  { value: "Chinese", label: "Chinese" },
   { value: "English", label: "English" },
-  { value: "Japanese", label: "鏃ユ湰瑾? },
-  { value: "Korean", label: "???" },
-  { value: "French", label: "Fran?ais" },
+  { value: "Japanese", label: "Japanese" },
+  { value: "Korean", label: "Korean" },
+  { value: "French", label: "French" },
   { value: "German", label: "Deutsch" },
-  { value: "Spanish", label: "Espa?ol" },
-  { value: "Russian", label: "袪褍褋褋泻懈泄" },
-  { value: "Arabic", label: "???????" },
+  { value: "Spanish", label: "Spanish" },
+  { value: "Russian", label: "Russian" },
+  { value: "Arabic", label: "Arabic" },
 ];
+
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function SettingsPage() {
     apiKey, apiEndpoint, apiModel, language, theme, targetLang,
     loading, saving,
     setApiKey, setApiEndpoint, setApiModel, setLanguage, setTheme, setTargetLang,
-    load, save,
+    load, save: saveSettings,
   } = useSettingsStore();
 
   const [exporting, setExporting] = useState(false);
@@ -212,7 +213,7 @@ export default function SettingsPage() {
 
             <div className="mt-8">
               <button
-                onClick={save}
+                onClick={saveSettings}
                 disabled={saving}
                 className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
@@ -225,3 +226,7 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+
+
+

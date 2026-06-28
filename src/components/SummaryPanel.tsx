@@ -109,3 +109,5 @@ export default function SummaryPanel({ paperId, title, abstractText, onClose }: 
     </div>
   );
 }
+
+

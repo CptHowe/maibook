@@ -1,10 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { Paper } from "../types";
 import PaperCard from "../components/PaperCard";
 
+function downloadBibtex(content: string, filename = "export.bib") {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
 export default function PaperList() {
   const [papers, setPapers] = useState<Paper[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,6 +114,7 @@ export default function PaperList() {
           {importing ? "Importing..." : "Import PDF"}
         </button>
       </div>
+      </div>
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
@@ -158,13 +166,5 @@ export default function PaperList() {
     </div>
   );
 }
- import PaperCard from "../components/PaperCard";
- 
- function downloadBibtex(content: string, filename = "export.bib") {
-   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-   const url = URL.createObjectURL(blob);
-   const a = document.createElement("a");
-   a.href = url; a.download = filename; a.click();
-   URL.revokeObjectURL(url);
- }
- 
+
+

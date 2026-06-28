@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+ï»¿import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import type { Paper } from "../types";
@@ -14,7 +14,7 @@ function parseTags(tags: string | null): string[] {
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>();
-  const navigate = useNavigate();
+  
   const [paper, setPaper] = useState<Paper | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +110,7 @@ export default function PaperDetail() {
           {error}
         </div>
         <Link to="/" className="text-sm text-blue-600 hover:text-blue-800">
-          ¡û Back to Library
+          é”Ÿæ–¤æ‹· Back to Library
         </Link>
       </div>
     );
@@ -146,7 +146,7 @@ export default function PaperDetail() {
           to="/"
           className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
-          ¡û Back to Library
+          é”Ÿæ–¤æ‹· Back to Library
         </Link>
         <div className="flex items-center gap-2">
           <button
@@ -184,12 +184,12 @@ export default function PaperDetail() {
           <p className="mt-3 text-base text-gray-600">{paper.authors}</p>
         )}
 
-        {/* Journal ¡¤ Year ¡¤ DOI */}
+        {/* Journal é”Ÿæ–¤æ‹· Year é”Ÿæ–¤æ‹· DOI */}
         <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
           {paper.journal && <span>{paper.journal}</span>}
-          {paper.journal && paper.year && <span>¡¤</span>}
+          {paper.journal && paper.year && <span>é”Ÿæ–¤æ‹·</span>}
           {paper.year && <span>{paper.year}</span>}
-          {(paper.journal || paper.year) && paper.doi && <span>¡¤</span>}
+          {(paper.journal || paper.year) && paper.doi && <span>é”Ÿæ–¤æ‹·</span>}
           {paper.doi && (
             <a
               href={`https://doi.org/${paper.doi}`}
@@ -282,3 +282,4 @@ export default function PaperDetail() {
     </div>
   );
 }
+

@@ -1,6 +1,5 @@
 ﻿import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { invoke } from "@tauri-apps/api/core";
 
 interface PageTranslatePanelProps {
   onClose: () => void;
@@ -73,3 +72,4 @@ export default function PageTranslatePanel({ onClose, onTranslate }: PageTransla
     </div>
   );
 }
+

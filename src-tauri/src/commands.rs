@@ -62,7 +62,7 @@ pub fn import_pdf(state: State<'_, AppState>, file_path: String) -> Result<Paper
         year: None,
         journal: None,
         doi: None,
-        tags: if existing_tags.is_some() { None } else { meta.tags.map(|t| serde_json::to_string(&t).unwrap_or_default()) },
+        tags: None,
         group_name: None,
         file_path: path.to_string_lossy().to_string(),
         file_hash: None,
@@ -482,6 +482,7 @@ pub async fn extract_paper_metadata(
 ) -> Result<Paper, String> {
     let file_path;
     let title_hint;
+    let existing_tags;
     {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
         let paper = repos::get_paper(&conn, &paper_id)
@@ -489,7 +490,7 @@ pub async fn extract_paper_metadata(
             .ok_or_else(|| "Paper not found".to_string())?;
         file_path = paper.file_path.clone();
         title_hint = paper.title.clone();
-        let existing_tags = paper.tags.clone();
+        existing_tags = paper.tags.clone();
     }
 
     let first_page_text = extract_pdf_first_page_text(&file_path)?;
@@ -531,6 +532,8 @@ pub async fn extract_paper_metadata(
         year: Option<i32>,
         journal: Option<String>,
         doi: Option<String>,
+        #[serde(default)]
+        tags: Option<Vec<String>>,
     }
 
     let meta: ExtractedMeta = serde_json::from_str(json_str)
@@ -829,3 +832,4 @@ pub fn export_bibtex(
     }
     Ok(entries.join("\n\n"))
 }
+

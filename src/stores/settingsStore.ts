@@ -66,6 +66,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       });
       // Apply theme on load
       document.documentElement.classList.toggle("dark", (theme ?? "light") === "dark");
+      // Apply language on load
+      const lang = language ?? "zh";
+      i18n.changeLanguage(lang);
+      localStorage.setItem("maibook_language", lang);
     } finally {
       set({ loading: false });
     }
@@ -85,9 +89,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       ]);
       // Apply theme
       document.documentElement.classList.toggle("dark", s.theme === "dark");
+      // Apply language
+      i18n.changeLanguage(s.language);
+      localStorage.setItem("maibook_language", s.language);
     } finally {
       set({ saving: false });
     }
   },
 }));
+
+
 

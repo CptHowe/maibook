@@ -106,7 +106,8 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
           return;
         }
         setPaper(paper);
-        const b64 = await invoke<string>("read_pdf_base64", { filePath: paper.file_path });
+        const _b64 = await invoke<string>("read_pdf_base64", { filePath: paper.file_path });
+        setPdfData(_b64);
       } catch (e) {
         setError(String(e));
       } finally {
@@ -509,3 +510,4 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     </div>
   );
 }
+
