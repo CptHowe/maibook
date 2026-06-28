@@ -10,6 +10,9 @@ export default function PaperList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [exportingBib, setExportingBib] = useState(false);
 
   const loadPapers = useCallback(async () => {
     try {
@@ -64,10 +67,38 @@ export default function PaperList() {
       <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Library</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {papers.length} paper{papers.length !== 1 ? "s" : ""}
-          </p>
-        </div>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {papers.length} paper{papers.length !== 1 ? "s" : ""}
+        </p>
+        {selectMode && selectedIds.size > 0 && (
+          <span className="text-sm text-blue-600 ml-4">
+            {selectedIds.size} selected
+          </span>
+        )}
+       </div>
+       <div className="flex gap-2">
+        <button
+          onClick={() => {
+            if (selectMode && selectedIds.size > 0) {
+              setExportingBib(true);
+              invoke<string>("export_bibtex", { paperIds: Array.from(selectedIds) })
+                .then((bib) => downloadBibtex(bib))
+                .catch((e) => setError(String(e)))
+                .finally(() => { setExportingBib(false); setSelectMode(false); setSelectedIds(new Set()); });
+            } else {
+              setSelectMode(!selectMode);
+              setSelectedIds(new Set());
+            }
+          }}
+          disabled={exportingBib}
+          className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+        >
+          {selectMode
+            ? selectedIds.size > 0
+              ? exportingBib ? "Exporting..." : `Export BibTeX (${selectedIds.size})`
+              : "Cancel"
+            : "Export BibTeX"}
+        </button>
         <button
           onClick={handleImport}
           disabled={importing}
@@ -99,12 +130,27 @@ export default function PaperList() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {papers.map((paper) => (
+          {papers.map((paper) => (
+            <div key={paper.id} className="relative">
+              {selectMode && (
+                <input
+                  type="checkbox"
+                  className="absolute top-2 left-2 z-10 w-4 h-4 accent-blue-600 cursor-pointer"
+                  checked={selectedIds.has(paper.id)}
+                  onChange={() => {
+                    const next = new Set(selectedIds);
+                    if (next.has(paper.id)) next.delete(paper.id);
+                    else next.add(paper.id);
+                    setSelectedIds(next);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              )}
               <PaperCard
-                key={paper.id}
                 paper={paper}
                 onClick={handleCardClick}
               />
+            </div>
             ))}
           </div>
         )}
@@ -112,3 +158,13 @@ export default function PaperList() {
     </div>
   );
 }
+ import PaperCard from "../components/PaperCard";
+ 
+ function downloadBibtex(content: string, filename = "export.bib") {
+   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement("a");
+   a.href = url; a.download = filename; a.click();
+   URL.revokeObjectURL(url);
+ }
+ 

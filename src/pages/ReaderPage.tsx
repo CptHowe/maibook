@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -16,13 +16,21 @@ import { useBookmarkStore } from "../stores/bookmarkStore";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
+import TranslationPopup from "../components/TranslationPopup";
+import ExplainPopup from "../components/ExplainPopup";
+import SummaryPanel from "../components/SummaryPanel";
+import PageTranslatePanel from "../components/PageTranslatePanel";
+import SearchOverlay from "../components/SearchOverlay";
+import { useTranslation } from "react-i18next";
 export default function ReaderPage() {
+  const { t } = useTranslation();
   const { paperId } = useParams();
   const navigate = useNavigate();
   const [showChat, setShowChat] = useState(false);
  const [showAnnotations, setShowAnnotations] = useState(false);
-  const [showBookmarks, setShowBookmarks] = useState(false);
-  const { bookmarks, loadBookmarks, toggleBookmark } = useBookmarkStore();
+ const [showBookmarks, setShowBookmarks] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+ const { bookmarks, loadBookmarks, toggleBookmark } = useBookmarkStore();
  const viewerRef = useRef<HTMLDivElement>(null);
 const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
@@ -54,6 +62,16 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   pageRef.current = pageNumber;
   const [scale, setScale] = useState(1.0);
 
+  const [paper, setPaper] = useState<Paper | null>(null);
+  const pdfDocRef = useRef<pdfjs.PDFDocumentProxy | null>(null);
+  const [showTranslatePopup, setShowTranslatePopup] = useState(false);
+  const [showExplainPopup, setShowExplainPopup] = useState(false);
+  const [translatePos, setTranslatePos] = useState({ top: 0, left: 0 });
+  const [explainPos, setExplainPos] = useState({ top: 0, left: 0 });
+  const [translateText, setTranslateText] = useState("");
+  const [explainText, setExplainText] = useState("");
+  const [showSummary, setShowSummary] = useState(false);
+  const [showPageTranslate, setShowPageTranslate] = useState(false);
   // Restore reading progress on load
   useEffect(() => {
     if (!paperId || !numPages) return;
@@ -84,11 +102,11 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
       try {
         const paper = await invoke<Paper | null>("get_paper", { id: paperId });
         if (!paper) {
-          setError("Paper not found");
+          setError(t("reader.paperNotFound"));
           return;
         }
+        setPaper(paper);
         const b64 = await invoke<string>("read_pdf_base64", { filePath: paper.file_path });
-        setPdfData(`data:application/pdf;base64,${b64}`);
       } catch (e) {
         setError(String(e));
       } finally {
@@ -149,17 +167,100 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     return () => document.removeEventListener("mousedown", handler);
   }, [selection, clearSelection]);
 
+  // AI Feature handlers
+  const handleTranslate = useCallback((text: string) => {
+    const rects = selection?.rects;
+    if (rects && rects.length > 0) {
+      const minTop = Math.min(...rects.map((r) => r.top));
+      const minLeft = Math.min(...rects.map((r) => r.left));
+      setTranslatePos({ left: minLeft, top: minTop - 10 });
+    }
+    setTranslateText(text);
+    setShowTranslatePopup(true);
+  }, [selection]);
+
+  const handleExplain = useCallback((text: string) => {
+    const rects = selection?.rects;
+    if (rects && rects.length > 0) {
+      const minTop = Math.min(...rects.map((r) => r.top));
+      const minLeft = Math.min(...rects.map((r) => r.left));
+      setExplainPos({ left: minLeft, top: minTop - 10 });
+    }
+    setExplainText(text);
+    setShowExplainPopup(true);
+  }, [selection]);
+
+  const handleTranslatePage = useCallback(async (): Promise<string> => {
+    const pdf = pdfDocRef.current;
+    if (!pdf) throw new Error("PDF not loaded");
+    const page = await pdf.getPage(pageNumber);
+    const textContent = await page.getTextContent();
+    const text = textContent.items.map((item: any) => item.str ?? "").join(" ");
+    const targetLang = (await invoke<string | null>("get_setting", { key: "target_lang" })) || "Chinese";
+    return invoke<string>("translate_text", {
+      text,
+      sourceLang: "auto",
+      targetLang,
+    });
+  }, [pageNumber]);
+
+
+ // Keyboard shortcuts
+ useEffect(() => {
+   const handler = (e: KeyboardEvent) => {
+      // Ctrl/Cmd+F opens search
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+        e.preventDefault();
+        setShowSearch((v) => !v);
+        return;
+      }
+
+     // Escape closes all panels
+     if (e.key === "Escape") {
+       setShowChat(false);
+       setShowAnnotations(false);
+       setShowBookmarks(false);
+        setShowSearch(false);
+       setShowSummary(false);
+       setShowPageTranslate(false);
+       setShowTranslatePopup(false);
+       setShowExplainPopup(false);
+     }
+   };
+   window.addEventListener("keydown", handler);
+   return () => window.removeEventListener("keydown", handler);
+ }, []);
+
+  // Page navigation with arrow keys - separate effect so it responds to pageNumber/numPages changes
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // Don't navigate if user is typing in an input/textarea
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setPageNumber((p) => Math.max(1, p - 1));
+      }
+      if (e.key === "ArrowRight" && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setPageNumber((p) => Math.min(numPages, p + 1));
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [numPages]);
  if (loading)
-    return <div className="flex items-center justify-center h-full text-gray-400">Loading PDF...</div>;
+    return <div className="flex items-center justify-center h-full text-gray-400">{t("reader.loadingPdf")}</div>;
   if (error)
     return <div className="flex items-center justify-center h-full text-red-500">{error}</div>;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col dark:bg-gray-900 dark:text-gray-100">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white shrink-0">
         <button onClick={() => navigate("/")} className="text-sm text-gray-500 hover:text-gray-700">
-          &larr; Back
+          &larr; {t("reader.back")}
         </button>
         <div className="flex items-center gap-3">
           <button
@@ -189,16 +290,27 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
             disabled={pageNumber >= numPages}
             className="px-2 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-30"
           >
-            &#9654;
-          </button>
+           &#9654;
+         </button>
           <button
-            onClick={() => toggleBookmark(paperId!, pageNumber)}
+            onClick={() => setShowSearch((v) => !v)}
             className={`px-2 py-1 text-sm rounded transition-colors ${
-              bookmarks.some((b) => b.page_number === pageNumber)
-                ? "text-amber-500"
-                : "text-gray-400 hover:text-gray-600"
+              showSearch ? "bg-blue-100 text-blue-700" : "text-gray-400 hover:text-gray-600"
             }`}
-            title={bookmarks.some((b) => b.page_number === pageNumber) ? "Remove bookmark" : "Add bookmark"}
+            title={t("common.search")}
+         >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+         <button
+           onClick={() => toggleBookmark(paperId!, pageNumber)}
+           className={`px-2 py-1 text-sm rounded transition-colors ${
+             bookmarks.some((b) => b.page_number === pageNumber)
+               ? "text-amber-500"
+               : "text-gray-400 hover:text-gray-600"
+           }`}
+            title={bookmarks.some((b) => b.page_number === pageNumber) ? t("reader.removeBookmark") : t("reader.addBookmark")}
           >
             {bookmarks.some((b) => b.page_number === pageNumber) ? "★" : "☆"}
           </button>
@@ -208,7 +320,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
               showBookmarks ? "bg-amber-100 text-amber-700" : "border hover:bg-gray-50 text-gray-600"
             }`}
           >
-            Bookmark
+            {t("reader.bookmarks")}
           </button>
          <span className="text-gray-300">|</span>
           <button
@@ -217,7 +329,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
               showAnnotations ? "bg-amber-100 text-amber-700" : "border hover:bg-gray-50 text-gray-600"
             }`}
           >
-            Annotations
+            {t("reader.annotations")}
           </button>
           <button
             onClick={() => setShowChat((v) => !v)}
@@ -225,7 +337,23 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
               showChat ? "bg-blue-100 text-blue-700" : "border hover:bg-gray-50 text-gray-600"
             }`}
           >
-            AI Chat
+            {t("reader.chat")}
+          </button>
+          <button
+            onClick={() => setShowSummary((v) => !v)}
+            className={`px-3 py-1 text-sm rounded transition-colors ${
+              showSummary ? "bg-green-100 text-green-700" : "border hover:bg-gray-50 text-gray-600"
+            }`}
+          >
+            {t("reader.summary")}
+          </button>
+          <button
+            onClick={() => setShowPageTranslate((v) => !v)}
+            className={`px-3 py-1 text-sm rounded transition-colors ${
+              showPageTranslate ? "bg-blue-100 text-blue-700" : "border hover:bg-gray-50 text-gray-600"
+            }`}
+          >
+            {t("reader.translate")}
           </button>
         </div>
       </div>
@@ -242,8 +370,8 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
             {pdfData && (
               <Document
                 file={pdfData}
-                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                loading={<div className="text-gray-400 p-8">Loading page...</div>}
+                onLoadSuccess={(pdf) => { setNumPages(pdf.numPages); pdfDocRef.current = pdf; }}
+                loading={<div className="text-gray-400 p-8">{t("reader.loadingPage")}</div>}
               >
                 <div className="relative">
                   <Page pageNumber={pageNumber} scale={scale} />
@@ -265,6 +393,28 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
             selection={selection}
             paperId={paperId!}
             containerRect={viewerRef.current?.getBoundingClientRect() ?? null}
+            onTranslate={handleTranslate}
+            onExplain={handleExplain}
+          />
+        )}
+
+        {/* AI Translation Popup */}
+        {showTranslatePopup && (
+          <TranslationPopup
+            text={translateText}
+            position={translatePos}
+            onClose={() => { setShowTranslatePopup(false); clearSelection(); }}
+          />
+        )}
+
+        {/* AI Explanation Popup */}
+        {showExplainPopup && (
+          <ExplainPopup
+            text={explainText}
+            title={paper?.title ?? ""}
+            abstractText={paper?.abstract_text ?? ""}
+            position={explainPos}
+            onClose={() => { setShowExplainPopup(false); clearSelection(); }}
           />
         )}
 
@@ -273,7 +423,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20">
             <div className="bg-white rounded-lg shadow-xl p-4 w-96">
               <h3 className="text-sm font-semibold text-gray-800 mb-2">
-                {noteType === "note" ? "Add Note" : "Add Comment"}
+                {noteType === "note" ? t("reader.noteDialogTitle") : t("reader.commentDialogTitle")}
               </h3>
               {selection && (
                 <div className="mb-2 p-2 bg-gray-50 rounded text-xs text-gray-500 italic max-h-20 overflow-y-auto">
@@ -282,7 +432,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
               )}
               <textarea
                 className="w-full border rounded p-2 text-sm min-h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="Type your note here..."
+                placeholder={t("reader.notePlaceholder")}
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 autoFocus
@@ -292,14 +442,14 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
                   onClick={hideNoteInput}
                   className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={() => submitNote(paperId!)}
                   disabled={!noteText.trim()}
                   className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-40"
                 >
-                  Save
+                  {t("common.save")}
                 </button>
               </div>
             </div>
@@ -326,7 +476,36 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
             <ChatPanel />
           </div>
         )}
-      </div>
+
+        {/* Summary Sidebar */}
+        {showSummary && paper && (
+          <div className="w-80 border-l bg-white flex flex-col shrink-0">
+            <SummaryPanel
+              paperId={paperId!}
+              title={paper.title ?? ""}
+              abstractText={paper.abstract_text ?? ""}
+              onClose={() => setShowSummary(false)}
+            />
+          </div>
+        )}
+
+        {/* Page Translate Sidebar */}
+        {showPageTranslate && (
+          <div className="w-80 border-l bg-white flex flex-col shrink-0">
+            <PageTranslatePanel
+              onClose={() => setShowPageTranslate(false)}
+              onTranslate={handleTranslatePage}
+            />
+          </div>
+       )}
+     </div>
+      {showSearch && (
+       <SearchOverlay
+         pdfDoc={pdfDocRef.current}
+         onPageNav={(pageNum) => setPageNumber(pageNum)}
+         onClose={() => setShowSearch(false)}
+       />
+     )}
     </div>
   );
 }

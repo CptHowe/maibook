@@ -31,7 +31,7 @@ export default function HighlightLayer({
 
   return (
     <div
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 pointer-events-none dark:bg-gray-800 dark:border-gray-600"
       style={{ width: containerWidth, height: containerHeight }}
     >
       {pageAnnotations.map((ann) => {

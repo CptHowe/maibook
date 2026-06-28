@@ -1,4 +1,4 @@
-mod db;
+﻿mod db;
 mod models;
 mod repos;
 mod commands;
@@ -43,11 +43,16 @@ pub fn run() {
        .invoke_handler(tauri::generate_handler![
            commands::get_papers,
            commands::get_paper,
-           commands::get_recent_papers,
-           commands::import_pdf,
+          commands::get_recent_papers,
+          commands::get_papers_filtered,
+          commands::import_pdf,
            commands::delete_paper,
-           commands::update_paper_meta,
-           commands::update_reading_progress,
+          commands::update_paper_meta,
+          commands::get_all_tags,
+          commands::get_all_groups,
+          commands::set_paper_tags,
+          commands::set_paper_group,
+          commands::update_reading_progress,
            commands::pick_pdf_files,
            commands::get_app_data_dir,
            commands::get_settings,
@@ -55,6 +60,9 @@ pub fn run() {
            commands::update_setting,
            commands::read_pdf_base64,
            commands::chat_completion,
+          commands::translate_text,
+          commands::explain_text,
+          commands::summarize_paper,
             commands::get_annotations,
             commands::create_annotation,
             commands::update_annotation,
@@ -62,7 +70,21 @@ pub fn run() {
             commands::get_bookmarks,
             commands::create_bookmark,
             commands::delete_bookmark,
+          commands::get_skills,
+          commands::install_skill,
+          commands::toggle_skill,
+          commands::delete_skill,
+          commands::extract_paper_metadata,
+          commands::export_maibook,
+          commands::import_maibook,
+          commands::get_conversations,
+          commands::create_conversation,
+          commands::save_conversation_messages,
+          commands::delete_conversation,
+          commands::export_bibtex,
        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+

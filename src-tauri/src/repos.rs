@@ -33,7 +33,95 @@ pub fn get_papers(conn: &Connection) -> Result<Vec<Paper>> {
     })?.collect::<Result<Vec<_>>>()?;
     Ok(papers)
 }
+pub fn get_papers_filtered(conn: &Connection, filter: &PaperFilter) -> Result<Vec<Paper>> {
+    let mut conditions: Vec<String> = Vec::new();
+    let mut params: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
 
+    if let Some(ref search) = filter.search {
+        let s = format!("%{}%", search);
+        conditions.push(format!("(title LIKE ?{} OR authors LIKE ?{} OR abstract_text LIKE ?{})", params.len()+1, params.len()+1, params.len()+1));
+        params.push(Box::new(s));
+    }
+    if let Some(ref tag) = filter.tag {
+        conditions.push(format!("tags LIKE ?{}", params.len()+1));
+        params.push(Box::new(format!("%\"{}\"%", tag)));
+    }
+    if let Some(ref status) = filter.status {
+        conditions.push(format!("status = ?{}", params.len()+1));
+        params.push(Box::new(status.clone()));
+    }
+    if let Some(ref group) = filter.group_name {
+        conditions.push(format!("group_name = ?{}", params.len()+1));
+        params.push(Box::new(group.clone()));
+    }
+
+    let where_clause = if conditions.is_empty() {
+        String::new()
+    } else {
+        format!(" WHERE {}", conditions.join(" AND "))
+    };
+
+    // Sort
+    let sort_col = match filter.sort_by.as_deref() {
+        Some("title") => "title",
+        Some("year") => "year",
+        Some("created_at") => "created_at",
+        Some("updated_at") => "updated_at",
+        _ => "updated_at",
+    };
+    let sort_dir = match filter.sort_order.as_deref() {
+        Some("asc") | Some("ASC") => "ASC",
+        _ => "DESC",
+    };
+    let order_clause = format!(" ORDER BY {} {}", sort_col, sort_dir);
+
+    // Limit/Offset
+    let limit_clause = if let Some(limit) = filter.limit {
+        params.push(Box::new(limit));
+        if let Some(offset) = filter.offset {
+            params.push(Box::new(offset));
+            format!(" LIMIT ?{} OFFSET ?{}", params.len()-1, params.len())
+        } else {
+            format!(" LIMIT ?{}", params.len())
+        }
+    } else {
+        String::new()
+    };
+
+    let sql = format!(
+        "SELECT id, title, authors, abstract_text, year, journal, doi, tags, group_name,
+                file_path, file_hash, page_count, status, metadata_source, reading_progress,
+                created_at, updated_at
+         FROM papers{}{}{}",
+        where_clause, order_clause, limit_clause
+    );
+
+    let param_refs: Vec<&dyn rusqlite::types::ToSql> = params.iter().map(|p| p.as_ref()).collect();
+    let mut stmt = conn.prepare(&sql)?;
+    let papers = stmt.query_map(param_refs.as_slice(), |row| {
+        Ok(Paper {
+            id: row.get(0)?,
+            title: row.get(1)?,
+            authors: row.get(2)?,
+            abstract_text: row.get(3)?,
+            year: row.get(4)?,
+            journal: row.get(5)?,
+            doi: row.get(6)?,
+            tags: row.get(7)?,
+            group_name: row.get(8)?,
+            file_path: row.get(9)?,
+            file_hash: row.get(10)?,
+            page_count: row.get(11)?,
+            status: row.get(12)?,
+            metadata_source: row.get(13)?,
+            reading_progress: row.get(14)?,
+            created_at: row.get(15)?,
+            updated_at: row.get(16)?,
+        })
+    })?.collect::<Result<Vec<_>>>()?;
+    Ok(papers)
+}
+ 
 pub fn get_paper(conn: &Connection, id: &str) -> Result<Option<Paper>> {
     let mut stmt = conn.prepare(
         "SELECT id, title, authors, abstract_text, year, journal, doi, tags, group_name,
@@ -379,4 +467,35 @@ pub fn update_setting(conn: &Connection, key: &str, value: &str) -> Result<()> {
         params![key, value],
     )?;
     Ok(())
+}
+// ==================== Tags & Groups ====================
+
+pub fn get_all_tags(conn: &Connection) -> Result<Vec<String>> {
+    let mut stmt = conn.prepare(
+        "SELECT DISTINCT tags FROM papers WHERE tags IS NOT NULL AND tags != ''"
+    )?;
+    let rows = stmt.query_map([], |row| row.get::<_, String>(0))?;
+    let mut all_tags: Vec<String> = Vec::new();
+    for row in rows {
+        let tags_str = row?;
+        if let Ok(tags_vec) = serde_json::from_str::<Vec<String>>(&tags_str) {
+            for tag in tags_vec {
+                let t = tag.trim().to_lowercase();
+                if !t.is_empty() && !all_tags.contains(&t) {
+                    all_tags.push(t);
+                }
+            }
+        }
+    }
+    all_tags.sort();
+    Ok(all_tags)
+}
+
+pub fn get_all_groups(conn: &Connection) -> Result<Vec<String>> {
+    let mut stmt = conn.prepare(
+        "SELECT DISTINCT group_name FROM papers WHERE group_name IS NOT NULL AND group_name != '' ORDER BY group_name"
+    )?;
+    let groups = stmt.query_map([], |row| row.get::<_, String>(0))?
+        .collect::<Result<Vec<_>>>()?;
+    Ok(groups)
 }

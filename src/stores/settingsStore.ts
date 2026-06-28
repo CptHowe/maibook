@@ -1,5 +1,6 @@
 ﻿import { create } from "zustand";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from '@tauri-apps/api/core';
+import i18n from '../i18n';
 
 const SETTING_KEYS = {
   apiKey: "api_key",
@@ -7,6 +8,7 @@ const SETTING_KEYS = {
   apiModel: "api_model",
   language: "language",
   theme: "theme",
+  targetLang: "target_lang",
 } as const;
 
 interface SettingsState {
@@ -15,6 +17,7 @@ interface SettingsState {
   apiModel: string;
   language: string;
   theme: string;
+  targetLang: string;
   loading: boolean;
   saving: boolean;
   setApiKey: (v: string) => void;
@@ -22,6 +25,7 @@ interface SettingsState {
   setApiModel: (v: string) => void;
   setLanguage: (v: string) => void;
   setTheme: (v: string) => void;
+  setTargetLang: (v: string) => void;
   load: () => Promise<void>;
   save: () => Promise<void>;
 }
@@ -32,6 +36,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   apiModel: "gpt-4o",
   language: "zh",
   theme: "light",
+  targetLang: "Chinese",
   loading: false,
   saving: false,
 
@@ -40,6 +45,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   setApiModel: (v) => set({ apiModel: v }),
   setLanguage: (v) => set({ language: v }),
   setTheme: (v) => set({ theme: v }),
+  setTargetLang: (v) => set({ targetLang: v }),
 
   load: async () => {
     set({ loading: true });
@@ -49,14 +55,17 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           invoke<string | null>("get_setting", { key })
         )
       );
-      const [apiKey, apiEndpoint, apiModel, language, theme] = results;
+      const [apiKey, apiEndpoint, apiModel, language, theme, targetLang] = results;
       set({
         apiKey: apiKey ?? "",
         apiEndpoint: apiEndpoint ?? "https://api.openai.com/v1",
         apiModel: apiModel ?? "gpt-4o",
         language: language ?? "zh",
         theme: theme ?? "light",
+        targetLang: targetLang ?? "Chinese",
       });
+      // Apply theme on load
+      document.documentElement.classList.toggle("dark", (theme ?? "light") === "dark");
     } finally {
       set({ loading: false });
     }
@@ -72,9 +81,13 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         invoke("update_setting", { key: "api_model", value: s.apiModel }),
         invoke("update_setting", { key: "language", value: s.language }),
         invoke("update_setting", { key: "theme", value: s.theme }),
+        invoke("update_setting", { key: "target_lang", value: s.targetLang }),
       ]);
+      // Apply theme
+      document.documentElement.classList.toggle("dark", s.theme === "dark");
     } finally {
       set({ saving: false });
     }
   },
 }));
+

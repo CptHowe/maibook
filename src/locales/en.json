@@ -1,0 +1,161 @@
+﻿{
+  "app": {
+    "title": "Maibook",
+    "subtitle": "Academic Paper Reader"
+  },
+  "nav": {
+    "library": "Library",
+    "settings": "Settings",
+    "skills": "Skills"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "loading": "Loading...",
+    "delete": "Delete",
+    "close": "Close",
+    "refresh": "Refresh",
+    "search": "Search",
+    "all": "All"
+  },
+  "paperList": {
+    "title": "Paper Library",
+    "import": "+ Import",
+    "searchPlaceholder": "Search title, authors, abstract...",
+    "allStatus": "All status",
+    "unread": "Unread",
+    "reading": "Reading",
+    "read": "Read",
+    "allGroups": "All groups",
+    "sortLastUpdated": "Last updated",
+    "sortTitle": "Title",
+    "sortYear": "Year",
+    "sortDateAdded": "Date added",
+    "empty": "No papers imported yet",
+    "emptyHint": "Click Import to add PDF files",
+    "fetchMeta": "Fetch Meta",
+    "editTags": "Edit tags & group",
+    "tagDialogTitle": "Edit Tags & Group",
+    "tags": "Tags",
+    "group": "Group",
+    "groupHint": "Group name (leave empty for none)",
+    "addTag": "Add tag..."
+  },
+  "reader": {
+    "back": "Back",
+    "chat": "AI Chat",
+    "annotations": "Annotations",
+    "bookmarks": "Bookmarks",
+    "summary": "Summary",
+    "translate": "Translate",
+    "loadingPdf": "Loading PDF...",
+    "paperNotFound": "Paper not found",
+    "loadingPage": "Loading page...",
+    "noteDialogTitle": "Add Note",
+    "commentDialogTitle": "Add Comment",
+    "notePlaceholder": "Type your note here...",
+    "addBookmark": "Add bookmark",
+    "removeBookmark": "Remove bookmark"
+  },
+  "chat": {
+    "title": "AI Chat",
+    "placeholder": "Ask about this paper...",
+    "emptyHint": "Ask questions about this paper",
+    "thinking": "Thinking...",
+    "send": "Send"
+  },
+  "selection": {
+    "note": "Note",
+    "comment": "Comment",
+    "translate": "Translate",
+    "explain": "Explain",
+    "close": "Close",
+    "highlightYellow": "Yellow",
+    "highlightGreen": "Green",
+    "highlightBlue": "Blue",
+    "highlightPink": "Pink"
+  },
+  "translation": {
+    "translating": "Translating...",
+    "pageTranslate": "Page Translation",
+    "translatePage": "Translate Page",
+    "translatingPage": "Translating page...",
+    "retranslate": "Retranslate",
+    "translateHint": "Translate the current page text to your target language."
+  },
+  "explain": {
+    "title": "AI Explanation",
+    "analyzing": "Analyzing text..."
+  },
+  "summary": {
+    "title": "Summary",
+    "generate": "Generate Summary",
+    "generating": "Generating summary...",
+    "regenerate": "Regenerate",
+    "abstract": "Abstract",
+    "generateHint": "Generate an AI summary of this paper based on its title and abstract."
+  },
+  "settings": {
+    "title": "Settings",
+    "apiConfig": "API Config",
+    "general": "General",
+    "apiEndpoint": "API Endpoint",
+    "apiEndpointHint": "OpenAI-compatible API endpoint",
+    "apiKey": "API Key",
+    "model": "Model",
+    "uiLanguage": "UI Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "translation": "Translation",
+    "targetLang": "Target Language",
+    "targetLangHint": "Language for inline and page translation",
+    "save": "Save Settings",
+    "exportImport": "Export / Import",
+    "export": "Export .maibook",
+    "exporting": "Exporting...",
+    "import": "Import .maibook",
+    "importing": "Importing..."
+  },
+  "skills": {
+    "title": "Skill Hub",
+    "install": "+ Install Skill",
+    "refresh": "Refresh",
+    "empty": "No skills installed yet",
+    "emptyHint": "Click Install Skill to add AI capabilities",
+    "installTitle": "Install Skill",
+    "name": "Name",
+    "namePlaceholder": "e.g. Paper Summarizer",
+    "description": "Description",
+    "descPlaceholder": "What does this skill do?",
+    "version": "Version",
+    "versionPlaceholder": "1.0.0",
+    "author": "Author",
+    "authorPlaceholder": "Name or org",
+    "url": "URL",
+    "urlPlaceholder": "https://github.com/...",
+    "install": "Install",
+    "cancel": "Cancel",
+    "uninstall": "Uninstall",
+    "loading": "Loading skills...",
+    "byAuthor": "By {author}"
+  },
+  "annotations": {
+    "title": "Annotations",
+    "empty": "No annotations yet",
+    "allTypes": "All types",
+    "highlight": "Highlight",
+    "note": "Note",
+    "comment": "Comment",
+    "allColors": "All colors",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "pink": "Pink"
+  },
+  "bookmarks": {
+    "title": "Bookmarks",
+    "empty": "No bookmarks yet"
+  }
+}

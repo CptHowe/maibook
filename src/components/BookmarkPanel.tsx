@@ -1,22 +1,24 @@
 import { useBookmarkStore } from "../stores/bookmarkStore";
+import { useTranslation } from "react-i18next";
 
 interface BookmarkPanelProps {
   onJumpToPage?: (page: number) => void;
 }
 
 export default function BookmarkPanel({ onJumpToPage }: BookmarkPanelProps) {
+  const { t } = useTranslation();
   const { bookmarks, loading } = useBookmarkStore();
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
       <div className="px-4 py-3 border-b">
-        <h2 className="text-sm font-semibold text-gray-800">Bookmarks</h2>
+        <h2 className="text-sm font-semibold text-gray-800">{t("bookmarks.title")}</h2>
         <p className="text-xs text-gray-400 mt-0.5">{bookmarks.length} total</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="p-4 text-xs text-gray-400 text-center">Loading...</div>
+          <div className="p-4 text-xs text-gray-400 text-center">{t("common.loading")}</div>
         ) : bookmarks.length === 0 ? (
           <div className="p-4 text-xs text-gray-400 text-center">
             No bookmarks yet. Click the bookmark icon in the toolbar to add one.
@@ -42,7 +44,7 @@ export default function BookmarkPanel({ onJumpToPage }: BookmarkPanelProps) {
                     store.deleteBookmark(bm.id);
                   }}
                   className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Remove bookmark"
+                  title={t("reader.removeBookmark")}
                 >
                   ✕
                 </button>

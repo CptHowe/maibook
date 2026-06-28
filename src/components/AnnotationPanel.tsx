@@ -1,4 +1,5 @@
 import { useAnnotationStore } from "../stores/annotationStore";
+import { useTranslation } from "react-i18next";
 
 const TYPE_LABELS: Record<string, string> = {
   highlight: "Highlight",
@@ -18,6 +19,15 @@ interface AnnotationPanelProps {
 }
 
 export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) {
+  const { t } = useTranslation();
+  const getTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      highlight: t("annotations.highlight"),
+      note: t("annotations.note"),
+      comment: t("annotations.comment"),
+    };
+    return labels[type] ?? type;
+  };
   const {
     annotations,
     loading,
@@ -35,10 +45,10 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
   });
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
       {/* Header */}
       <div className="px-4 py-3 border-b">
-        <h2 className="text-sm font-semibold text-gray-800">Annotations</h2>
+        <h2 className="text-sm font-semibold text-gray-800">{t("annotations.title")}</h2>
         <p className="text-xs text-gray-400 mt-0.5">{filtered.length} total</p>
       </div>
 
@@ -48,7 +58,7 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
           onClick={() => setFilterType(null)}
           className={`text-xs px-2 py-0.5 rounded ${!filterType ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
         >
-          All
+          {t("annotations.allTypes")}
         </button>
         {["highlight", "note", "comment"].map((type) => (
           <button
@@ -58,7 +68,7 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
               filterType === type ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
-            {TYPE_LABELS[type]}
+            {getTypeLabel(type)}
           </button>
         ))}
       </div>
@@ -80,11 +90,11 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
       {/* Annotation list */}
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="p-4 text-xs text-gray-400 text-center">Loading...</div>
+          <div className="p-4 text-xs text-gray-400 text-center">{t("common.loading")}</div>
         ) : filtered.length === 0 ? (
           <div className="p-4 text-xs text-gray-400 text-center">
             {annotations.length === 0
-              ? "No annotations yet. Select text in the PDF to create one."
+              ? t("annotations.empty")
               : "No annotations match the current filter."}
           </div>
         ) : (
@@ -97,7 +107,7 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-gray-500 uppercase">
-                      {TYPE_LABELS[ann.annotation_type] ?? ann.annotation_type}
+                      {getTypeLabel(ann.annotation_type)}
                     </span>
                     {ann.color && (
                       <span
@@ -111,7 +121,7 @@ export default function AnnotationPanel({ onJumpToPage }: AnnotationPanelProps) 
                   <button
                     onClick={() => deleteAnnotation(ann.id)}
                     className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Delete"
+                    title={t("common.delete")}
                   >
                     ✕
                   </button>
