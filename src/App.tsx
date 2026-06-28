@@ -13,9 +13,9 @@ export default function App() {
   const { t } = useTranslation();
 
   const navItems = [
-    { to: "/", label: t("nav.library"), icon: "??" },
-    { to: "/settings", label: t("nav.settings"), icon: "??" },
-    { to: "/skills", label: t("nav.skills"), icon: "??" },
+    { to: "/", label: t("nav.library"), icon: "\u{1F4DA}" },
+    { to: "/settings", label: t("nav.settings"), icon: "\u2699" },
+    { to: "/skills", label: t("nav.skills"), icon: "\u2726" },
   ];
 
   return (
