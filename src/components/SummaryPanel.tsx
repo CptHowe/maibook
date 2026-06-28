@@ -6,6 +6,7 @@ interface SummaryPanelProps {
   paperId: string;
   title: string;
   abstractText: string;
+  pdfText?: string;
   onClose: () => void;
 }
 
@@ -23,7 +24,7 @@ export default function SummaryPanel({ paperId, title, abstractText, onClose }: 
       const result = await invoke<string>("summarize_paper", {
         title,
         abstractText: abstractText || "No abstract available.",
-        fullText: "",
+        fullText: pdfText || "",
       });
       setSummary(result);
     } catch (e) {

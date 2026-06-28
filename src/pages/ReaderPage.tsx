@@ -56,6 +56,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   }, [paperId, loadAnnotations]);
 
  const [pdfData, setPdfData] = useState<string | null>(null);
+  const [pdfText, setPdfText] = useState("");
   const [numPages, setNumPages] = useState(0);
  const [pageNumber, setPageNumber] = useState(1);
   const pageRef = useRef(pageNumber);
@@ -191,7 +192,25 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     setShowExplainPopup(true);
   }, [selection]);
 
-  const handleTranslatePage = useCallback(async (): Promise<string> => {
+    // Extract text from PDF for AI context
+  const extractPdfText = useCallback(async () => {
+    const pdf = pdfDocRef.current;
+    if (!pdf) return "";
+    const totalPages = pdf.numPages;
+    const maxPages = Math.min(totalPages, 20);
+    const texts: string[] = [];
+    for (let i = 1; i <= maxPages; i++) {
+      try {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str ?? "").join(" ");
+        texts.push(`[Page ${i}]\n${pageText}`);
+      } catch {}
+    }
+    return texts.join("\n\n");
+  }, []);
+
+const handleTranslatePage = useCallback(async (): Promise<string> => {
     const pdf = pdfDocRef.current;
     if (!pdf) throw new Error("PDF not loaded");
     const page = await pdf.getPage(pageNumber);
@@ -371,7 +390,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
             {pdfData && (
               <Document
                 file={pdfData}
-                onLoadSuccess={(pdf) => { setNumPages(pdf.numPages); pdfDocRef.current = pdf; }}
+                onLoadSuccess={async (pdf) => { setNumPages(pdf.numPages); pdfDocRef.current = pdf; const text = await extractPdfText(); if (text) setPdfText(text); }}
                 loading={<div className="text-gray-400 p-8">{t("reader.loadingPage")}</div>}
               >
                 <div className="relative">
@@ -474,7 +493,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
        {/* Chat Sidebar */}
         {showChat && (
           <div className="w-80 border-l bg-white flex flex-col shrink-0">
-            <ChatPanel />
+            <ChatPanel pdfText={pdfText} />
           </div>
         )}
 
@@ -485,6 +504,7 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
               paperId={paperId!}
               title={paper.title ?? ""}
               abstractText={paper.abstract_text ?? ""}
+              pdfText={pdfText}
               onClose={() => setShowSummary(false)}
             />
           </div>
