@@ -9,7 +9,7 @@ interface ChatPanelProps {
   onClose?: () => void;
 }
 
-export default function ChatPanel({ paperId }: ChatPanelProps) {
+export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -69,7 +69,7 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
       const nextNum = conversations.length + 1;
       const conv = await invoke<Conversation>("create_conversation", {
         paperId,
-        title: `eԻ?${nextNum}`,
+        title: `Conversation ${nextNum}`,
       });
       setConversations((prev) => [...prev, conv]);
       setActiveConvId(conv.id);

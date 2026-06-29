@@ -774,9 +774,14 @@ pub fn create_conversation(
     let id = uuid::Uuid::new_v4().to_string();
     let data = CreateConversation { paper_id, title };
     repos::create_conversation(&conn, &id, &data).map_err(|e| e.to_string())?;
-    // Return the newly created conversation
-    let convs = repos::get_conversations(&conn, Some(&id)).map_err(|e| e.to_string())?;
-    convs.into_iter().next().ok_or_else(|| "Failed to retrieve created conversation".to_string())
+    Ok(Conversation {
+        id,
+        paper_id: data.paper_id,
+        title: data.title,
+        messages: "[]".to_string(),
+        created_at: String::new(),
+        updated_at: String::new(),
+    })
 }
 
 #[tauri::command]

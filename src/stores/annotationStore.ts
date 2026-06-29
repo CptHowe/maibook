@@ -85,7 +85,9 @@ export const useAnnotationStore = create<AnnotationStore>((set, get) => ({
     set({ noteText: text });
   },
 
-  submitNote: async (paperId: string) => {
+ submitNote: async (paperId: string) => {
+    const { selection, noteText, noteType } = get();
+    try {
       // Auto-highlight if there is selected text
       if (selection) {
         await invoke("create_annotation", {
@@ -99,12 +101,8 @@ export const useAnnotationStore = create<AnnotationStore>((set, get) => ({
           extraData: null,
         });
       }
-  submitNote: async (paperId: string) => {
-    const { selection, noteText, noteType } = get();
-    try {
       await invoke("create_annotation", {
         paperId,
-      // Then create the note/comment
         pageNumber: selection?.pageNumber ?? null,
         color: null,
         rects: selection ? JSON.stringify(selection.rects) : null,

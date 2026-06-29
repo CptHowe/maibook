@@ -46,7 +46,7 @@ export default function SummaryPanel({ paperId, title, abstractText, pdfText, on
           onClick={onClose}
           className="text-xs text-gray-400 hover:text-gray-600"
         >
-          ?
+          ×
         </button>
       </div>
 
