@@ -122,6 +122,18 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) return;
     const range = sel.getRangeAt(0);
+    // Get page container position to convert rects from viewport to container coordinates
+    const viewerEl = viewerRef.current;
+    let containerLeft = 0;
+    let containerTop = 0;
+    if (viewerEl) {
+      const pageContainer = viewerEl.querySelector('.\x72elative') as HTMLElement | null;
+      if (pageContainer) {
+        const containerRect = pageContainer.getBoundingClientRect();
+        containerLeft = containerRect.left;
+        containerTop = containerRect.top;
+      }
+    }
     const rects: DOMRect[] = [];
     for (let i = 0; i < range.getClientRects().length; i++) {
       rects.push(range.getClientRects()[i]);
@@ -130,8 +142,8 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const selectionInfo: SelectionInfo = {
       text: sel.toString().trim(),
       rects: rects.map((r) => ({
-        left: r.left,
-        top: r.top,
+        left: r.left - containerLeft,
+        top: r.top - containerTop,
         width: r.width,
         height: r.height,
       })),

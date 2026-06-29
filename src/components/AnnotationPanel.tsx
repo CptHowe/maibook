@@ -16,6 +16,7 @@ const TYPE_COLORS: Record<string, string> = {
 
 interface AnnotationPanelProps {
   onJumpToPage?: (page: number) => void;
+  onClose?: () => void;
 }
 
 export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPanelProps) {
