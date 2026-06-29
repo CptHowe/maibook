@@ -274,7 +274,7 @@ pub async fn translate_text(
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
-    } }
+    }
     let system_prompt = format!(
         "You are a professional translator. Translate the following text from {} to {}. Return ONLY the translation, no explanations, no notes, no quotes.",
         source_lang, target_lang
@@ -334,7 +334,7 @@ pub async fn summarize_paper(
     let model: String;
     let language: String;
     {
-        let conne.db.lock().map_err(|e| e.to_string())?;
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
