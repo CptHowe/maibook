@@ -173,7 +173,9 @@ const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   // Click outside to clear selection
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (selection && !(e.target as HTMLElement).closest(".selection-toolbar")) {
+      if (selection &&
+          !(e.target as HTMLElement).closest(".selection-toolbar") &&
+          !(e.target as HTMLElement).closest(".note-dialog")) {
         clearSelection();
       }
     };
@@ -452,7 +454,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
 
         {/* Note/Comment Dialog */}
         {showNoteDialog && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 note-dialog">
             <div className="bg-white rounded-lg shadow-xl p-4 w-96">
               <h3 className="text-sm font-semibold text-gray-800 mb-2">
                 {noteType === "note" ? t("reader.noteDialogTitle") : t("reader.commentDialogTitle")}
@@ -505,7 +507,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
        {/* Chat Sidebar */}
         {showChat && (
           <div className="w-80 border-l bg-white flex flex-col shrink-0">
-            <ChatPanel pdfText={pdfText} onClose={() => setShowChat(false)} />
+            <ChatPanel paperId={paperId!} pdfText={pdfText} onClose={() => setShowChat(false)} />
           </div>
         )}
 

@@ -69,7 +69,7 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
       const nextNum = conversations.length + 1;
       const conv = await invoke<Conversation>("create_conversation", {
         paperId,
-        title: `¶Ô»° ${nextNum}`,
+        title: `eÔ»?${nextNum}`,
       });
       setConversations((prev) => [...prev, conv]);
       setActiveConvId(conv.id);
@@ -269,7 +269,7 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
                   onClick={(e) => { e.stopPropagation(); handleDeleteConversation(conv.id); }}
                   className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0 leading-none px-0.5"
                 >
-                  ¡Á
+                  Ã—
                 </button>
               </div>
             ))}
