@@ -30,11 +30,12 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
   };
 
   const saveCurrentMessages = async () => {
-    if (!activeConvId) return;
+    const convId = activeConvIdRef.current;
+    if (!convId) return;
     try {
       await invoke("save_conversation_messages", {
-        id: activeConvId,
-        messages: JSON.stringify(messages),
+        id: convId,
+        messages: JSON.stringify(messagesRef.current),
       });
     } catch (e) {
       console.error("Failed to save messages:", e);
@@ -136,6 +137,23 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
     if (!text || loading) return;
     setInput("");
 
+    let currentConvId = activeConvIdRef.current;
+    if (!currentConvId && paperId) {
+      try {
+        const nextNum = conversations.length + 1;
+        const conv = await invoke<Conversation>("create_conversation", {
+          paperId,
+          title: `Conversation ${nextNum}`,
+        });
+        setConversations((prev) => [...prev, conv]);
+        setActiveConvId(conv.id);
+        activeConvIdRef.current = conv.id;
+        currentConvId = conv.id;
+      } catch (e) {
+        console.error("Failed to create conversation:", e);
+      }
+    }
+
     const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
@@ -158,6 +176,13 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
       });
 
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+
+      if (currentConvId) {
+        invoke("save_conversation_messages", {
+          id: currentConvId,
+          messages: JSON.stringify([...messages, userMsg, { role: "assistant", content: reply }]),
+        }).catch(() => {});
+      }
     } catch (e) {
       setMessages((prev) => [...prev, { role: "assistant", content: `Error: ${String(e)}` }]);
     } finally {
