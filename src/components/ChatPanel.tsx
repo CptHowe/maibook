@@ -237,7 +237,7 @@ export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps)
         </div>
 
         <div className="p-3 border-t bg-white">
-          <div className="flex gap-2">
+          <div className="flex gap-2 -mr-3">
             <input
               type="text"
               value={input}
@@ -346,7 +346,7 @@ export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps)
           </div>
 
           <div className="p-3 border-t bg-white">
-            <div className="flex gap-2">
+            <div className="flex gap-2 -mr-3">
               <input
                 type="text"
                 value={input}
