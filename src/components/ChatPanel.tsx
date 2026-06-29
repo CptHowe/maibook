@@ -9,7 +9,7 @@ interface ChatPanelProps {
   onClose?: () => void;
 }
 
-export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
+export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
