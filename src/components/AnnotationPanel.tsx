@@ -98,11 +98,12 @@ export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPan
         ) : (
           <div className="divide-y">
             {filtered.map((ann) => (
-              <div key={ann.id} className="px-4 py-3 hover:bg-gray-50 group">
-                <div
-                  className="flex items-center justify-between cursor-pointer"
-                  onClick={() => onJumpToPage?.(ann.page_number ?? 1)}
-                >
+              <div
+                key={ann.id}
+                className="px-4 py-3 hover:bg-gray-50 group cursor-pointer"
+                onClick={() => onJumpToPage?.(ann.page_number ?? 1)}
+              >
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-gray-500 uppercase">
                       {getTypeLabel(ann.annotation_type)}
@@ -117,7 +118,7 @@ export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPan
                     </span>
                   </div>
                   <button
-                    onClick={() => deleteAnnotation(ann.id)}
+                    onClick={(e) => { e.stopPropagation(); deleteAnnotation(ann.id); }}
                     className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                     title={t("common.delete")}
                   >
