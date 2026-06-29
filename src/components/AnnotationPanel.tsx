@@ -50,7 +50,7 @@ export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPan
       {/* Header */}
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("annotations.title")}</h2>
-        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">{"\u00D7"}</button>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">×</button>
         <p className="text-xs text-gray-400 mt-0.5">{filtered.length} total</p>
       </div>
 
@@ -124,8 +124,8 @@ export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPan
                     onClick={() => deleteAnnotation(ann.id)}
                     className="text-xs text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                     title={t("common.delete")}
-                    {"\u00D7"}
-                    ?
+                  >
+                    ×
                   </button>
                 </div>
                 {ann.selected_text && (
