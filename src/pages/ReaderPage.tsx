@@ -400,7 +400,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
           className="flex-1 bg-gray-100 min-w-0"
           onMouseUp={handleSelection}
         >
-          <div className="flex justify-center py-4 overflow-auto min-h-0">
+          <div className="flex justify-center py-4 overflow-auto h-full min-h-0">
             {pdfData && (
               <Document
                 file={pdfData}
