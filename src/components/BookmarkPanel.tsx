@@ -12,7 +12,7 @@ export default function BookmarkPanel({ onJumpToPage, onClose }: BookmarkPanelPr
   const { bookmarks, loading } = useBookmarkStore();
 
   return (
-    <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
+    <div className="flex flex-col flex-1 min-h-0 dark:bg-gray-800 dark:border-gray-700">
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("bookmarks.title")}</h2>
         <div className="flex items-center gap-3">
