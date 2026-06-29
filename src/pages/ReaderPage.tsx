@@ -502,7 +502,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
 
        {/* Chat Sidebar */}
         {showChat && (
-          <div className="w-96 border-l bg-white flex flex-col shrink-0">
+          <div className="w-[429px] border-l bg-white flex flex-col shrink-0">
             <ChatPanel paperId={paperId!} pdfText={pdfText} onClose={() => setShowChat(false)} />
           </div>
         )}
