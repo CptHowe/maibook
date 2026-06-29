@@ -38,7 +38,7 @@ export default function SummaryPanel({ paperId, title, abstractText, pdfText, on
   };
 
   return (
-    <div className="w-80 border-l bg-white flex flex-col shrink-0 dark:bg-gray-800 dark:border-gray-600">
+    <div className="w-80 border-l bg-white flex flex-col flex-1 min-h-0 dark:bg-gray-800 dark:border-gray-600">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <h2 className="text-sm font-semibold text-gray-700">{t("summary.title")}</h2>

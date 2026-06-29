@@ -103,6 +103,7 @@ export const useAnnotationStore = create<AnnotationStore>((set, get) => ({
       }
       await invoke("create_annotation", {
         paperId,
+        annotationType: noteType,
         pageNumber: selection?.pageNumber ?? null,
         color: null,
         rects: selection ? JSON.stringify(selection.rects) : null,

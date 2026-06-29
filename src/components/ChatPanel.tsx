@@ -253,14 +253,14 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
             onClick={onClose}
           className="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
           >
-            ?
+            ×
           </button>
         )}
       </div>
 
       <div className="flex flex-1 min-h-0">
         {/* Left sidebar: conversation list */}
-        <div className="w-44 border-r bg-gray-50 flex flex-col shrink-0">
+        <div className="w-36 border-r bg-gray-50 flex flex-col shrink-0">
           <div className="flex-1 overflow-auto">
             {conversations.map((conv) => (
               <div
