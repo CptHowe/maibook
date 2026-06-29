@@ -15,8 +15,10 @@ export default function BookmarkPanel({ onJumpToPage, onClose }: BookmarkPanelPr
     <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("bookmarks.title")}</h2>
-        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">×</button>
-        <p className="text-xs text-gray-400 mt-0.5">{bookmarks.length} total</p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-gray-400">{bookmarks.length} total</p>
+          <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">×</button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -24,7 +26,7 @@ export default function BookmarkPanel({ onJumpToPage, onClose }: BookmarkPanelPr
           <div className="p-4 text-xs text-gray-400 text-center">{t("common.loading")}</div>
         ) : bookmarks.length === 0 ? (
           <div className="p-4 text-xs text-gray-400 text-center">
-            No bookmarks yet. Click the bookmark icon in the toolbar to add one.
+            {t("bookmarks.empty")}
           </div>
         ) : (
           <div className="divide-y">

@@ -1,12 +1,6 @@
 import { useAnnotationStore } from "../stores/annotationStore";
 import { useTranslation } from "react-i18next";
 
-const TYPE_LABELS: Record<string, string> = {
-  highlight: "Highlight",
-  note: "Note",
-  comment: "Comment",
-};
-
 const TYPE_COLORS: Record<string, string> = {
   yellow: "bg-yellow-300",
   green: "bg-green-400",
@@ -50,8 +44,10 @@ export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPan
       {/* Header */}
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("annotations.title")}</h2>
-        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">×</button>
-        <p className="text-xs text-gray-400 mt-0.5">{filtered.length} total</p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-gray-400">{filtered.length} total</p>
+          <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">×</button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -97,7 +93,7 @@ export default function AnnotationPanel({ onJumpToPage, onClose }: AnnotationPan
           <div className="p-4 text-xs text-gray-400 text-center">
             {annotations.length === 0
               ? t("annotations.empty")
-              : "No annotations match the current filter."}
+              : t("annotations.filterEmpty")}
           </div>
         ) : (
           <div className="divide-y">

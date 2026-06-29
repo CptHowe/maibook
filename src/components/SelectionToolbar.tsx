@@ -89,7 +89,7 @@ export default function SelectionToolbar({
         className="px-1 py-1 text-xs text-gray-400 hover:text-gray-600"
         title={t("selection.close")}
       >
-        ✕
+        ×
       </button>
     </div>
   );

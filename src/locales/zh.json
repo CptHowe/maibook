@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "title": "Maibook",
     "subtitle": "学术论文阅读器"
@@ -120,7 +120,7 @@
   },
   "skills": {
     "title": "技能中心",
-    "install": "+ 安装技能",
+    "install": "安装",
     "refresh": "刷新",
     "empty": "还没有安装技能",
     "emptyHint": "点击安装技能添加 AI 能力",
@@ -135,7 +135,6 @@
     "authorPlaceholder": "姓名或组织",
     "url": "URL",
     "urlPlaceholder": "https://github.com/...",
-    "install": "安装",
     "cancel": "取消",
     "uninstall": "卸载",
     "loading": "加载技能中...",
@@ -152,10 +151,11 @@
     "yellow": "黄色",
     "green": "绿色",
     "blue": "蓝色",
-    "pink": "粉色"
+    "pink": "粉色",
+    "filterEmpty": "当前筛选条件下没有标注。"
   },
   "bookmarks": {
     "title": "书签",
-    "empty": "还没有书签"
+    "empty": "没有书签。点击工具栏中的星标为当前页面添加书签。"
   }
 }

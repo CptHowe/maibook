@@ -34,7 +34,7 @@ export default function PageTranslatePanel({ paperId, onClose, onTranslate }: Pa
     <div className="w-80 border-l bg-white flex flex-col shrink-0 dark:bg-gray-800 dark:border-gray-600">
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <h2 className="text-sm font-semibold text-gray-700">{t("translation.pageTranslate")}</h2>
-        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">✕</button>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">×</button>
       </div>
       <div className="flex-1 overflow-auto p-4">
         {!translation && !loading && !error && (

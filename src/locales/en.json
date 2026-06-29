@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "title": "Maibook",
     "subtitle": "Academic Paper Reader"
@@ -135,7 +135,6 @@
     "authorPlaceholder": "Name or org",
     "url": "URL",
     "urlPlaceholder": "https://github.com/...",
-    "install": "Install",
     "cancel": "Cancel",
     "uninstall": "Uninstall",
     "loading": "Loading skills...",
@@ -152,10 +151,11 @@
     "yellow": "Yellow",
     "green": "Green",
     "blue": "Blue",
-    "pink": "Pink"
+    "pink": "Pink",
+    "filterEmpty": "No annotations match the current filter."
   },
   "bookmarks": {
     "title": "Bookmarks",
-    "empty": "No bookmarks yet"
+    "empty": "No bookmarks yet. Click the star icon in the toolbar to bookmark a page."
   }
 }

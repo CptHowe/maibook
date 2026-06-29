@@ -490,19 +490,15 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
           </div>
         )}
 
-        {/* Annotation Sidebar */}
-       {showAnnotations && (
-         <div className="w-80 border-l bg-white flex flex-col shrink-0">
-           <AnnotationPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowAnnotations(false)} />
-         </div>
-       )}
+       {/* Annotation Sidebar */}
+        <div className={`w-80 border-l bg-white flex flex-col shrink-0 ${!showAnnotations && 'hidden'}`}>
+          <AnnotationPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowAnnotations(false)} />
+        </div>
 
-        {/* Bookmark Sidebar */}
-        {showBookmarks && (
-          <div className="w-80 border-l bg-white flex flex-col shrink-0">
-            <BookmarkPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowBookmarks(false)} />
-          </div>
-        )}
+       {/* Bookmark Sidebar */}
+        <div className={`w-80 border-l bg-white flex flex-col shrink-0 ${!showBookmarks && 'hidden'}`}>
+          <BookmarkPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowBookmarks(false)} />
+        </div>
 
        {/* Chat Sidebar */}
         {showChat && (
