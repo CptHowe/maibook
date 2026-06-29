@@ -1,4 +1,4 @@
-ï»¿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import type { ChatMessage, Conversation } from "../types";
@@ -69,7 +69,7 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
       const nextNum = conversations.length + 1;
       const conv = await invoke<Conversation>("create_conversation", {
         paperId,
-        title: `å¯¹è¯ ${nextNum}`,
+        title: `¶Ô»° ${nextNum}`,
       });
       setConversations((prev) => [...prev, conv]);
       setActiveConvId(conv.id);
@@ -145,10 +145,8 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
       const endpoint = (await invoke<string | null>("get_setting", { key: "api_endpoint" })) || "https://api.openai.com/v1";
       const model = (await invoke<string | null>("get_setting", { key: "api_model" })) || "gpt-4o";
 
-            const contextMsgs = pdfText
-        ? [{ role: "system", content: "You are analyzing an academic paper. Here is the full text content of the paper for context:
-
-" + pdfText }]
+      const contextMsgs = pdfText
+        ? [{ role: "system", content: "You are analyzing an academic paper. Here is the full text content of the paper for context:\n\n" + pdfText }]
         : [];
       const reply = await invoke<string>("chat_completion", {
         messages: [...contextMsgs, ...messages, userMsg],
@@ -247,7 +245,7 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
             onClick={onClose}
             className="text-xs text-gray-400 hover:text-gray-600 ml-1"
           >
-            âœ•
+            ?
           </button>
         )}
       </div>
@@ -271,7 +269,7 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
                   onClick={(e) => { e.stopPropagation(); handleDeleteConversation(conv.id); }}
                   className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0 leading-none px-0.5"
                 >
-                  Ã—
+                  ¡Á
                 </button>
               </div>
             ))}
