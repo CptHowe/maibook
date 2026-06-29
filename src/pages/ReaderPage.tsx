@@ -500,12 +500,10 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
           <BookmarkPanel onJumpToPage={(page) => setPageNumber(page)} onClose={() => setShowBookmarks(false)} />
         </div>
 
-       {/* Chat Sidebar */}
-        {showChat && (
-          <div className="w-[429px] border-l bg-white flex flex-col shrink-0">
+      {/* Chat Sidebar */}
+          <div className={`w-[429px] border-l bg-white flex flex-col shrink-0 ${showChat ? "" : "hidden"}`}>
             <ChatPanel paperId={paperId!} pdfText={pdfText} onClose={() => setShowChat(false)} />
           </div>
-        )}
 
         {/* Summary Sidebar */}
         {showSummary && paper && (

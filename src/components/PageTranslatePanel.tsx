@@ -1,5 +1,7 @@
 ﻿import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useReaderStore } from "../stores/readerStore";
 
 interface PageTranslatePanelProps {
@@ -57,8 +59,8 @@ export default function PageTranslatePanel({ paperId, onClose, onTranslate }: Pa
         )}
         {error && <div className="text-red-500 text-xs p-3 bg-red-50 rounded">{error}</div>}
         {translation && (
-          <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-            {translation}
+          <div className="text-sm text-gray-800 leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{translation}</ReactMarkdown>
           </div>
         )}
       </div>

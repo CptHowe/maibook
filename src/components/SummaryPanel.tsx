@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { invoke } from "@tauri-apps/api/core";
 import { useReaderStore } from "../stores/readerStore";
 
@@ -83,17 +85,8 @@ export default function SummaryPanel({ paperId, title, abstractText, pdfText, on
         )}
 
         {summary && (
-          <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed space-y-2">
-            {summary.split("\n").map((line, i) => {
-              if (line.startsWith("**") && line.endsWith("**")) {
-                return <p key={i} className="font-semibold text-gray-900 mt-3">{line.replace(/\*\*/g, "")}</p>;
-              }
-              if (line.match(/^\d+\.\s/)) {
-                return <p key={i} className="ml-2">{line}</p>;
-              }
-              if (line.trim() === "") return <div key={i} className="h-1" />;
-              return <p key={i}>{line}</p>;
-            })}
+          <div className="text-sm text-gray-800 leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{summary}</ReactMarkdown>
           </div>
         )}
       </div>

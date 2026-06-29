@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { invoke } from "@tauri-apps/api/core";
 import type { ChatMessage, Conversation } from "../types";
 
@@ -217,13 +219,13 @@ export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps)
           {messages.map((msg, i) => (
             <div
               key={i}
-              className={`text-sm p-3 rounded-lg ${
+              className={`text-sm p-3 rounded-lg max-w-full break-words ${
                 msg.role === "user"
                   ? "bg-blue-50 text-blue-900 ml-4 shadow-sm"
                   : "bg-gray-50 text-gray-800 mr-4 shadow-sm"
               }`}
             >
-              {msg.content}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
             </div>
           ))}
           {loading && (
@@ -265,14 +267,16 @@ export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps)
     <div className="flex flex-col flex-1 min-h-0 dark:bg-gray-800 dark:border-gray-700">
       {/* Header with title and [+] new conversation button */}
       <div className="px-4 py-3 border-b bg-white flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-800">{t("chat.title")}</h2>
-        <button
-          onClick={handleNewConversation}
-          className="w-6 h-6 flex items-center justify-center text-sm border rounded hover:bg-gray-50 text-gray-500 transition-colors"
-          title="New conversation"
-        >
-          +
-        </button>
+        <div className="flex items-center gap-1.5">
+          <h2 className="text-sm font-semibold text-gray-800">{t("chat.title")}</h2>
+          <button
+            onClick={handleNewConversation}
+            className="w-6 h-6 flex items-center justify-center text-sm border rounded hover:bg-gray-50 text-gray-500 transition-colors"
+            title="New conversation"
+          >
+            +
+          </button>
+        </div>
         {onClose && (
           <button
             onClick={onClose}
@@ -319,7 +323,7 @@ export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps)
         </div>
 
         {/* Right side: messages + input */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
           <div ref={listRef} className="flex-1 overflow-auto p-3 space-y-3">
             {messages.length === 0 && (
               <p className="text-xs text-gray-400 text-center pt-6">
@@ -329,13 +333,13 @@ export default function ChatPanel({ paperId, pdfText, onClose }: ChatPanelProps)
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`text-sm p-3 rounded-lg ${
+                className={`text-sm p-3 rounded-lg max-w-full break-words ${
                   msg.role === "user"
                     ? "bg-blue-50 text-blue-900 ml-4 shadow-sm"
                     : "bg-gray-50 text-gray-800 mr-4"
                 }`}
               >
-                {msg.content}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
               </div>
             ))}
             {loading && (
