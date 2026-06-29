@@ -268,12 +268,15 @@ pub async fn translate_text(
 ) -> Result<String, String> {
     let api_key: String;
     let endpoint: String;
-    let model: String;
+   let model: String;
+    let language: String;
     {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
+        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
+        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
     }
     let system_prompt = format!(
         "You are a professional translator. Translate the following text from {} to {}. Return ONLY the translation, no explanations, no notes, no quotes.",
@@ -296,20 +299,24 @@ pub async fn explain_text(
     let api_key: String;
     let endpoint: String;
     let model: String;
+    let language: String;
     {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
+        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
     }
     let abs = if abstract_text.is_empty() { "Not provided".to_string() } else { abstract_text };
+    let lang_label = if language == "zh" { "Chinese" } else { "English" };
     let system_prompt = format!(
         "You are a research assistant helping the user understand an academic paper. \
          Provide a clear, concise explanation of the selected text in the context of the paper.\n\
          Paper title: {}\nAbstract: {}\n\n\
          Explain the selected text, including relevant background, methodology, and significance. \
-         Keep the explanation accessible but technically accurate.",
-        title, abs
+         Keep the explanation accessible but technically accurate.\n\
+         IMPORTANT: Respond in the user's language: {}.",
+        title, abs, lang_label
     );
     let messages = vec![
         ChatMessage { role: "system".to_string(), content: system_prompt },
@@ -328,16 +335,22 @@ pub async fn summarize_paper(
     let api_key: String;
     let endpoint: String;
     let model: String;
+    let language: String;
     {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
+        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
     }
-    let system_prompt = "You are a research assistant. Generate a concise but comprehensive summary of the following paper. \
+    let lang_label = if language == "zh" { "Chinese" } else { "English" };
+    let system_prompt = format!(
+        "You are a research assistant. Generate a concise but comprehensive summary of the following paper. \
         Include: (1) Research problem and motivation, (2) Methods/approach, (3) Key findings and results, \
-        (4) Conclusions and implications. Keep the summary well-structured with markdown headings but avoid fluff."
-        .to_string();
+        (4) Conclusions and implications. Keep the summary well-structured with markdown headings but avoid fluff.\n\
+        IMPORTANT: Respond in the user's language: {}.",
+        lang_label
+    );
     let user_content = if full_text.len() > 30000 {
         format!(
             "Title: {}\n\nAbstract:\n{}\n\nFull Text (truncated to 30000 chars):\n{}",
@@ -526,6 +539,7 @@ pub async fn extract_paper_metadata(
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
+        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
     }
 
     let system_prompt = "You are a research paper metadata extractor. Given the first page text of an academic paper, extract the following fields and return them as JSON. Do NOT include any text outside the JSON object.\n\nFields:\n- title: string\n- authors: string (comma-separated)\n- abstract_text: string (the abstract, if found)\n- year: number (publication year, or null)\n- journal: string (journal/conference name, or null)\n- doi: string (DOI, or null)\n\nRespond with ONLY a valid JSON object, no other text.".to_string();

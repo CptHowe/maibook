@@ -145,8 +145,10 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
       const endpoint = (await invoke<string | null>("get_setting", { key: "api_endpoint" })) || "https://api.openai.com/v1";
       const model = (await invoke<string | null>("get_setting", { key: "api_model" })) || "gpt-4o";
 
+      const languageSetting = (await invoke<string | null>("get_setting", { key: "language" }).catch(() => null)) || "en";
+      const langLabel = languageSetting === "zh" ? "Chinese" : "English";
       const contextMsgs = pdfText
-        ? [{ role: "system", content: "You are analyzing an academic paper. Here is the full text content of the paper for context:\n\n" + pdfText }]
+        ? [{ role: "system", content: "You are analyzing an academic paper. Here is the full text content of the paper for context:\n\n" + pdfText + "\nIMPORTANT: Respond in " + langLabel + "." }]
         : [];
       const reply = await invoke<string>("chat_completion", {
         messages: [...contextMsgs, ...messages, userMsg],
