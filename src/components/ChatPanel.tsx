@@ -182,25 +182,31 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
 
         <div ref={listRef} className="flex-1 overflow-auto p-3 space-y-3">
           {messages.length === 0 && (
-            <p className="text-xs text-gray-400 text-center pt-6">
-              {t("chat.emptyHint")}
-            </p>
+          <div className="flex flex-col items-center justify-center pt-10 text-center">
+            <svg className="w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <p className="text-xs text-gray-400">{t("chat.emptyHint")}</p>
+          </div>
           )}
           {messages.map((msg, i) => (
             <div
               key={i}
               className={`text-sm p-3 rounded-lg ${
                 msg.role === "user"
-                  ? "bg-blue-50 text-blue-900 ml-4"
-                  : "bg-gray-50 text-gray-800 mr-4"
+                  ? "bg-blue-50 text-blue-900 ml-4 shadow-sm"
+                  : "bg-gray-50 text-gray-800 mr-4 shadow-sm"
               }`}
             >
               {msg.content}
             </div>
           ))}
           {loading && (
-            <div className="text-sm p-3 rounded-lg bg-gray-50 text-gray-400 mr-4 animate-pulse">
-              Thinking...
+            <div className="flex items-center gap-1.5 text-sm p-3 rounded-lg bg-gray-50 text-gray-400 mr-4">
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '300ms'}} />
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '600ms'}} />
+              <span className="ml-1 text-xs">{t("chat.thinking")}</span>
             </div>
           )}
         </div>
@@ -234,7 +240,7 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
     <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
       {/* Header with title and [+] new conversation button */}
       <div className="px-4 py-3 border-b bg-white flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700">AI Chat</h2>
+        <h2 className="text-sm font-semibold text-gray-800">{t("chat.title")}</h2>
         <button
           onClick={handleNewConversation}
           className="w-6 h-6 flex items-center justify-center text-sm border rounded hover:bg-gray-50 text-gray-500 transition-colors"
@@ -245,7 +251,7 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
         {onClose && (
           <button
             onClick={onClose}
-            className="text-xs text-gray-400 hover:text-gray-600 ml-1"
+          className="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
           >
             ?
           </button>
@@ -254,16 +260,16 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
 
       <div className="flex flex-1 min-h-0">
         {/* Left sidebar: conversation list */}
-        <div className="w-36 border-r bg-gray-50 flex flex-col overflow-auto shrink-0">
+        <div className="w-44 border-r bg-gray-50 flex flex-col shrink-0">
           <div className="flex-1 overflow-auto">
             {conversations.map((conv) => (
               <div
                 key={conv.id}
                 onClick={() => handleSelectConversation(conv)}
-                className={`group flex items-center justify-between px-2 py-2 text-xs cursor-pointer border-b ${
+                className={`group flex items-center justify-between px-3 py-2.5 text-xs cursor-pointer border-b transition-colors duration-150 ${
                   conv.id === activeConvId
-                    ? "bg-blue-50 text-blue-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-blue-50 text-blue-700 font-medium border-l-2 border-l-blue-500"
+                    : "text-gray-600 hover:bg-gray-100 border-l-2 border-l-transparent"
                 }`}
               >
                 <span className="truncate flex-1 min-w-0">{conv.title || "Untitled"}</span>
@@ -276,7 +282,13 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
               </div>
             ))}
             {conversations.length === 0 && (
-              <p className="text-xs text-gray-400 text-center pt-4 px-2">No conversations</p>
+          <div className="flex flex-col items-center justify-center pt-6 px-3 text-center">
+            <svg className="w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <p className="text-xs text-gray-400">No conversations</p>
+            <p className="text-xs text-gray-300 mt-1">Click + to start a new chat</p>
+          </div>
             )}
           </div>
         </div>
@@ -294,7 +306,7 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
                 key={i}
                 className={`text-sm p-3 rounded-lg ${
                   msg.role === "user"
-                    ? "bg-blue-50 text-blue-900 ml-4"
+                    ? "bg-blue-50 text-blue-900 ml-4 shadow-sm"
                     : "bg-gray-50 text-gray-800 mr-4"
                 }`}
               >
@@ -303,7 +315,7 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
             ))}
             {loading && (
               <div className="text-sm p-3 rounded-lg bg-gray-50 text-gray-400 mr-4 animate-pulse">
-                Thinking...
+                {t("chat.thinking")}
               </div>
             )}
           </div>
