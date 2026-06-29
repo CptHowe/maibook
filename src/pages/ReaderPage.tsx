@@ -397,7 +397,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
        {/* PDF Viewer */}
         <div
           ref={viewerRef}
-          className="flex-1 overflow-auto bg-gray-100"
+          className="flex-1 overflow-auto bg-gray-100 min-w-0"
           onMouseUp={handleSelection}
         >
           <div className="flex justify-center py-4">
