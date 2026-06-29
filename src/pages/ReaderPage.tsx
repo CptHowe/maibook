@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -290,7 +290,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
     return <div className="flex items-center justify-center h-full text-red-500">{error}</div>;
 
   return (
-    <div className="h-full flex flex-col dark:bg-gray-900 dark:text-gray-100">
+    <div className="h-full flex flex-col min-w-0 dark:bg-gray-900 dark:text-gray-100">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white shrink-0">
         <button onClick={() => navigate("/")} className="text-sm text-gray-500 hover:text-gray-700">
@@ -393,14 +393,14 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
       </div>
 
       {/* Main area: PDF viewer + Chat sidebar */}
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex min-h-0 min-w-0">
        {/* PDF Viewer */}
         <div
           ref={viewerRef}
-          className="flex-1 overflow-auto bg-gray-100 min-w-0"
+          className="flex-1 bg-gray-100 min-w-0"
           onMouseUp={handleSelection}
         >
-          <div className="flex justify-center py-4">
+          <div className="flex justify-center py-4 overflow-auto min-h-0">
             {pdfData && (
               <Document
                 file={pdfData}
