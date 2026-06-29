@@ -106,11 +106,30 @@ export default function ChatPanel({ paperId }: ChatPanelProps) {
     }
   };
 
+  // Track latest values in refs for cleanup
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+  const activeConvIdRef = useRef(activeConvId);
+  activeConvIdRef.current = activeConvId;
+
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Save messages when component unmounts (sidebar closed)
+  useEffect(() => {
+    return () => {
+      const convId = activeConvIdRef.current;
+      if (convId) {
+        invoke("save_conversation_messages", {
+          id: convId,
+          messages: JSON.stringify(messagesRef.current),
+        }).catch(() => {});
+      }
+    };
+  }, []);
 
   const handleSend = async () => {
     const text = input.trim();

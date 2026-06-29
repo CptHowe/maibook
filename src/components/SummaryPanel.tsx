@@ -1,6 +1,7 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
+import { useReaderStore } from "../stores/readerStore";
 
 interface SummaryPanelProps {
   paperId: string;
@@ -10,9 +11,10 @@ interface SummaryPanelProps {
   onClose: () => void;
 }
 
-export default function SummaryPanel({ paperId, title, abstractText, onClose }: SummaryPanelProps) {
+export default function SummaryPanel({ paperId, title, abstractText, pdfText, onClose }: SummaryPanelProps) {
   const { t } = useTranslation();
-  const [summary, setSummary] = useState<string | null>(null);
+  const { summaryCache, setSummaryCache } = useReaderStore();
+  const [summary, setSummary] = useState<string | null>(summaryCache[paperId] || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +29,7 @@ export default function SummaryPanel({ paperId, title, abstractText, onClose }: 
         fullText: pdfText || "",
       });
       setSummary(result);
+      setSummaryCache(paperId, result);
     } catch (e) {
       setError(String(e));
     } finally {
@@ -43,7 +46,7 @@ export default function SummaryPanel({ paperId, title, abstractText, onClose }: 
           onClick={onClose}
           className="text-xs text-gray-400 hover:text-gray-600"
         >
-          ✕
+          ?
         </button>
       </div>
 

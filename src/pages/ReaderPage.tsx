@@ -514,6 +514,7 @@ const handleTranslatePage = useCallback(async (): Promise<string> => {
         {showPageTranslate && (
           <div className="w-80 border-l bg-white flex flex-col shrink-0">
             <PageTranslatePanel
+              paperId={paperId!}
               onClose={() => setShowPageTranslate(false)}
               onTranslate={handleTranslatePage}
             />

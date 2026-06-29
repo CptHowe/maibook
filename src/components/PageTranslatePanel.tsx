@@ -1,14 +1,17 @@
 ﻿import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useReaderStore } from "../stores/readerStore";
 
 interface PageTranslatePanelProps {
+  paperId: string;
   onClose: () => void;
   onTranslate: () => Promise<string>;
 }
 
-export default function PageTranslatePanel({ onClose, onTranslate }: PageTranslatePanelProps) {
+export default function PageTranslatePanel({ paperId, onClose, onTranslate }: PageTranslatePanelProps) {
   const { t } = useTranslation();
-  const [translation, setTranslation] = useState<string | null>(null);
+  const { translationCache, setTranslationCache } = useReaderStore();
+  const [translation, setTranslation] = useState<string | null>(translationCache[paperId] || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,6 +22,7 @@ export default function PageTranslatePanel({ onClose, onTranslate }: PageTransla
     try {
       const result = await onTranslate();
       setTranslation(result);
+      setTranslationCache(paperId, result);
     } catch (e) {
       setError(String(e));
     } finally {
