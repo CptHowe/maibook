@@ -268,16 +268,13 @@ pub async fn translate_text(
 ) -> Result<String, String> {
     let api_key: String;
     let endpoint: String;
-   let model: String;
-    let language: String;
+    let model: String;
     {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
-        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
-        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
-    }
+    } }
     let system_prompt = format!(
         "You are a professional translator. Translate the following text from {} to {}. Return ONLY the translation, no explanations, no notes, no quotes.",
         source_lang, target_lang
@@ -337,7 +334,7 @@ pub async fn summarize_paper(
     let model: String;
     let language: String;
     {
-        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        let conne.db.lock().map_err(|e| e.to_string())?;
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
@@ -539,7 +536,6 @@ pub async fn extract_paper_metadata(
         api_key = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
         endpoint = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
         model = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
-        language = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
     }
 
     let system_prompt = "You are a research paper metadata extractor. Given the first page text of an academic paper, extract the following fields and return them as JSON. Do NOT include any text outside the JSON object.\n\nFields:\n- title: string\n- authors: string (comma-separated)\n- abstract_text: string (the abstract, if found)\n- year: number (publication year, or null)\n- journal: string (journal/conference name, or null)\n- doi: string (DOI, or null)\n\nRespond with ONLY a valid JSON object, no other text.".to_string();
