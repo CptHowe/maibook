@@ -175,7 +175,7 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
   // Simple single-panel mode when no paperId is provided
   if (!paperId) {
     return (
-      <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
+      <div className="flex flex-col flex-1 min-h-0 dark:bg-gray-800 dark:border-gray-700">
         <div className="px-4 py-3 border-b bg-white">
           <h2 className="text-sm font-semibold text-gray-700">{t("chat.title")}</h2>
         </div>
@@ -237,7 +237,7 @@ export default function ChatPanel({ paperId, onClose }: ChatPanelProps) {
 
   // Two-column layout when paperId is provided
   return (
-    <div className="flex flex-col h-full dark:bg-gray-800 dark:border-gray-700">
+    <div className="flex flex-col flex-1 min-h-0 dark:bg-gray-800 dark:border-gray-700">
       {/* Header with title and [+] new conversation button */}
       <div className="px-4 py-3 border-b bg-white flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-800">{t("chat.title")}</h2>
