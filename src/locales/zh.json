@@ -108,6 +108,7 @@
     "theme": "主题",
     "light": "浅色",
     "dark": "深色",
+    "appearance": "外观",
     "translation": "翻译",
     "targetLang": "目标语言",
     "targetLangHint": "行内翻译和页面翻译的目标语言",

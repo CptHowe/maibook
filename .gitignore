@@ -33,3 +33,6 @@ src-tauri/target/
 # Rust toolchain (local copies inside project)
 .cargo/
 .rustup/
+
+# Reverse-engineered Moonlight Chrome extension source
+/outdoor/

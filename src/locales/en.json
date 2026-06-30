@@ -1,12 +1,11 @@
 {
-  "app": {
-    "title": "Maibook",
-    "subtitle": "Academic Paper Reader"
-  },
   "nav": {
     "library": "Library",
     "settings": "Settings",
     "skills": "Skills"
+  },
+  "app": {
+    "subtitle": "AI Paper Reading Assistant"
   },
   "common": {
     "cancel": "Cancel",
@@ -55,46 +54,7 @@
     "noteDialogTitle": "Add Note",
     "commentDialogTitle": "Add Comment",
     "notePlaceholder": "Type your note here...",
-    "addBookmark": "Add bookmark",
-    "removeBookmark": "Remove bookmark"
-  },
-  "chat": {
-    "title": "AI Chat",
-    "placeholder": "Ask about this paper...",
-    "emptyHint": "Ask questions about this paper",
-    "thinking": "Thinking...",
-    "send": "Send"
-  },
-  "selection": {
-    "note": "Note",
-    "comment": "Comment",
-    "translate": "Translate",
-    "explain": "Explain",
-    "close": "Close",
-    "highlightYellow": "Yellow",
-    "highlightGreen": "Green",
-    "highlightBlue": "Blue",
-    "highlightPink": "Pink"
-  },
-  "translation": {
-    "translating": "Translating...",
-    "pageTranslate": "Page Translation",
-    "translatePage": "Translate Page",
-    "translatingPage": "Translating page...",
-    "retranslate": "Retranslate",
-    "translateHint": "Translate the current page text to your target language."
-  },
-  "explain": {
-    "title": "AI Explanation",
-    "analyzing": "Analyzing text..."
-  },
-  "summary": {
-    "title": "Summary",
-    "generate": "Generate Summary",
-    "generating": "Generating summary...",
-    "regenerate": "Regenerate",
-    "abstract": "Abstract",
-    "generateHint": "Generate an AI summary of this paper based on its title and abstract."
+    "addBookmark": "Add bookmark"
   },
   "settings": {
     "title": "Settings",
@@ -108,6 +68,7 @@
     "theme": "Theme",
     "light": "Light",
     "dark": "Dark",
+    "appearance": "Appearance",
     "translation": "Translation",
     "targetLang": "Target Language",
     "targetLangHint": "Language for inline and page translation",
