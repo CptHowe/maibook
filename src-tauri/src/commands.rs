@@ -33,55 +33,68 @@ pub fn get_papers_filtered(
 }
  
 #[tauri::command]
-pub fn import_pdf(state: State<'_, AppState>, file_path: String) -> Result<Paper, String> {
-    let path = std::path::Path::new(&file_path);
-
-    if !path.exists() {
-        return Err(format!("File not found: {}", file_path));
-    }
-
-    // Extract title from filename
-    let title = path
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("Untitled")
-        .to_string();
-
-    // Count PDF pages
-    let page_count = lopdf::Document::load(&file_path)
-        .ok()
-        .map(|doc| doc.get_pages().len() as i32);
-
-    let id = uuid::Uuid::new_v4().to_string();
-
-    let paper = Paper {
-        id: id.clone(),
-        title,
-        authors: None,
-        abstract_text: None,
-        year: None,
-        journal: None,
-        doi: None,
-        tags: None,
-        group_name: None,
-        file_path: path.to_string_lossy().to_string(),
-        file_hash: None,
-        page_count,
-        status: Some("unread".to_string()),
-        metadata_source: None,
-        reading_progress: Some(0.0),
-        created_at: String::new(),
-        updated_at: String::new(),
-    };
-
-    let conn = state.db.lock().map_err(|e| e.to_string())?;
-    repos::insert_paper(&conn, &paper).map_err(|e| e.to_string())?;
-
-    // Read back with auto-generated timestamps
-    repos::get_paper(&conn, &id)
-        .map_err(|e| e.to_string())?
-        .ok_or_else(|| "Failed to retrieve imported paper".to_string())
-}
+     pub fn import_pdf(app: tauri::AppHandle, state: State<'_, AppState>, file_path: String, copy_file: Option<bool>) -> Result<Paper, String> {
+         let path = std::path::Path::new(&file_path);
+ 
+         if !path.exists() {
+             return Err(format!("File not found: {}", file_path));
+         }
+ 
+         // Extract title from filename
+         let title = path
+             .file_stem()
+             .and_then(|s| s.to_str())
+             .unwrap_or("Untitled")
+             .to_string();
+ 
+         // Count PDF pages
+         let page_count = lopdf::Document::load(&file_path)
+             .ok()
+             .map(|doc| doc.get_pages().len() as i32);
+ 
+         let id = uuid::Uuid::new_v4().to_string();
+ 
+         // Determine final file path: copy to app data if requested
+         let final_path = if copy_file.unwrap_or(false) {
+             use tauri::Manager;
+             let app_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+             let pdfs_dir = app_dir.join("imported_pdfs");
+             std::fs::create_dir_all(&pdfs_dir).map_err(|e| e.to_string())?;
+             let dest = pdfs_dir.join(format!("{}.pdf", id));
+             std::fs::copy(&file_path, &dest).map_err(|e| format!("Failed to copy PDF: {}", e))?;
+             dest.to_string_lossy().to_string()
+         } else {
+             path.to_string_lossy().to_string()
+         };
+ 
+         let paper = Paper {
+             id: id.clone(),
+             title,
+             authors: None,
+             abstract_text: None,
+             year: None,
+             journal: None,
+             doi: None,
+             tags: None,
+             group_name: None,
+             file_path: final_path,
+             file_hash: None,
+             page_count,
+             status: Some("unread".to_string()),
+             metadata_source: None,
+             reading_progress: Some(0.0),
+             created_at: String::new(),
+             updated_at: String::new(),
+         };
+ 
+         let conn = state.db.lock().map_err(|e| e.to_string())?;
+         repos::insert_paper(&conn, &paper).map_err(|e| e.to_string())?;
+ 
+         // Read back with auto-generated timestamps
+         repos::get_paper(&conn, &id)
+             .map_err(|e| e.to_string())?
+             .ok_or_else(|| "Failed to retrieve imported paper".to_string())
+     }
 
 #[tauri::command]
 pub fn delete_paper(state: State<'_, AppState>, id: String) -> Result<(), String> {

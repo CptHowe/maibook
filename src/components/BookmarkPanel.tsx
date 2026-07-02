@@ -1,11 +1,10 @@
 import { useBookmarkStore } from "../stores/bookmarkStore";
 import { useTranslation } from "react-i18next";
 
-interface BookmarkPanelProps {
-  onJumpToPage?: (page: number) => void;
-  onClose: () => void;
-  onJumpToPage?: (page: number) => void;
-}
+ interface BookmarkPanelProps {
+   onJumpToPage?: (page: number) => void;
+   onClose: () => void;
+ }
 
 export default function BookmarkPanel({ onJumpToPage, onClose }: BookmarkPanelProps) {
   const { t } = useTranslation();

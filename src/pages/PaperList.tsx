@@ -19,7 +19,8 @@ export default function PaperList() {
   const [importing, setImporting] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [exportingBib, setExportingBib] = useState(false);
+   const [copyFile, setCopyFile] = useState(false);
+   const [exportingBib, setExportingBib] = useState(false);
 
   const loadPapers = useCallback(async () => {
     try {
@@ -52,7 +53,7 @@ export default function PaperList() {
 
       setImporting(true);
       for (const filePath of paths) {
-        await invoke("import_pdf", { filePath });
+         await invoke("import_pdf", { filePath, copyFile });
       }
       await loadPapers();
     } catch (e) {
@@ -84,7 +85,16 @@ export default function PaperList() {
         )}
        </div>
        <div className="flex gap-2">
-        <button
+         <label className="flex items-center gap-1.5 text-sm text-gray-500 cursor-pointer select-none">
+           <input
+             type="checkbox"
+             checked={copyFile}
+             onChange={(e) => setCopyFile(e.target.checked)}
+             className="w-3.5 h-3.5 accent-blue-600"
+           />
+           Copy to app data
+         </label>
+         <button
           onClick={() => {
             if (selectMode && selectedIds.size > 0) {
               setExportingBib(true);
