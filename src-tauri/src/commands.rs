@@ -1,4 +1,4 @@
-use crate::models::*;
+﻿use crate::models::*;
 use crate::repos;
 use crate::AppState;
 use tauri::State;
@@ -155,45 +155,105 @@ pub fn get_app_data_dir(app: tauri::AppHandle) -> Result<String, String> {
 
 // ==================== Model Fetch ====================
 
-#[derive(serde::Deserialize)]
-struct ModelsListResponse {
-    data: Vec<ModelEntry>,
-}
-
-#[derive(serde::Deserialize)]
-struct ModelEntry {
-    id: String,
-}
-
 #[tauri::command]
 pub async fn fetch_models(
     api_key: String,
     endpoint: String,
+    vendor: Option<String>,
 ) -> Result<Vec<String>, String> {
     let client = reqwest::Client::new();
     let ep = endpoint.trim_end_matches('/');
     let url = format!("{}/models", ep);
 
-    let response = client
-        .get(&url)
-        .header("Authorization", format!("Bearer {}", api_key))
-        .send()
-        .await
-        .map_err(|e| format!("Request failed: {}", e))?;
+    let mut last_error = String::new();
+    for attempt in 0..2 {
+        if attempt > 0 {
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        }
 
-    if !response.status().is_success() {
+        let response = match client
+            .get(&url)
+            .header("Authorization", format!("Bearer {}", api_key))
+            .send()
+            .await
+        {
+            Ok(r) => r,
+            Err(e) => {
+                last_error = format!("Request failed: {}", e);
+                continue;
+            }
+        };
+
         let status = response.status();
-        let text = response.text().await.unwrap_or_default();
-        return Err(format!("API error {}: {}", status, text));
+        let body_text = response.text().await.unwrap_or_default();
+
+        if status == 429 {
+            last_error = format!("Rate limited (429). Please wait and try again.");
+            continue;
+        }
+
+        if !status.is_success() {
+            return Err(format!("API error {}: {}", status, truncate_str(&body_text, 400)));
+        }
+
+        let raw: serde_json::Value = serde_json::from_str(&body_text)
+            .map_err(|e| format!("JSON parse failed: {}. Body: {}", e, truncate_str(&body_text, 200)))?;
+
+        match extract_model_ids(&raw, vendor.as_deref()) {
+            Ok(ids) if !ids.is_empty() => return Ok(ids),
+            Ok(_) => {
+                last_error = format!("No models found in response. Raw: {}", truncate_str(&body_text, 300));
+                continue;
+            }
+            Err(e) => { last_error = e; continue; }
+        }
     }
 
-    let body: ModelsListResponse = response
-        .json()
-        .await
-        .map_err(|e| format!("Parse response failed: {}", e))?;
+    Err(last_error)
+}
 
-    let ids: Vec<String> = body.data.into_iter().map(|m| m.id).collect();
-    Ok(ids)
+fn truncate_str(s: &str, max_len: usize) -> &str {
+    if s.len() <= max_len { s } else { &s[..max_len] }
+}
+
+fn extract_model_ids(raw: &serde_json::Value, _vendor: Option<&str>) -> Result<Vec<String>, String> {
+    // Strategy 1: OpenAI format { data: [{id: ...}, ...] }
+    if let Some(data) = raw.get("data").and_then(|v| v.as_array()) {
+        let ids = extract_ids_from_array(data);
+        if !ids.is_empty() { return Ok(ids); }
+    }
+    // Strategy 2: { models: [{id: ...}, ...] }
+    if let Some(models) = raw.get("models").and_then(|v| v.as_array()) {
+        let ids = extract_ids_from_array(models);
+        if !ids.is_empty() { return Ok(ids); }
+    }
+    // Strategy 3: Direct array
+    if let Some(arr) = raw.as_array() {
+        let ids = extract_ids_from_array(arr);
+        if !ids.is_empty() { return Ok(ids); }
+    }
+    // Strategy 4: Any array field
+    if let Some(obj) = raw.as_object() {
+        for (_, value) in obj {
+            if let Some(arr) = value.as_array() {
+                let ids = extract_ids_from_array(arr);
+                if !ids.is_empty() { return Ok(ids); }
+            }
+        }
+    }
+    Err("Cannot extract model list from response".to_string())
+}
+
+fn extract_ids_from_array(arr: &[serde_json::Value]) -> Vec<String> {
+    arr.iter()
+        .filter_map(|v| {
+            v.get("id")
+                .or_else(|| v.get("model"))
+                .or_else(|| v.get("name"))
+                .or_else(|| v.get("model_id"))
+                .and_then(|id| id.as_str().map(String::from))
+        })
+        .collect()
 }
 
 // ==================== Settings Commands ====================

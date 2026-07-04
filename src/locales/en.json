@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "library": "Library",
     "settings": "Settings",
@@ -68,7 +68,7 @@
    "vendorCustom": "Custom",
     "fetchModels": "Fetch Models",
     "fetchingModels": "Fetching...",
-    "modelsFetched": "{count} models available",
+    "modelsFetched": "{{count}} models available",
     "modelsFetchError": "Failed",
     "customModel": "Custom",
     "settingsSaved": "Settings saved",
@@ -118,7 +118,7 @@
     "cancel": "Cancel",
     "uninstall": "Uninstall",
     "loading": "Loading skills...",
-    "byAuthor": "By {author}"
+    "byAuthor": "By {{author}}"
   },
   "annotations": {
     "title": "Annotations",
