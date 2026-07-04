@@ -20,6 +20,7 @@ interface SettingsState {
   targetLang: string;
   loading: boolean;
   saving: boolean;
+  saved: boolean;
   apiKeySaving: boolean;
   setApiKey: (v: string) => void;
   setApiEndpoint: (v: string) => void;
@@ -41,6 +42,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   targetLang: "Chinese",
   loading: false,
   saving: false,
+  saved: false,
   apiKeySaving: false,
 
   setApiKey: (v) => set({ apiKey: v }),
@@ -67,9 +69,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         theme: theme ?? "light",
         targetLang: targetLang ?? "Chinese",
       });
-      // Apply theme on load
       document.documentElement.classList.toggle("dark", (theme ?? "light") === "dark");
-      // Apply language on load
       const lang = language ?? "zh";
       i18n.changeLanguage(lang);
       localStorage.setItem("maibook_language", lang);
@@ -79,7 +79,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
 
   save: async () => {
-    set({ saving: true });
+    set({ saving: true, saved: false });
     try {
       const s = get();
       await Promise.all([
@@ -90,11 +90,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         invoke("update_setting", { key: "theme", value: s.theme }),
         invoke("update_setting", { key: "target_lang", value: s.targetLang }),
       ]);
-      // Apply theme
       document.documentElement.classList.toggle("dark", s.theme === "dark");
-      // Apply language
       i18n.changeLanguage(s.language);
       localStorage.setItem("maibook_language", s.language);
+      set({ saved: true });
+      setTimeout(() => set({ saved: false }), 2000);
     } finally {
       set({ saving: false });
     }
