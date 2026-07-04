@@ -305,7 +305,31 @@ fn extract_pdf_first_page_text(file_path: &str) -> Result<String, String> {
     }
     Err("No pages found in PDF".to_string())
 }
- 
+
+/// Derive a human-readable vendor/provider label from the API endpoint URL.
+fn get_vendor_label(endpoint: &str) -> &str {
+    let ep = endpoint.to_lowercase();
+    if ep.contains("deepseek") {
+        "深度求索 (DeepSeek)"
+    } else if ep.contains("dashscope") || ep.contains("aliyuncs") {
+        "阿里云百炼 (DashScope)"
+    } else if ep.contains("bigmodel") {
+        "智谱 AI (GLM)"
+    } else if ep.contains("siliconflow") {
+        "硅基流动 (SiliconFlow)"
+    } else if ep.contains("moonshot") {
+        "月之暗面 (Moonshot)"
+    } else if ep.contains("openai") {
+        "OpenAI"
+    } else {
+        "自定义服务商"
+    }
+}
+
+fn format_ai_footer(endpoint: &str, model: &str) -> String {
+    format!("\n\n（文本由AI生成，供应商是{}，模型是{}）", get_vendor_label(endpoint), model)
+}
+
 async fn call_api_completion(
     messages: Vec<ChatMessage>,
     api_key: &str,
@@ -358,7 +382,8 @@ async fn call_api_completion(
         };
 
         if let Some(choice) = body.choices.into_iter().next() {
-            return Ok(choice.message.content);
+            let content = choice.message.content;
+            return Ok(content + &format_ai_footer(&ep, model));
         }
         last_error = format!("No response from model (attempt {})", attempt + 1);
     }

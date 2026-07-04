@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "library": "Library",
     "settings": "Settings",
@@ -91,7 +91,13 @@
     "translation": "Translation",
     "targetLang": "Target Language",
     "targetLangHint": "Language for inline and page translation",
-    "save": "Save Settings",
+   "save": "Save Settings",
+    "saveError": "Save failed",
+    "addVendor": "Add Custom Provider",
+    "addVendorTitle": "Add Custom Provider",
+    "vendorLabel": "Provider Name",
+    "removeVendor": "Remove Provider",
+    "confirmRemove": "Confirm Remove",
     "exportImport": "Export / Import",
     "export": "Export .maibook",
     "exporting": "Exporting...",

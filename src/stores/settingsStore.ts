@@ -31,10 +31,17 @@ async function loadVendorConfigs(): Promise<VendorConfig[]> {
     if (raw) {
       const saved: Partial<VendorConfig>[] = JSON.parse(raw);
       // Merge saved configs into defaults
-      return DEFAULT_VENDORS.map(def => {
+      const merged = DEFAULT_VENDORS.map(def => {
         const s = saved.find(s => s.id === def.id);
         return s ? { ...def, ...s } : { ...def };
       });
+      // Keep custom vendors that aren't in defaults
+      for (const s of saved) {
+        if (!DEFAULT_VENDORS.some(def => def.id === s.id)) {
+          merged.push({ id: s.id!, label: s.label!, endpoint: s.endpoint!, apiKey: s.apiKey ?? "", apiModel: s.apiModel ?? "", enabled: s.enabled ?? false });
+        }
+      }
+      return merged;
     }
   } catch { /* fall through to legacy migration */ }
 
@@ -95,8 +102,9 @@ interface SettingsState {
   // UI state
   loading: boolean;
   saving: boolean;
-  saved: boolean;
-  vendorSaving: Record<string, boolean>;
+ saved: boolean;
+  saveError: string | null;
+ vendorSaving: Record<string, boolean>;
   // Actions
   setApiKey: (v: string) => void;
   setApiEndpoint: (v: string) => void;
@@ -107,6 +115,8 @@ interface SettingsState {
   load: () => Promise<void>;
   save: () => Promise<void>;
   // Vendor actions
+  addCustomVendor: (label: string, endpoint: string, model: string) => void;
+  removeVendor: (id: string) => void;
   toggleVendor: (id: string) => void;
   setVendorApiKey: (id: string, key: string) => void;
   setVendorModel: (id: string, model: string) => void;
@@ -123,8 +133,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   targetLang: "Chinese",
   loading: false,
   saving: false,
-  saved: false,
-  vendorSaving: {},
+ saved: false,
+  saveError: null,
+ vendorSaving: {},
 
   setApiKey: (v) => set({ apiKey: v }),
   setApiEndpoint: (v) => set({ apiEndpoint: v }),
@@ -162,8 +173,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
 
   save: async () => {
-    set({ saving: true, saved: false });
-    try {
+   set({ saving: true, saved: false });
+    set({ saveError: null });
+   try {
       const s = get();
       await Promise.all([
         persistVendorConfigs(s.vendorConfigs),
@@ -174,11 +186,36 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       document.documentElement.classList.toggle("dark", s.theme === "dark");
       i18n.changeLanguage(s.language);
       localStorage.setItem("maibook_language", s.language);
-      set({ saved: true });
-      setTimeout(() => set({ saved: false }), 2000);
-    } finally {
+     set({ saved: true });
+      set({ saveError: null });
+     setTimeout(() => set({ saved: false }), 2000);
+    } catch (e) {
+      set({ saveError: String(e) });
+   } finally {
       set({ saving: false });
     }
+  },
+  addCustomVendor: (label: string, endpoint: string, model: string) => {
+    set(state => {
+      const id = "custom_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+      const custom: VendorConfig = { id, label, endpoint, apiKey: "", apiModel: model, enabled: false };
+      return { vendorConfigs: [...state.vendorConfigs, custom] };
+    });
+    const s = get();
+    persistVendorConfigs(s.vendorConfigs);
+  },
+
+  removeVendor: (id: string) => {
+    set(state => {
+      const wasEnabled = state.vendorConfigs.find(c => c.id === id)?.enabled;
+      const newConfigs = state.vendorConfigs.filter(c => c.id !== id);
+      if (wasEnabled && getActiveVendor(newConfigs) === undefined) {
+        return { vendorConfigs: newConfigs, apiKey: "", apiEndpoint: "", apiModel: "gpt-4o" };
+      }
+      return { vendorConfigs: newConfigs };
+    });
+    const s = get();
+    persistVendorConfigs(s.vendorConfigs);
   },
 
   toggleVendor: (id: string) => {

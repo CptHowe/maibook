@@ -48,8 +48,8 @@ const hintCls  = "text-xs text-gray-400 dark:text-gray-500 mt-1.5 leading-relaxe
 /* ── Skeleton loader ── */
 function SettingsSkeleton() {
   return (
-    <div className="max-w-lg space-y-5 animate-pulse">
-      {[1,2,3].map(i => (
+    <div className="max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-4 animate-pulse">
+      {[1,2,3,4].map(i => (
         <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 p-5 space-y-3">
           <div className="h-3.5 w-24 rounded bg-gray-200 dark:bg-gray-700" />
           <div className="h-9 w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
@@ -108,18 +108,24 @@ interface VendorCardProps {
   onToggle: () => void;
   onApiKeyChange: (key: string) => void;
   onModelChange: (model: string) => void;
-  onSave: () => Promise<void>;
+ onSave: () => Promise<void>;
+  isCustom?: boolean;
+  onRemove?: () => void;
 }
 
 function VendorCard({
   vendor, isEnabled, saving,
-  onToggle, onApiKeyChange, onModelChange, onSave,
+  onToggle, onApiKeyChange, onModelChange, onSave, isCustom, onRemove,
 }: VendorCardProps) {
   const { t } = useTranslation();
 
   // API Key edit state
-  const [editingKey, setEditingKey] = useState(false);
-  const [showKey, setShowKey] = useState(false);
+ const [editingKey, setEditingKey] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  useEffect(() => {
+    if (confirmRemove) { const tm = setTimeout(() => setConfirmRemove(false), 3000); return () => clearTimeout(tm); }
+  }, [confirmRemove]);
+ const [showKey, setShowKey] = useState(false);
   const [localSaved, setLocalSaved] = useState(false);
   const keyBackupRef = useRef(vendor.apiKey);
   useEffect(() => { keyBackupRef.current = vendor.apiKey; }, [vendor.apiKey]);
@@ -133,8 +139,9 @@ function VendorCard({
   // Model fetch state
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [fetchingModels, setFetchingModels] = useState(false);
-  const [modelsError, setModelsError] = useState<string | null>(null);
-  const [modelMode, setModelMode] = useState<"select" | "input">("input");
+ const [modelsError, setModelsError] = useState<string | null>(null);
+  const [modelsFetchedCount, setModelsFetchedCount] = useState<number | null>(null);
+ const [modelMode, setModelMode] = useState<"select" | "input">("input");
 
   const masked = (() => {
     if (!vendor.apiKey) return "";
@@ -161,10 +168,12 @@ function VendorCard({
       const models: string[] = await invoke("fetch_models", {
         apiKey: vendor.apiKey, endpoint: vendor.endpoint, vendor: vendor.id,
       });
-      setAvailableModels(models);
-      setModelMode("select");
-    } catch (e) {
-      setModelsError(String(e));
+     setAvailableModels(models);
+      setModelsFetchedCount(models.length);
+     setModelMode("select");
+   } catch (e) {
+     setModelsError(String(e));
+      setModelsFetchedCount(null);
       setAvailableModels([]);
     } finally {
       setFetchingModels(false);
@@ -187,8 +196,9 @@ function VendorCard({
       isEnabled
         ? "border-blue-300 dark:border-blue-600 bg-blue-50/30 dark:bg-blue-950/20"
         : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-    }`}>
-      {/* Header — vendor name + toggle */}
+   }`}>
+      <div className={isEnabled ? "" : "opacity-60"}>
+     {/* Header — vendor name + toggle */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <span className={`w-2 h-2 rounded-full ${isEnabled ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"}`} />
@@ -196,15 +206,33 @@ function VendorCard({
             {vendor.label}
           </h3>
         </div>
-        <button type="button" onClick={onToggle}
+        <div className="flex items-center gap-1.5">
+          {isCustom && onRemove && (
+            confirmRemove ? (
+              <button type="button" onClick={() => { onRemove(); setConfirmRemove(false); }}
+                className="shrink-0 px-2 py-0.5 text-[11px] font-medium rounded border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors">
+                {t("settings.confirmRemove")}
+              </button>
+            ) : (
+              <button type="button" onClick={() => setConfirmRemove(true)} title={t("settings.removeVendor")}
+                className="p-1 rounded text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )
+          )}
+          <button type="button" onClick={onToggle}
           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
             isEnabled ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"
           }`}>
           <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition duration-200 ${
             isEnabled ? "translate-x-5" : "translate-x-0"
-          }`} />
-        </button>
-      </div>
+         }`} />
+          </button>
+       </div>
+        </div>
+     </div>
 
       {/* Endpoint display */}
       <p className="text-xs font-mono text-gray-400 dark:text-gray-500 mb-3 truncate select-all" title={vendor.endpoint}>
@@ -231,7 +259,8 @@ function VendorCard({
             <div className="relative">
               <input type={showKey ? "text" : "password"} value={vendor.apiKey}
                 onChange={e => onApiKeyChange(e.target.value)}
-                placeholder="sk-..." className={inputCls + " pr-10 text-xs"} spellCheck={false} autoComplete="off" autoFocus />
+               placeholder="sk-..." className={inputCls + " pr-10 text-xs"} spellCheck={false} autoComplete="off" autoFocus />
+                  onKeyDown={(e) => { if (e.key === "Escape") handleCancelEdit(); if (e.key === "Enter" && isKeyDirty) handleSaveKey(); }}
               <button type="button" onClick={() => setShowKey(!showKey)} tabIndex={-1} title={showKey ? t("settings.hideKey") : t("settings.showKey")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 {showKey ? (
@@ -291,9 +320,14 @@ function VendorCard({
               <><svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>{t("settings.fetchingModels")}</>
             ) : t("settings.fetchModels")}
           </button>
-          {modelsError && (
-            <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[200px]" title={modelsError}>
-              {t("settings.modelsFetchError")}
+         {modelsError && (
+            <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[200px] cursor-help" title={modelsError}>
+              {t("settings.modelsFetchError")}: {modelsError.slice(0, 60)}
+           </span>
+         )}
+          {!fetchingModels && !modelsError && modelsFetchedCount !== null && (
+            <span className="text-xs text-green-600 dark:text-green-400">
+              {t("settings.modelsFetched", { count: modelsFetchedCount })}
             </span>
           )}
         </div>
@@ -318,15 +352,22 @@ export default function SettingsPage() {
   const {
     vendorConfigs,
     language, theme, targetLang,
-    loading, saving, saved, vendorSaving,
-    toggleVendor, setVendorApiKey, setVendorModel, saveVendorConfig,
+   loading, saving, saved, vendorSaving,
+    saveError,
+   toggleVendor, setVendorApiKey, setVendorModel, saveVendorConfig,
+    addCustomVendor, removeVendor,
     setLanguage, setTheme, setTargetLang,
     load, save: saveSettings,
   } = useSettingsStore();
 
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [exportMsg, setExportMsg] = useState<string | null>(null);
+ const [exportMsg, setExportMsg] = useState<string | null>(null);
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newVendorLabel, setNewVendorLabel] = useState("");
+  const [newVendorEndpoint, setNewVendorEndpoint] = useState("");
+  const [newVendorModel, setNewVendorModel] = useState("");
 
   useEffect(() => { load(); }, [load]);
 
@@ -379,9 +420,10 @@ export default function SettingsPage() {
         {loading ? (
           <div className="p-6"><SettingsSkeleton /></div>
         ) : (
-          <div className="p-6 pb-4 max-w-2xl mx-auto">
-            {activeTab === "api" && (
-              <div className="space-y-4">
+          <div className="p-6 pb-4 max-w-4xl mx-auto">
+           {activeTab === "api" && (
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Vendor cards */}
                 {vendorConfigs.map(vc => (
                   <VendorCard
@@ -392,12 +434,75 @@ export default function SettingsPage() {
                     onToggle={() => toggleVendor(vc.id)}
                     onApiKeyChange={(key) => setVendorApiKey(vc.id, key)}
                     onModelChange={(model) => setVendorModel(vc.id, model)}
-                    onSave={() => saveVendorConfig(vc.id)}
-                  />
-                ))}
+                   onSave={() => saveVendorConfig(vc.id)}
+                      isCustom={vc.id.startsWith("custom_")}
+                      onRemove={vc.id.startsWith("custom_") ? () => removeVendor(vc.id) : undefined}
+                 />
+               ))}
+                </div>
 
-                {/* Global save bar */}
-                <div className="flex justify-end mt-2">
+                {/* Add custom vendor */}
+                {!showAddForm ? (
+                  <button type="button" onClick={() => setShowAddForm(true)}
+                    className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 transition-colors">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m-7-7h14" /></svg>
+                    {t("settings.addVendor")}
+                  </button>
+                ) : (
+                  <div className="mt-4 rounded-xl border border-dashed border-blue-300 dark:border-blue-600 p-4 bg-blue-50/20 dark:bg-blue-950/10">
+                    <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">{t("settings.addVendorTitle")}</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">{t("settings.vendorLabel")}</label>
+                        <input type="text" value={newVendorLabel}
+                          onKeyDown={(e) => { if (e.key === "Escape") { setShowAddForm(false); setNewVendorLabel(""); setNewVendorEndpoint(""); setNewVendorModel(""); } }}
+                          onChange={e => setNewVendorLabel(e.target.value)}
+                          placeholder="e.g. Ollama"
+                          className={inputCls + " text-xs"} />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">{t("settings.apiEndpoint")}</label>
+                        <input type="text" value={newVendorEndpoint}
+                          onChange={e => setNewVendorEndpoint(e.target.value)}
+                          placeholder="https://..."
+                          className={inputCls + " text-xs"} />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">{t("settings.model")}</label>
+                        <input type="text" value={newVendorModel}
+                          onChange={e => setNewVendorModel(e.target.value)}
+                          placeholder="e.g. llama3"
+                          className={inputCls + " text-xs"} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => { setShowAddForm(false); setNewVendorLabel(""); setNewVendorEndpoint(""); setNewVendorModel(""); }}
+                          className="px-3 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                          {t("common.cancel")}
+                        </button>
+                        <button type="button"
+                          onClick={() => {
+                            if (newVendorLabel.trim() && newVendorEndpoint.trim()) {
+                              addCustomVendor(newVendorLabel.trim(), newVendorEndpoint.trim(), newVendorModel.trim());
+                              setShowAddForm(false);
+                              setNewVendorLabel(""); setNewVendorEndpoint(""); setNewVendorModel("");
+                            }
+                          }}
+                          disabled={!newVendorLabel.trim() || !newVendorEndpoint.trim()}
+                          className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                          {t("common.save")}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Save bar */}
+                {saveError && (
+                  <div className="mt-3 p-2.5 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 text-xs text-red-700 dark:text-red-400">
+                    {t("settings.saveError")}: {saveError}
+                  </div>
+                )}
+                <div className="flex justify-end mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                   <button onClick={saveSettings} disabled={saving}
                     className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
                     {saving ? (
@@ -418,7 +523,7 @@ export default function SettingsPage() {
                     ) : t("settings.save")}
                   </button>
                 </div>
-              </div>
+              </>
             )}
 
             {activeTab === "general" && (
@@ -449,7 +554,30 @@ export default function SettingsPage() {
                       {importing ? t("settings.importing") : t("settings.import")}
                     </button>
                   </div>
-                  {exportMsg && <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">{exportMsg}</p>}
+                 {exportMsg && <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">{exportMsg}</p>}
+                </div>
+
+                {/* Save bar */}
+                <div className="flex justify-end mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <button onClick={saveSettings} disabled={saving}
+                    className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+                    {saving ? (
+                      <>
+                        <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        {t("common.saving")}
+                      </>
+                    ) : saved ? (
+                      <>
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {t("settings.settingsSaved")}
+                      </>
+                    ) : t("settings.save")}
+                  </button>
                 </div>
               </div>
             )}

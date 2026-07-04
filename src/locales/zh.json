@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "title": "Maibook",
     "subtitle": "学术论文阅读器"
@@ -131,7 +131,13 @@
     "translation": "翻译",
     "targetLang": "目标语言",
     "targetLangHint": "行内翻译和页面翻译的目标语言",
-    "save": "保存设置",
+   "save": "保存设置",
+    "saveError": "保存失败",
+    "addVendor": "新增自定义供应商",
+    "addVendorTitle": "新增自定义供应商",
+    "vendorLabel": "供应商名称",
+    "removeVendor": "移除供应商",
+    "confirmRemove": "确认移除",
     "exportImport": "导出 / 导入",
     "export": "导出 .maibook",
     "exporting": "导出中...",
