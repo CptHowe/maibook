@@ -84,3 +84,10 @@ export interface ChatMessage {
   role: string;
   content: string;
 }
+
+export interface PipelineResult {
+    skill_id: string;
+    skill_name: string;
+    content: string | null;
+    error: string | null;
+}

@@ -112,6 +112,7 @@ pub struct Skill {
     pub updated_at: String,
 }
 
+
 // ===== Conversation =====
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -149,6 +150,8 @@ pub struct ChatCompletionRequest {
     pub messages: Vec<ChatMessage>,
     pub temperature: Option<f64>,
     pub max_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,4 +164,25 @@ pub struct ChatChoice {
     pub message: ChatMessage,
     pub index: u32,
     pub finish_reason: Option<String>,
+}
+
+// ===== Skill Pipeline Results =====
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SkillPipelineResult {
+    pub id: String,
+    pub paper_id: String,
+    pub skill_id: String,
+    pub skill_name: String,
+    pub content: String,
+    pub error: Option<String>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SavePipelineResult {
+    pub skill_id: String,
+    pub skill_name: String,
+    pub content: Option<String>,
+    pub error: Option<String>,
 }

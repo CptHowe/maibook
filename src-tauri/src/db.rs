@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Result, params};
+﻿use rusqlite::{Connection, Result, params};
 
 /// Migration definitions: version -> SQL
 const MIGRATIONS: &[(u32, &str)] = &[

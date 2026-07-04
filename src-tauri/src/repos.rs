@@ -499,3 +499,40 @@ pub fn get_all_groups(conn: &Connection) -> Result<Vec<String>> {
         .collect::<Result<Vec<_>>>()?;
     Ok(groups)
 }
+
+// ==================== Skill Pipeline Results ====================
+
+pub fn get_pipeline_results(conn: &Connection, paper_id: &str) -> Result<Vec<SkillPipelineResult>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, paper_id, skill_id, skill_name, content, error, created_at
+         FROM skill_pipeline_results WHERE paper_id = ?1 ORDER BY created_at"
+    )?;
+    let results = stmt.query_map(params![paper_id], |row| {
+        Ok(SkillPipelineResult {
+            id: row.get(0)?,
+            paper_id: row.get(1)?,
+            skill_id: row.get(2)?,
+            skill_name: row.get(3)?,
+            content: row.get(4)?,
+            error: row.get(5)?,
+            created_at: row.get(6)?,
+        })
+    })?.collect::<Result<Vec<_>>>()?;
+    Ok(results)
+}
+
+pub fn save_pipeline_results(conn: &Connection, paper_id: &str, results: &[SavePipelineResult]) -> Result<()> {
+    // Delete old results for this paper
+    conn.execute("DELETE FROM skill_pipeline_results WHERE paper_id = ?1", params![paper_id])?;
+
+    // Insert new results
+    for r in results {
+        let id = uuid::Uuid::new_v4().to_string();
+        conn.execute(
+            "INSERT INTO skill_pipeline_results (id, paper_id, skill_id, skill_name, content, error)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![id, paper_id, r.skill_id, r.skill_name, r.content.as_deref().unwrap_or(""), r.error],
+        )?;
+    }
+    Ok(())
+}

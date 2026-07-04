@@ -1,5 +1,7 @@
 ﻿use crate::models::*;
 use crate::repos;
+use tauri::Emitter;
+use futures_util::StreamExt;
 use crate::AppState;
 use tauri::State;
 
@@ -310,24 +312,24 @@ fn extract_pdf_first_page_text(file_path: &str) -> Result<String, String> {
 fn get_vendor_label(endpoint: &str) -> &str {
     let ep = endpoint.to_lowercase();
     if ep.contains("deepseek") {
-        "深度求索 (DeepSeek)"
+        "DepthSeek (DeepSeek)"
     } else if ep.contains("dashscope") || ep.contains("aliyuncs") {
-        "阿里云百炼 (DashScope)"
+        "DashScope"
     } else if ep.contains("bigmodel") {
-        "智谱 AI (GLM)"
+        "ZhiPu AI (GLM)"
     } else if ep.contains("siliconflow") {
-        "硅基流动 (SiliconFlow)"
+        "SiliconFlow"
     } else if ep.contains("moonshot") {
-        "月之暗面 (Moonshot)"
+        "Moonshot"
     } else if ep.contains("openai") {
         "OpenAI"
     } else {
-        "自定义服务商"
+        "Custom Provider"
     }
 }
 
 fn format_ai_footer(endpoint: &str, model: &str) -> String {
-    format!("\n\n（文本由AI生成，供应商是{}，模型是{}）", get_vendor_label(endpoint), model)
+    format!("\n\n���ı���AI���ɣ���Ӧ����{}��ģ����{}��", get_vendor_label(endpoint), model)
 }
 
 async fn call_api_completion(
@@ -342,6 +344,7 @@ async fn call_api_completion(
         messages,
         temperature: Some(0.7),
         max_tokens: Some(2048),
+        stream: None,
     };
     let ep = endpoint.trim_end_matches('/').to_string();
     let mut last_error = String::new();
@@ -777,6 +780,231 @@ pub fn set_paper_group(
         rusqlite::params![group_name, paper_id],
     ).map_err(|e| e.to_string())?;
     Ok(())
+}
+
+
+
+
+fn extract_pdf_full_text(file_path: &str, max_chars: usize) -> Result<String, String> {
+    let doc = lopdf::Document::load(file_path).map_err(|e| format!("Failed to load PDF: {}", e))?;
+    let pages = doc.get_pages();
+    let mut page_nums: Vec<u32> = pages.keys().copied().collect();
+    page_nums.sort();
+    
+    let mut all_text = String::new();
+    for page_num in page_nums {
+        if all_text.len() >= max_chars { break; }
+        if let Ok(page_text) = doc.extract_text(&[page_num]) {
+            let cleaned: String = page_text
+                .chars()
+                .filter(|c| c.is_ascii_graphic() || c.is_ascii_whitespace())
+                .collect();
+            let cleaned = cleaned.split_whitespace().collect::<Vec<_>>().join(" ");
+            all_text.push_str(&cleaned);
+            all_text.push('\n');
+        }
+    }
+    
+    if all_text.is_empty() {
+        return Err("No text extracted from PDF".to_string());
+    }
+    
+    let truncated: String = all_text.chars().take(max_chars).collect();
+    Ok(truncated)
+}
+
+// ==================== Skill Pipeline ====================
+
+
+fn parse_sse_chunk(data: &str) -> Option<String> {
+    let json_str = data.trim();
+    if json_str.is_empty() || json_str == "[DONE]" {
+        return None;
+    }
+    if let Ok(value) = serde_json::from_str::<serde_json::Value>(json_str) {
+        value["choices"][0]["delta"]["content"]
+            .as_str()
+            .filter(|s| !s.is_empty())
+            .map(String::from)
+    } else {
+        None
+    }
+}
+
+#[tauri::command]
+pub async fn start_skill_pipeline(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+    paper_id: String,
+) -> Result<(), String> {
+    let (title, abstract_text, file_path) = {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        let paper = repos::get_paper(&conn, &paper_id)
+            .map_err(|e| e.to_string())?
+            .ok_or_else(|| "Paper not found".to_string())?;
+        (paper.title, paper.abstract_text.unwrap_or_default(), paper.file_path)
+    };
+
+    let enabled_skills = {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        repos::get_installed_skills(&conn).map_err(|e| e.to_string())?
+            .into_iter().filter(|s| s.enabled).collect::<Vec<_>>()
+    };
+
+    if enabled_skills.is_empty() {
+        return Ok(());
+    }
+
+    let full_text = extract_pdf_full_text(&file_path, 30000)
+        .unwrap_or_else(|e| format!("(Text extraction error: {})", e));
+
+    let (api_key, endpoint, model, language) = {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        let k = repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default();
+        let ep = repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string());
+        let m = repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string());
+        let l = repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string());
+        (k, ep, m, l)
+    };
+
+    if api_key.is_empty() {
+        return Err("API key not configured".to_string());
+    }
+
+    let lang_label = if language == "zh" { "Chinese" } else { "English" };
+    let client = reqwest::Client::new();
+    let ep = endpoint.trim_end_matches('/').to_string();
+
+    tauri::async_runtime::spawn(async move {
+        for skill in &enabled_skills {
+            let _ = app.emit("pipeline-event", serde_json::json!({
+                "event": "skill-start",
+                "skill_id": skill.id,
+                "skill_name": skill.name,
+            }));
+
+            let system_prompt = format!(
+                "You are a specialized AI assistant called \"{}\". Your role: {}. \
+                 Analyze an academic paper. Provide thorough, well-structured analysis \
+                 in your area of expertise. Use markdown formatting. \
+                 Be specific, cite evidence from the paper. Respond in {}.",
+                skill.name,
+                skill.description.as_deref().unwrap_or("Analyze the paper"),
+                lang_label
+            );
+            let user_prompt = format!(
+                "Paper Title: {}\n\nAbstract:\n{}\n\nFull Text:\n{}\n\n---\n\
+                 Provide your specialized analysis as \"{}\".",
+                title, abstract_text, full_text, skill.name
+            );
+
+            let request_body = ChatCompletionRequest {
+                model: model.clone(),
+                messages: vec![
+                    ChatMessage { role: "system".to_string(), content: system_prompt },
+                    ChatMessage { role: "user".to_string(), content: user_prompt },
+                ],
+                temperature: Some(0.7),
+                max_tokens: Some(2048),
+                stream: Some(true),
+            };
+
+            let url = format!("{}/chat/completions", ep);
+            match client
+                .post(&url)
+                .header("Authorization", format!("Bearer {}", api_key))
+                .json(&request_body)
+                .send()
+                .await
+            {
+                Ok(response) => {
+                    if !response.status().is_success() {
+                        let _ = app.emit("pipeline-event", serde_json::json!({
+                            "event": "skill-error",
+                            "skill_id": skill.id,
+                            "error": format!("HTTP {}", response.status()),
+                        }));
+                        continue;
+                    }
+
+                    let mut stream = response.bytes_stream();
+                    let mut buffer = String::new();
+
+                    while let Some(chunk_result) = stream.next().await {
+                        match chunk_result {
+                            Ok(chunk) => {
+                                let text = String::from_utf8_lossy(&chunk);
+                                buffer.push_str(&text);
+
+                                while let Some(nl) = buffer.find('\n') {
+                                    let line = buffer[..nl].trim().to_string();
+                                    buffer = buffer[nl + 1..].to_string();
+
+                                    if let Some(data) = line.strip_prefix("data: ") {
+                                        if let Some(content) = parse_sse_chunk(data) {
+                                            let _ = app.emit("pipeline-event", serde_json::json!({
+                                                "event": "skill-chunk",
+                                                "skill_id": skill.id,
+                                                "chunk": content,
+                                            }));
+                                        }
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                let _ = app.emit("pipeline-event", serde_json::json!({
+                                    "event": "skill-error",
+                                    "skill_id": skill.id,
+                                    "error": format!("Stream error: {}", e),
+                                }));
+                                break;
+                            }
+                        }
+                    }
+
+                    let _ = app.emit("pipeline-event", serde_json::json!({
+                        "event": "skill-done",
+                        "skill_id": skill.id,
+                    }));
+                }
+                Err(e) => {
+                    let _ = app.emit("pipeline-event", serde_json::json!({
+                        "event": "skill-error",
+                        "skill_id": skill.id,
+                        "error": format!("Request failed: {}", e),
+                    }));
+                }
+            }
+        }
+
+        let _ = app.emit("pipeline-event", serde_json::json!({
+            "event": "complete",
+        }));
+    });
+
+    Ok(())
+}
+
+
+// ==================== Pipeline Results Persistence ====================
+
+#[tauri::command]
+pub fn get_pipeline_results(
+    state: State<'_, AppState>,
+    paper_id: String,
+) -> Result<Vec<SkillPipelineResult>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_pipeline_results(&conn, &paper_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn save_pipeline_results(
+    state: State<'_, AppState>,
+    paper_id: String,
+    results: Vec<SavePipelineResult>,
+) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::save_pipeline_results(&conn, &paper_id, &results).map_err(|e| e.to_string())
 }
 
 

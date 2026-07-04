@@ -74,6 +74,11 @@ pub fn run() {
           commands::install_skill,
           commands::toggle_skill,
           commands::delete_skill,
+          commands::start_skill_pipeline,
+          commands::get_pipeline_results,
+          commands::save_pipeline_results,
+          
+          
           commands::extract_paper_metadata,
           commands::export_maibook,
           commands::import_maibook,
