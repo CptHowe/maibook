@@ -1,4 +1,4 @@
-﻿import { create } from "zustand";
+import { create } from "zustand";
 import { invoke } from '@tauri-apps/api/core';
 import i18n from '../i18n';
 
@@ -20,6 +20,8 @@ interface SettingsState {
   targetLang: string;
   loading: boolean;
   saving: boolean;
+  apiKeySaving: boolean;
+  apiKeySaved: boolean;
   setApiKey: (v: string) => void;
   setApiEndpoint: (v: string) => void;
   setApiModel: (v: string) => void;
@@ -28,6 +30,7 @@ interface SettingsState {
   setTargetLang: (v: string) => void;
   load: () => Promise<void>;
   save: () => Promise<void>;
+  saveApiKey: () => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -39,6 +42,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   targetLang: "Chinese",
   loading: false,
   saving: false,
+  apiKeySaving: false,
+  apiKeySaved: false,
 
   setApiKey: (v) => set({ apiKey: v }),
   setApiEndpoint: (v) => set({ apiEndpoint: v }),
@@ -96,7 +101,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       set({ saving: false });
     }
   },
+
+  saveApiKey: async () => {
+    set({ apiKeySaving: true, apiKeySaved: false });
+    try {
+      await invoke("update_setting", { key: "api_key", value: get().apiKey });
+      set({ apiKeySaved: true });
+      setTimeout(() => {
+        set({ apiKeySaved: false });
+      }, 2000);
+    } catch (_e) {
+    } finally {
+      set({ apiKeySaving: false });
+    }
+  },
 }));
-
-
-
