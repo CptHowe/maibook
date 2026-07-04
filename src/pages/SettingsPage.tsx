@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../stores/settingsStore";
 import { invoke } from "@tauri-apps/api/core";
@@ -10,7 +10,7 @@ type Tab = "api" | "general";
 const API_VENDORS = [
   { value: "dashscope",   label: "\u963f\u91cc\u4e91\u767e\u70bc (DashScope)",  endpoint: "https://dashscope.aliyuncs.com/compatible-mode/v1" },
   { value: "zhipu",       label: "\u667a\u8c31 AI (GLM)",                        endpoint: "https://open.bigmodel.cn/api/paas/v4" },
-  { value: "deepseek",    label: "\u6df1\u5ea6\u6c42\u7d22 (DeepSeek)",          endpoint: "https://api.deepseek.com" },
+  { value: "deepseek",    label: "\u6df1\u5ea6\u6c42\u7d22 (DeepSeek)",          endpoint: "https://api.deepseek.com/v1" },
   { value: "siliconflow", label: "\u7845\u57fa\u6d41\u52a8 (SiliconFlow)",       endpoint: "https://api.siliconflow.cn/v1" },
   { value: "moonshot",    label: "\u6708\u4e4b\u6697\u9762 (Moonshot)",          endpoint: "https://api.moonshot.cn/v1" },
   { value: "custom",      label: "",                                              endpoint: "" },
@@ -249,15 +249,51 @@ export default function SettingsPage() {
   }, [t]);
 
   const handleVendorChange = (val: string) => {
-    if (val === "custom") {
-      setManualCustom(true);
-    } else if (val === "") {
-      setManualCustom(false);
-    } else {
+    if (val === "custom") { setManualCustom(true); }
+    else if (val === "") { setManualCustom(false); }
+    else {
       setManualCustom(false);
       const v = API_VENDORS.find(x => x.value === val);
       if (v) setApiEndpoint(v.endpoint);
     }
+  };
+
+  /* ── Model fetching ── */
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [fetchingModels, setFetchingModels] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
+  const [modelMode, setModelMode] = useState<"select" | "input">("input");
+  // Clear models when endpoint changes
+  const prevEndpoint = useRef(apiEndpoint);
+  useEffect(() => {
+    if (prevEndpoint.current !== apiEndpoint) { setAvailableModels([]); setModelsError(null); setModelMode("input"); }
+    prevEndpoint.current = apiEndpoint;
+  }, [apiEndpoint]);
+
+  const handleFetchModels = useCallback(async () => {
+    if (!apiEndpoint || !apiKey) return;
+    setFetchingModels(true); setModelsError(null);
+    try {
+      const models: string[] = await invoke("fetch_models", { apiKey, endpoint: apiEndpoint });
+      setAvailableModels(models);
+      setModelMode("select");
+    } catch (e) {
+      setModelsError(String(e));
+      setAvailableModels([]);
+    } finally {
+      setFetchingModels(false);
+    }
+  }, [apiEndpoint, apiKey]);
+
+  const modelOptions = useMemo(() => {
+    const opts = availableModels.map(m => ({ value: m, label: m }));
+    opts.push({ value: "__custom__", label: t("settings.customModel") });
+    return opts;
+  }, [availableModels, t]);
+
+  const handleModelSelect = (val: string) => {
+    if (val === "__custom__") { setModelMode("input"); }
+    else { setApiModel(val); }
   };
 
   useEffect(() => { load(); }, [load]);
@@ -349,7 +385,31 @@ export default function SettingsPage() {
 
                 {/* ── Model ── */}
                 <div className={sectionCls}>
-                  <FieldInput label={t("settings.model")} value={apiModel} onChange={setApiModel} placeholder="gpt-4o" />
+                  {modelMode === "select" && availableModels.length > 0 ? (
+                    <FieldSelect
+                      label={t("settings.model")}
+                      value={modelOptions.some(o => o.value === apiModel) ? apiModel : "__custom__"}
+                      onChange={handleModelSelect}
+                      options={modelOptions}
+                      hint={t("settings.modelsFetched", { count: availableModels.length })}
+                    />
+                  ) : (
+                    <FieldInput label={t("settings.model")} value={apiModel} onChange={setApiModel} placeholder="gpt-4o" />
+                  )}
+                  <div className="flex items-center gap-2 mt-2.5">
+                    <button type="button" onClick={handleFetchModels}
+                      disabled={fetchingModels || !apiEndpoint || !apiKey}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">
+                      {fetchingModels ? (
+                        <><svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>{t("settings.fetchingModels")}</>
+                      ) : t("settings.fetchModels")}
+                    </button>
+                    {modelsError && (
+                      <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[240px]" title={modelsError}>
+                        {t("settings.modelsFetchError")}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -387,7 +447,7 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {/* ── Sticky save bar with feedback ── */}
+            {/* ── Sticky save bar ── */}
             <div className="sticky bottom-0 mt-6 -mx-6 -mb-4 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
               <button onClick={saveSettings} disabled={saving}
                 className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40">

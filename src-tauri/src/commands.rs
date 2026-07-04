@@ -152,6 +152,50 @@ pub fn get_app_data_dir(app: tauri::AppHandle) -> Result<String, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     Ok(dir.to_string_lossy().to_string())
 }
+
+// ==================== Model Fetch ====================
+
+#[derive(serde::Deserialize)]
+struct ModelsListResponse {
+    data: Vec<ModelEntry>,
+}
+
+#[derive(serde::Deserialize)]
+struct ModelEntry {
+    id: String,
+}
+
+#[tauri::command]
+pub async fn fetch_models(
+    api_key: String,
+    endpoint: String,
+) -> Result<Vec<String>, String> {
+    let client = reqwest::Client::new();
+    let ep = endpoint.trim_end_matches('/');
+    let url = format!("{}/models", ep);
+
+    let response = client
+        .get(&url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let text = response.text().await.unwrap_or_default();
+        return Err(format!("API error {}: {}", status, text));
+    }
+
+    let body: ModelsListResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Parse response failed: {}", e))?;
+
+    let ids: Vec<String> = body.data.into_iter().map(|m| m.id).collect();
+    Ok(ids)
+}
+
 // ==================== Settings Commands ====================
 
 #[tauri::command]

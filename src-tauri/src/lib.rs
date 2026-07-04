@@ -81,8 +81,9 @@ pub fn run() {
           commands::create_conversation,
           commands::save_conversation_messages,
           commands::delete_conversation,
-          commands::export_bibtex,
-       ])
+         commands::export_bibtex,
+          commands::fetch_models,
+      ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
