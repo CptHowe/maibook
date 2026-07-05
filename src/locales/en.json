@@ -221,7 +221,9 @@
         "edit": "Edit",
         "editTitle": "Edit Skill",
         "save": "Save",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "enable": "Enable",
+        "disable": "Disable"
     },
     "annotations": {
         "title": "Annotations",
@@ -249,12 +251,13 @@
         "searching": "Searching...",
         "typeHint": "Type keywords to search",
         "noResults": "No results found"
+    },
+    "trash": {
+        "title": "Trash",
+        "empty": "Trash is empty",
+        "restore": "Restore",
+        "restoring": "Restoring...",
+        "delete": "Delete Permanently",
+        "deleting": "Deleting..."
     }
-,
-  "trash": {
-    "title": "Trash",
-    "empty": "Trash is empty",
-    "restore": "Restore","restoring": "Restoring...",
-    "delete": "Delete Permanently","deleting": "Deleting..."
-  }
 }

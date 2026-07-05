@@ -221,7 +221,9 @@
         "edit": "编辑",
         "editTitle": "编辑技能",
         "save": "保存",
-        "saving": "保存中..."
+        "saving": "保存中...",
+        "enable": "启用",
+        "disable": "停用"
     },
     "annotations": {
         "title": "标注",
