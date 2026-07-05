@@ -1,4 +1,4 @@
-﻿mod db;
+mod db;
 mod models;
 mod repos;
 mod commands;
@@ -63,6 +63,7 @@ pub fn run() {
           commands::translate_text,
           commands::explain_text,
           commands::summarize_paper,
+          commands::generate_paper_tags,
             commands::get_annotations,
             commands::create_annotation,
             commands::update_annotation,
