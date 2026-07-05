@@ -264,8 +264,7 @@ export default function PaperList() {
                    <button
                      onClick={handleRenameGroup}
                       disabled={!renameInput.trim() || renameInput.trim() === renamingGroup}
-                      className="w-6 h-6 flex items-center justify-center rounded-md text-green-600 hover:bg-green-50 disabled:text-gray-300 disabled:hover:bg-transparent transition-colors"
-                      title={t("common.save")}
+                      className="flex-1 h-8 rounded-md bg-green-600 text-white text-xs font-medium flex items-center justify-center gap-1 hover:bg-green-700 disabled:opacity-40 transition-colors"
                    >
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -273,12 +272,9 @@ export default function PaperList() {
                    </button>
                    <button
                      onClick={() => setRenamingGroup(null)}
-                      className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                      title={t("common.cancel")}
-                   >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      className="flex-1 h-8 rounded-md text-gray-500 text-xs hover:bg-gray-100 flex items-center justify-center transition-colors"
+                    >
+                      {t("common.cancel")}
                    </button>
                   </div>
                 </div>
@@ -339,21 +335,18 @@ export default function PaperList() {
              <button
                 onClick={() => { const name = newGroupInput.trim(); if (name) { setLocalGroupNames(prev => prev.includes(name) ? prev : [...prev, name]); setCreatingGroup(false); setNewGroupInput(""); } }}
                 disabled={!newGroupInput.trim()}
-                className="w-7 h-7 flex items-center justify-center rounded-md text-green-600 hover:bg-green-50 disabled:text-gray-300 disabled:hover:bg-transparent transition-colors"
-                title={t("common.save")}
+                className="h-9 px-3 rounded-md bg-green-600 text-white text-xs font-medium flex items-center gap-1.5 hover:bg-green-700 disabled:opacity-40 transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
+                {t("common.save")}
               </button>
               <button
                 onClick={() => { setCreatingGroup(false); setNewGroupInput(""); }}
-                className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                title={t("common.cancel")}
+                className="h-9 px-3 rounded-md text-gray-500 text-xs hover:bg-gray-100 flex items-center transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                {t("common.cancel")}
               </button>
             </div>
           ) : (
