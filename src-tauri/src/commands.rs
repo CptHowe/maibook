@@ -527,6 +527,78 @@ pub async fn summarize_paper(
     ];
     call_api_completion(messages, &api_key, &endpoint, &model).await
 }
+
+fn extract_json_array(raw: &str) -> Option<String> {
+    let raw = raw.trim();
+    if let Some(start) = raw.find('[') {
+        if let Some(end) = raw.rfind(']') {
+            let candidate = &raw[start..=end];
+            if serde_json::from_str::<serde_json::Value>(candidate).is_ok() {
+                return Some(candidate.to_string());
+            }
+        }
+    }
+    None
+}
+
+#[tauri::command]
+pub async fn generate_paper_tags(
+    state: State<'_, AppState>,
+    paper_id: String,
+    title: String,
+    abstract_text: String,
+) -> Result<String, String> {
+    let (api_key, endpoint, model, language) = {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        (
+            repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default(),
+            repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string()),
+            repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string()),
+            repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string()),
+        )
+    };
+    let lang_label = if language == "zh" { "Chinese" } else { "English" };
+    let system_prompt = format!(
+        "You are a research assistant. Analyze this academic paper and generate 3-6 relevant tags (keywords) that describe its research areas, methods, and topics. Return ONLY a JSON array of strings, nothing else. Example: [\"deep learning\", \"computer vision\", \"image segmentation\"]. Respond in {}.",
+        lang_label
+    );
+    let user_content = if abstract_text.len() > 2000 {
+        format!(
+            "Title: {}\n\nAbstract (truncated):\n{}",
+            title,
+            &abstract_text[..2000]
+        )
+    } else {
+        format!(
+            "Title: {}\n\nAbstract:\n{}",
+            title,
+            abstract_text
+        )
+    };
+    let messages = vec![
+        ChatMessage { role: "system".to_string(), content: system_prompt },
+        ChatMessage { role: "user".to_string(), content: user_content },
+    ];
+    let raw_response = call_api_completion(messages, &api_key, &endpoint, &model).await?;
+
+    // Extract just the JSON array from the AI response (strip footer, markdown fences, etc.)
+    let tags_json = extract_json_array(&raw_response)
+        .unwrap_or_else(|| raw_response.trim().to_string());
+
+    // Save tags to the paper
+    {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        let meta = PaperMeta {
+            tags: Some(tags_json.clone()),
+            ..Default::default()
+        };
+        repos::update_paper_meta(&conn, &paper_id, &meta)
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(tags_json)
+}
+
 // ==================== Annotation Commands ====================
 
 #[tauri::command]
