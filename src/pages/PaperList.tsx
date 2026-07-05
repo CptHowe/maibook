@@ -45,9 +45,10 @@ export default function PaperList() {
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
   const [renameInput, setRenameInput] = useState("");
   const [creatingGroup, setCreatingGroup] = useState(false);
-  const [newGroupInput, setNewGroupInput] = useState("");
+ const [newGroupInput, setNewGroupInput] = useState("");
+  const [groupError, setGroupError] = useState<string | null>(null);
 
-  // Recommend state
+ // Recommend state
   const [recommendOpen, setRecommendOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<Array<{title: string; group: string | null}>>([]);
   const [editedRecs, setEditedRecs] = useState<Record<string, string | null>>({});
@@ -139,9 +140,11 @@ export default function PaperList() {
   // Group handlers
   const handleRenameGroup = async () => {
     if (!renamingGroup || !renameInput.trim()) return;
-    const nw = renameInput.trim();
-    if (renamingGroup === nw) { setRenamingGroup(null); return; }
-    try {
+   const nw = renameInput.trim();
+   if (renamingGroup === nw) { setRenamingGroup(null); return; }
+    const allNames = new Set(mergedGroups.map(([n]) => n));
+    if (allNames.has(nw)) { setGroupError("groups.duplicateName"); return; }
+   try {
       await invoke("rename_group", { oldName: renamingGroup, newName: nw });
       setLocalGroupNames(prev => prev.map(n => n === renamingGroup ? nw : n));
       if (selectedGroup === renamingGroup) setSelectedGroup(nw);
@@ -251,25 +254,27 @@ export default function PaperList() {
                 <div className="px-3 py-1">
                   <input
                     value={renameInput}
-                    onChange={e => setRenameInput(e.target.value)}
-                    onKeyDown={e => {
+                   onChange={e => setRenameInput(e.target.value)}
+                    onChange={e => { setRenameInput(e.target.value); setGroupError(null); }}
+                   onKeyDown={e => {
                       if (e.key === "Enter") handleRenameGroup();
                       if (e.key === "Escape") setRenamingGroup(null);
                     }}
                     className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
                     placeholder={t("groups.renameGroupPlaceholder")}
-                    autoFocus
-                  />
-                  <div className="flex gap-1 mt-1">
+                   autoFocus
+                 />
+                  {renamingGroup === name && groupError && (
+                    <p className="text-xs text-red-500 mt-1 px-0.5">{t(groupError as any)}</p>
+                  )}
+                 <div className="flex gap-1 mt-1">
                    <button
                      onClick={handleRenameGroup}
                       disabled={!renameInput.trim() || renameInput.trim() === renamingGroup}
-                      className="flex-1 h-8 rounded-md bg-green-600 text-white text-xs font-medium flex items-center justify-center gap-1 hover:bg-green-700 disabled:opacity-40 transition-colors"
+                      className="flex-1 h-8 rounded-md bg-green-600 text-white text-xs font-medium flex items-center justify-center hover:bg-green-700 disabled:opacity-40 transition-colors"
                    >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                   </button>
+                      {t("common.save")}
+                    </button>
                    <button
                      onClick={() => setRenamingGroup(null)}
                       className="flex-1 h-8 rounded-md text-gray-500 text-xs hover:bg-gray-100 flex items-center justify-center transition-colors"
@@ -320,34 +325,48 @@ export default function PaperList() {
         {/* New Group */}
         <div className="px-3 pb-3 pt-1 border-t">
           {creatingGroup ? (
-            <div className="flex gap-1">
+            <div>
               <input
                 value={newGroupInput}
-                onChange={e => setNewGroupInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === "Enter") { if (newGroupInput.trim()) { setCreatingGroup(false); setNewGroupInput(""); } }
-                  if (e.key === "Escape") { setCreatingGroup(false); setNewGroupInput(""); }
-                }}
-                className="flex-1 px-2 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+               onChange={e => { setNewGroupInput(e.target.value); setGroupError(null); }}
+               onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    const name = newGroupInput.trim();
+                    if (!name) return;
+                    if (allGroupNames.has(name)) { setGroupError("groups.duplicateName"); return; }
+                    setLocalGroupNames(prev => [...prev, name]);
+                    setCreatingGroup(false); setNewGroupInput(""); setGroupError(null);
+                  }
+                 if (e.key === "Escape") { setCreatingGroup(false); setNewGroupInput(""); }
+               }}
+                className="w-full px-2.5 py-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder={t("groups.newGroupPlaceholder")}
-                autoFocus
-              />
-             <button
-                onClick={() => { const name = newGroupInput.trim(); if (name) { setLocalGroupNames(prev => prev.includes(name) ? prev : [...prev, name]); setCreatingGroup(false); setNewGroupInput(""); } }}
-                disabled={!newGroupInput.trim()}
-                className="h-9 px-3 rounded-md bg-green-600 text-white text-xs font-medium flex items-center gap-1.5 hover:bg-green-700 disabled:opacity-40 transition-colors"
+               autoFocus
+             />
+              {creatingGroup && groupError && (
+                <p className="text-xs text-red-500 mt-1 px-0.5">{t(groupError as any)}</p>
+              )}
+             <div className="flex justify-end gap-1.5 mt-1.5">
+              <button
+               onClick={() => {
+                  const name = newGroupInput.trim();
+                  if (!name) return;
+                  if (allGroupNames.has(name)) { setGroupError("groups.duplicateName"); return; }
+                  setLocalGroupNames(prev => [...prev, name]);
+                  setCreatingGroup(false); setNewGroupInput(""); setGroupError(null);
+                }}
+               disabled={!newGroupInput.trim()}
+                className="h-8 px-2.5 rounded-md bg-green-600 text-white text-xs font-medium flex items-center hover:bg-green-700 disabled:opacity-40 transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                {t("common.save")}
+                                {t("common.save")}
               </button>
               <button
                 onClick={() => { setCreatingGroup(false); setNewGroupInput(""); }}
-                className="h-9 px-3 rounded-md text-gray-500 text-xs hover:bg-gray-100 flex items-center transition-colors"
+                className="h-8 px-2.5 rounded-md text-gray-500 text-xs hover:bg-gray-100 flex items-center transition-colors"
               >
                 {t("common.cancel")}
               </button>
+            </div>
             </div>
           ) : (
             <button

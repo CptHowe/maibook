@@ -1,6 +1,6 @@
 # Maibook
 
-Local-first academic paper reader with AI-powered annotations, translation, and skill-based extensibility. Built with Tauri v2, React, Rust, and SQLite.
+**v0.9.1** · Local-first academic paper reader with AI-powered annotations, translation, and skill-based extensibility. Built with Tauri v2, React, Rust, and SQLite.
 
 ## Vision
 

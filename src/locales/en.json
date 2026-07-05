@@ -63,9 +63,10 @@
         "renameGroupPlaceholder": "New name...",
         "newGroupPlaceholder": "Group name...",
         "renameSuccess": "Renamed",
-        "deleteSuccess": "Deleted",
-        "recommendEmpty": "No ungrouped papers to recommend"
-    },
+       "deleteSuccess": "Deleted",
+       "recommendEmpty": "No ungrouped papers to recommend",
+       "duplicateName": "Group name already exists"
+   },
    "paperDetail": {
         "loading": "Loading...",
         "backToLibrary": "Back to Library",

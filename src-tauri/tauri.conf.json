@@ -1,7 +1,8 @@
 {
     "$schema":  "../node_modules/@tauri-apps/cli/config.schema.json",
     "productName":  "maibook",
-    "version":  "0.9.0",
+   "version":  "0.9.0",
+    "version":  "0.9.1",
     "identifier":  "com.maibook.app",
     "build":  {
                   "frontendDist":  "../dist",

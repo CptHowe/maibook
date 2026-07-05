@@ -63,9 +63,10 @@
         "renameGroupPlaceholder": "输入新名称...",
         "newGroupPlaceholder": "输入分组名称...",
         "renameSuccess": "重命名成功",
-        "deleteSuccess": "删除成功",
-        "recommendEmpty": "没有可推荐的未分组论文"
-    },
+       "deleteSuccess": "删除成功",
+       "recommendEmpty": "没有可推荐的未分组论文",
+       "duplicateName": "已存在同名分组"
+   },
    "paperDetail": {
         "loading": "加载中...",
         "backToLibrary": "返回论文库",
