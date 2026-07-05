@@ -1,4 +1,4 @@
-﻿import type { Paper } from "../types";
+import type { Paper } from "../types";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -45,7 +45,7 @@ export default function PaperCard({ paper, onClick, onEditTags }: Props) {
       </div>
       {/* Tags & Group */}
       <div className="flex flex-wrap items-center gap-1 mt-1.5">
-        {paper.tags && paper.tags !== "[]" && (JSON.parse(paper.tags) as string[]).map((tag: string) => (
+        {paper.tags && paper.tags !== "[]" && ((() => { try { return JSON.parse(paper.tags); } catch { const m = paper.tags.match(/\[.*\]/s); return m ? JSON.parse(m[0]) : []; } })() as string[]).map((tag: string) => (
           <span key={tag} className="px-1.5 py-0.5 text-[10px] bg-blue-50 text-blue-700 rounded-full">
             {tag}
           </span>
