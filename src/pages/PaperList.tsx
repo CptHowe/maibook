@@ -5,7 +5,6 @@ import { open } from "@tauri-apps/plugin-dialog";
 import type { Paper } from "../types";
 import { useTranslation } from "react-i18next";
 import PaperCard from "../components/PaperCard";
-import TrashBin from "../components/TrashBin";
 import TrashBin from "../components/TrashBin" from "../components/PaperCard";
 
 function downloadBibtex(content: string, filename = "export.bib") {

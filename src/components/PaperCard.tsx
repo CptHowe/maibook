@@ -10,7 +10,7 @@ interface Props {
   onTrash?: (id: string) => void;
 }
 
-export default function PaperCard({ paper, onClick, onEditTags }: Props) {
+export default function PaperCard({ paper, onClick, onEditTags, onTrash }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -76,6 +76,17 @@ export default function PaperCard({ paper, onClick, onEditTags }: Props) {
         <div className="flex items-center gap-1.5">
           <span className={`w-2 h-2 rounded-full ${statusDot(paper.status)}`} />
           <span className="text-xs text-gray-500">{statusLabel(paper.status)}</span>
+          {onTrash && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onTrash(paper.id); }}
+              className="ml-auto w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title={t("trash.title")}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-400">
           {paper.year && <span>{paper.year}</span>}

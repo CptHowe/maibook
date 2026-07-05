@@ -254,7 +254,7 @@
   "trash": {
     "title": "Trash",
     "empty": "Trash is empty",
-    "restore": "Restore",
-    "delete": "Delete Permanently"
+    "restore": "Restore","restoring": "Restoring...",
+    "delete": "Delete Permanently","deleting": "Deleting..."
   }
 }
