@@ -1,4 +1,5 @@
 import type { Paper } from "../types";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
@@ -8,11 +9,14 @@ interface Props {
   onClick: (id: string) => void;
   onEditTags?: (paper: Paper) => void;
   onTrash?: (id: string) => void;
+  groups?: string[];
+  onChangeGroup?: (paperId: string, groupName: string | null) => void;
 }
 
-export default function PaperCard({ paper, onClick, onEditTags, onTrash }: Props) {
+export default function PaperCard({ paper, onClick, onEditTags, onTrash, groups = [], onChangeGroup }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [groupDropdownOpen, setGroupDropdownOpen] = useState(false);
 
   const statusDot = (s: string | null) => {
     switch (s) {

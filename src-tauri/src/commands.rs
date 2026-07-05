@@ -877,6 +877,133 @@ pub fn set_paper_group(
 
 
 
+/// Rename a group: updates all papers with old_name to new_name.
+/// Returns the number of papers affected.
+#[tauri::command]
+pub fn rename_group(
+    state: State<'_, AppState>,
+    old_name: String,
+    new_name: String,
+) -> Result<usize, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::rename_group(&conn, &old_name, &new_name).map_err(|e| e.to_string())
+}
+
+/// Delete a group: sets group_name to NULL for all papers in the group.
+/// Returns the number of papers affected.
+#[tauri::command]
+pub fn delete_group(
+    state: State<'_, AppState>,
+    name: String,
+) -> Result<usize, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::delete_group(&conn, &name).map_err(|e| e.to_string())
+}
+
+/// Get group counts: returns Vec<[group_name, paper_count]>
+#[tauri::command]
+pub fn get_group_counts(
+    state: State<'_, AppState>,
+) -> Result<Vec<Vec<String>>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    let counts = repos::get_group_counts(&conn).map_err(|e| e.to_string())?;
+    Ok(counts.into_iter().map(|(name, cnt)| vec![name, cnt.to_string()]).collect())
+}
+
+/// Get count of ungrouped papers
+#[tauri::command]
+pub fn get_ungrouped_count(
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_ungrouped_count(&conn).map_err(|e| e.to_string())
+}
+
+/// AI-based group recommendation for ungrouped papers.
+/// Returns a JSON array of [{title, group}]
+#[tauri::command]
+pub async fn recommend_groups(
+    state: State<'_, AppState>,
+    paper_ids: Vec<String>,
+) -> Result<String, String> {
+    let (api_key, endpoint, model, language) = {
+       let conn = state.db.lock().map_err(|e| e.to_string())?;
+       (
+           repos::get_setting(&conn, "api_key").map_err(|e| e.to_string())?.unwrap_or_default(),
+           repos::get_setting(&conn, "api_endpoint").map_err(|e| e.to_string())?.unwrap_or_else(|| "https://api.openai.com/v1".to_string()),
+           repos::get_setting(&conn, "api_model").map_err(|e| e.to_string())?.unwrap_or_else(|| "gpt-4o".to_string()),
+            repos::get_setting(&conn, "language").map_err(|e| e.to_string())?.unwrap_or_else(|| "en".to_string()),
+       )
+   };
+
+    if api_key.is_empty() {
+        return Err("API key not configured".to_string());
+    }
+
+    // Get ungrouped papers with their titles/abstracts
+    let papers: Vec<(String, String, String)> = {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        let all_papers = repos::get_papers(&conn).map_err(|e| e.to_string())?;
+        let paper_set: std::collections::HashSet<String> = paper_ids.into_iter().collect();
+        all_papers.into_iter()
+            .filter(|p| paper_set.contains(&p.id) && (p.group_name.is_none() || p.group_name.as_deref() == Some("")))
+            .map(|p| (p.id, p.title, p.abstract_text.unwrap_or_default()))
+            .collect()
+    };
+
+    if papers.is_empty() {
+        return Ok("[]".to_string());
+    }
+
+    // Get existing groups
+    let existing_groups = {
+        let conn = state.db.lock().map_err(|e| e.to_string())?;
+        repos::get_all_groups(&conn).map_err(|e| e.to_string())?
+    };
+
+    let _lang_label = if language == "zh" { "Chinese" } else { "English" };
+    let lang_note = if language == "zh" {
+        "Use Chinese for group names. For terms without a natural Chinese translation (e.g. Transformer, GAN), keep the original English."
+    } else {
+        "Use English for group names."
+    };
+
+    let groups_list = if existing_groups.is_empty() {
+        format!("No existing groups yet. Suggest concise group names for each paper. {}", lang_note)
+    } else {
+        format!("Existing groups: [{}]. Assign to an existing group if it matches well; otherwise suggest a new group name. {}", existing_groups.join(", "), lang_note)
+    };
+
+    // Build paper list for the prompt
+    let papers_text: Vec<String> = papers.iter().enumerate().map(|(i, (_id, title, abs))| {
+        let abs_preview: &str = if abs.len() > 500 { &abs[..500] } else { abs.as_str() };
+        format!("{}. title: \"{}\"\n   abstract: \"{}\"", i + 1, title, abs_preview)
+    }).collect();
+
+    let system_prompt = format!(
+        "You are a research librarian. Given a list of academic papers, assign each paper to the most suitable group. {}\n\nReturn ONLY a JSON array of objects, each with \"title\" and \"group\" fields. If no suitable existing group exists, suggest a new concise group name (never use null).\nExample: [{{\"title\": \"Deep Learning Survey\", \"group\": \"Deep Learning\"}}, {{\"title\": \"Blockchain Basics\", \"group\": \"Blockchain\"}}]",
+        groups_list
+    );
+
+    let user_content = papers_text.join("\n\n");
+
+    let messages = vec![
+        ChatMessage { role: "system".to_string(), content: system_prompt },
+        ChatMessage { role: "user".to_string(), content: user_content },
+    ];
+
+    let raw_response = call_api_completion(messages, &api_key, &endpoint, &model).await?;
+
+    // Extract JSON array from response
+    let json = extract_json_array(&raw_response)
+        .unwrap_or_else(|| raw_response.trim().to_string());
+
+    // Validate it is valid JSON and return
+    serde_json::from_str::<serde_json::Value>(&json)
+        .map_err(|e| format!("AI returned invalid JSON: {}", e))?;
+
+    Ok(json)
+}
 fn extract_pdf_full_text(file_path: &str, max_chars: usize) -> Result<String, String> {
     let doc = lopdf::Document::load(file_path).map_err(|e| format!("Failed to load PDF: {}", e))?;
     let pages = doc.get_pages();

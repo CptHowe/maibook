@@ -40,10 +40,33 @@
         "tagDialogTitle": "Edit Tags",
         "addTag": "Add tag...",
         "noTags": "No tags yet",
-        "empty": "No papers yet",
-        "emptyHint": "Click Import PDF to add your first paper."
+       "empty": "No papers yet",
+       "emptyHint": "Click Import PDF to add your first paper."
+   },
+    "groups": {
+        "allPapers": "All Papers",
+        "ungrouped": "Ungrouped",
+        "newGroup": "New Group",
+        "renameGroup": "Rename",
+        "deleteGroup": "Delete Group",
+        "deleteGroupConfirm": "Delete group \"{{name}}\"? Papers in this group will become ungrouped.",
+        "noGroups": "No groups yet",
+        "groupCount": "{{count}} papers",
+        "recommendGroups": "AI Recommend Groups",
+        "recommending": "Analyzing...",
+        "recommendTitle": "AI Group Recommendation",
+        "recommendHint": "AI will recommend groups based on paper titles and abstracts",
+        "saveRecommendations": "Apply",
+        "removeFromGroup": "Remove from group",
+        "selectGroup": "Select group...",
+        "createGroup": "Create \"{{name}}\"",
+        "renameGroupPlaceholder": "New name...",
+        "newGroupPlaceholder": "Group name...",
+        "renameSuccess": "Renamed",
+        "deleteSuccess": "Deleted",
+        "recommendEmpty": "No ungrouped papers to recommend"
     },
-    "paperDetail": {
+   "paperDetail": {
         "loading": "Loading...",
         "backToLibrary": "Back to Library",
         "fetchMeta": "Fetch Meta",

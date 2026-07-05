@@ -487,6 +487,41 @@ pub fn update_setting(conn: &Connection, key: &str, value: &str) -> Result<()> {
 }
 // ==================== Tags & Groups ====================
 
+pub fn rename_group(conn: &Connection, old_name: &str, new_name: &str) -> Result<usize> {
+    let affected = conn.execute(
+        "UPDATE papers SET group_name = ?1, updated_at = datetime('now') WHERE group_name = ?2",
+        params![new_name, old_name],
+    )?;
+    Ok(affected)
+}
+
+pub fn delete_group(conn: &Connection, name: &str) -> Result<usize> {
+    let affected = conn.execute(
+        "UPDATE papers SET group_name = NULL, updated_at = datetime('now') WHERE group_name = ?1",
+        params![name],
+    )?;
+    Ok(affected)
+}
+
+pub fn get_group_counts(conn: &Connection) -> Result<Vec<(String, i64)>> {
+    let mut stmt = conn.prepare(
+        "SELECT group_name, COUNT(*) as cnt FROM papers WHERE group_name IS NOT NULL AND group_name != '' AND status != 'trashed' GROUP BY group_name ORDER BY group_name"
+    )?;
+    let counts = stmt.query_map([], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+    })?.collect::<Result<Vec<_>>>()?;
+    Ok(counts)
+}
+
+pub fn get_ungrouped_count(conn: &Connection) -> Result<i64> {
+    let count: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM papers WHERE (group_name IS NULL OR group_name = '') AND status != 'trashed'",
+        [],
+        |row| row.get(0),
+    )?;
+    Ok(count)
+}
+
 pub fn get_all_tags(conn: &Connection) -> Result<Vec<String>> {
     let mut stmt = conn.prepare(
         "SELECT DISTINCT tags FROM papers WHERE tags IS NOT NULL AND tags != ''"

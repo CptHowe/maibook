@@ -40,10 +40,33 @@
         "tagDialogTitle": "编辑标签",
         "addTag": "添加标签...",
         "noTags": "还没有标签",
-        "empty": "还没有导入论文",
-        "emptyHint": "点击导入 PDF 添加论文"
+       "empty": "还没有导入论文",
+       "emptyHint": "点击导入 PDF 添加论文"
+   },
+    "groups": {
+        "allPapers": "全部论文",
+        "ungrouped": "未分组",
+        "newGroup": "新建分组",
+        "renameGroup": "重命名",
+        "deleteGroup": "删除分组",
+        "deleteGroupConfirm": "确定要删除分组 \"{{name}}\" 吗？组内论文将移至未分组。",
+        "noGroups": "暂无分组",
+        "groupCount": "{{count}} 篇",
+        "recommendGroups": "AI 推荐分组",
+        "recommending": "推荐中...",
+        "recommendTitle": "AI 分组推荐",
+        "recommendHint": "AI 将根据论文标题和摘要推荐合适的分组",
+        "saveRecommendations": "应用推荐",
+        "removeFromGroup": "移出分组",
+        "selectGroup": "选择分组...",
+        "createGroup": "创建 \"{{name}}\"",
+        "renameGroupPlaceholder": "输入新名称...",
+        "newGroupPlaceholder": "输入分组名称...",
+        "renameSuccess": "重命名成功",
+        "deleteSuccess": "删除成功",
+        "recommendEmpty": "没有可推荐的未分组论文"
     },
-    "paperDetail": {
+   "paperDetail": {
         "loading": "加载中...",
         "backToLibrary": "返回论文库",
         "fetchMeta": "获取元数据",
