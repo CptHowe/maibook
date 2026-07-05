@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Paper } from "../types";
+import { useTranslation } from "react-i18next";
 import { usePipelineStore, type SkillSlot } from "../stores/pipelineStore";
 
 function parseTags(tags: string | null): string[] {
@@ -12,6 +13,7 @@ function parseTags(tags: string | null): string[] {
 }
 
 export default function PaperDetail() {
+  const { t } = useTranslation();
   const { paperId } = useParams<{ paperId: string }>();
 
   const [paper, setPaper] = useState<Paper | null>(null);
@@ -20,10 +22,9 @@ export default function PaperDetail() {
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [fetchingMeta, setFetchingMeta] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [autoTagging, setAutoTagging] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("");
 
-  // Pipeline state from global store (survives navigation)
-  // Use shallow compare to avoid infinite re-render when paper has no data yet
   const paperData = usePipelineStore((s) => s.papers[paperId!]);
   const loadSavedResults = usePipelineStore((s) => s.loadSavedResults);
   const startPipeline = usePipelineStore((s) => s.startPipeline);
@@ -32,11 +33,11 @@ export default function PaperDetail() {
   const pipelineError = paperData?.error ?? null;
 
   const loadPaper = useCallback(async () => {
-    if (!paperId) { setError("Paper ID not found"); setLoading(false); return; }
+    if (!paperId) { setError(t("paperDetail.errorLabel")); setLoading(false); return; }
     try {
       setLoading(true); setError(null);
       const data = await invoke<Paper | null>("get_paper", { id: paperId });
-      if (!data) setError("Paper not found");
+      if (!data) setError(t("reader.paperNotFound"));
       else setPaper(data);
     } catch (e) { setError(String(e)); }
     finally { setLoading(false); }
@@ -47,7 +48,6 @@ export default function PaperDetail() {
     if (paperId) loadSavedResults(paperId);
   }, [loadPaper, loadSavedResults, paperId]);
 
-  // Auto-set first tab when slots appear
   useEffect(() => {
     if (slots.length > 0 && !activeTab) {
       setActiveTab(slots[0].skill_id);
@@ -87,15 +87,32 @@ export default function PaperDetail() {
     finally { setExporting(false); }
   };
 
+  const handleAutoTag = async () => {
+    if (!paper || !paperId) return;
+    setAutoTagging(true);
+    try {
+      await invoke("generate_paper_tags", {
+        paperId: paperId,
+        title: paper.title || "",
+        abstractText: paper.abstract_text || "",
+      });
+      await loadPaper();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setAutoTagging(false);
+    }
+  };
+
   const renderContent = (s: SkillSlot) => {
     if (s.error) return (
       <div className="text-sm text-red-600">
-        <p className="font-medium">Error</p>
+        <p className="font-medium">{t("paperDetail.errorLabel")}</p>
         <p className="mt-1 text-xs">{s.error}</p>
       </div>
     );
     const text = s.chunks.join("");
-    if (!text && !s.done) return <p className="text-sm text-gray-400 text-center py-8">Waiting for output...</p>;
+    if (!text && !s.done) return <p className="text-sm text-gray-400 text-center py-8">{t("paperDetail.waitingOutput")}</p>;
     return (
       <div className="text-sm text-gray-700 leading-relaxed">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -105,21 +122,21 @@ export default function PaperDetail() {
     );
   };
 
-  if (loading) return <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Loading...</div>;
+  if (loading) return <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">{t("paperDetail.loading")}</div>;
 
   if (error) return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4">
       <div className="p-4 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">{error}</div>
-      <Link to="/" className="text-sm text-blue-600 hover:text-blue-800">Back to Library</Link>
+      <Link to="/" className="text-sm text-blue-600 hover:text-blue-800">{t("paperDetail.backToLibrary")}</Link>
     </div>
   );
 
   if (!paper) return null;
 
   const statusOptions = [
-    { value: "unread", label: "Unread" },
-    { value: "reading", label: "Reading" },
-    { value: "read", label: "Read" },
+    { value: "unread", label: t("paperDetail.statusUnread") },
+    { value: "reading", label: t("paperDetail.statusReading") },
+    { value: "read", label: t("paperDetail.statusRead") },
   ];
 
   const formatDate = (d: string) => {
@@ -134,17 +151,20 @@ export default function PaperDetail() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-3 border-b bg-white">
         <Link to="/" className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-          Back to Library
+          {t("paperDetail.backToLibrary")}
         </Link>
         <div className="flex items-center gap-2">
-          <button onClick={handleFetchMeta} disabled={fetchingMeta} className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
-            {fetchingMeta ? "Fetching..." : "Fetch Meta"}
+          <button onClick={handleAutoTag} disabled={autoTagging} className="px-3 py-1.5 text-sm border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 disabled:opacity-50 transition-colors">
+            {autoTagging ? t("paperDetail.autoTagging") : paper?.tags && paper.tags !== "[]" ? t("paperDetail.reAutoTag") : t("paperDetail.autoTag")}
+          </button>
+          <button onClick={handleFetchMeta} disabled={fetchingMeta || autoTagging} className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
+            {fetchingMeta ? t("paperDetail.fetchingMeta") : t("paperDetail.fetchMeta")}
           </button>
           <button onClick={handleExportBibTeX} disabled={exporting} className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
-            {exporting ? "Exporting..." : "Export BibTeX"}
+            {exporting ? t("paperDetail.exporting") : t("paperDetail.exportBibtex")}
           </button>
           <Link to={`/reader/${paperId}`} className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Open PDF
+            {t("paperDetail.openPdf")}
           </Link>
         </div>
       </div>
@@ -168,7 +188,7 @@ export default function PaperDetail() {
         {/* Status & tags */}
         <div className="flex flex-wrap items-center gap-3 mt-4">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-500 font-medium">Status:</span>
+            <span className="text-xs text-gray-500 font-medium">{t("paperDetail.statusLabel")}:</span>
             <select value={paper.status ?? "unread"} onChange={(e) => handleStatusChange(e.target.value)} disabled={statusUpdating} className="px-2 py-1 text-xs border rounded-md text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50">
               {statusOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
@@ -180,31 +200,31 @@ export default function PaperDetail() {
         {/* Abstract */}
         {paper.abstract_text && (
           <div className="mt-6">
-            <h2 className="text-sm font-semibold text-gray-900 mb-2">Abstract</h2>
+            <h2 className="text-sm font-semibold text-gray-900 mb-2">{t("paperDetail.abstract")}</h2>
             <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{paper.abstract_text}</p>
           </div>
         )}
 
         {/* Metadata */}
         <div className="mt-8 bg-white border rounded-lg p-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Metadata</h2>
+          <h2 className="text-sm font-semibold text-gray-900 mb-3">{t("paperDetail.metadata")}</h2>
           <div className="space-y-2 text-sm text-gray-600">
-            <div className="flex"><span className="w-32 shrink-0 text-gray-400">Imported</span><span>{formatDate(paper.created_at)}</span></div>
-            {paper.page_count != null && <div className="flex"><span className="w-32 shrink-0 text-gray-400">Pages</span><span>{paper.page_count}</span></div>}
-            <div className="flex"><span className="w-32 shrink-0 text-gray-400">File Path</span><span className="truncate text-xs font-mono text-gray-500">{paper.file_path}</span></div>
+            <div className="flex"><span className="w-32 shrink-0 text-gray-400">{t("paperDetail.imported")}</span><span>{formatDate(paper.created_at)}</span></div>
+            {paper.page_count != null && <div className="flex"><span className="w-32 shrink-0 text-gray-400">{t("paperDetail.pages")}</span><span>{paper.page_count}</span></div>}
+            <div className="flex"><span className="w-32 shrink-0 text-gray-400">{t("paperDetail.filePath")}</span><span className="truncate text-xs font-mono text-gray-500">{paper.file_path}</span></div>
           </div>
         </div>
 
-        {/* ── Skill Pipeline ── */}
+        {/* Skill Pipeline */}
         <div className="mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-900">Skill Analysis</h2>
+            <h2 className="text-sm font-semibold text-gray-900">{t("paperDetail.skillAnalysis")}</h2>
             <button
               onClick={() => startPipeline(paperId!)}
               disabled={pipelineStatus === "running"}
               className="px-4 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors"
             >
-              {pipelineStatus === "idle" ? "Run Pipeline" : pipelineStatus === "running" ? "Running..." : "Re-run Pipeline"}
+              {pipelineStatus === "idle" ? t("paperDetail.runPipeline") : pipelineStatus === "running" ? t("paperDetail.runningPipeline") : t("paperDetail.rerunPipeline")}
             </button>
           </div>
 
@@ -214,8 +234,8 @@ export default function PaperDetail() {
 
           {slots.length === 0 && pipelineStatus === "idle" && (
             <div className="bg-white border rounded-lg p-8 text-center">
-              <p className="text-sm text-gray-400">Install skills from the Skill Hub, then click Run Pipeline to analyze this paper.</p>
-              <Link to="/skills" className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800">Open Skill Hub</Link>
+              <p className="text-sm text-gray-400">{t("paperDetail.noSkillsHint")}</p>
+              <Link to="/skills" className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800">{t("paperDetail.openSkillHub")}</Link>
             </div>
           )}
 

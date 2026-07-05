@@ -1,5 +1,7 @@
 import type { Paper } from "../types";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { invoke } from "@tauri-apps/api/core";
 
 interface Props {
   paper: Paper;
@@ -8,44 +10,98 @@ interface Props {
 }
 
 export default function PaperCard({ paper, onClick, onEditTags }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const statusColor = (s: string | null) => {
+
+  const statusDot = (s: string | null) => {
     switch (s) {
-      case "reading": return "bg-blue-100 text-blue-700";
-      case "read": return "bg-green-100 text-green-700";
-      default: return "bg-gray-100 text-gray-600";
+      case "reading": return "bg-blue-500";
+      case "read": return "bg-green-500";
+      default: return "bg-gray-400";
     }
   };
 
+  const statusLabel = (s: string | null) => {
+    switch (s) {
+      case "reading": return t("paperList.statusReading");
+      case "read": return t("paperList.statusRead");
+      default: return t("paperList.statusUnread");
+    }
+  };
+
+  const handleRead = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (paper.status === "unread" || !paper.status) {
+      try { await invoke("update_paper_meta", { id: paper.id, meta: { status: "reading" } }); } catch {}
+    }
+    navigate(`/reader/${paper.id}`);
+  };
+
+  const handleDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/paper/${paper.id}`);
+  };
+
+  const handleCardClick = async () => {
+    if (paper.status === "unread" || !paper.status) {
+      try { await invoke("update_paper_meta", { id: paper.id, meta: { status: "reading" } }); } catch {}
+    }
+    navigate(`/paper/${paper.id}`);
+  };
+
+  // Safe parse: extract JSON array from potentially malformed tags string
+  let tags: string[] = [];
+  if (paper.tags && paper.tags !== "[]") {
+    try {
+      const parsed = JSON.parse(paper.tags);
+      tags = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      const match = paper.tags.match(/\[.*\]/s);
+      if (match) {
+        try { const parsed = JSON.parse(match[0]); tags = Array.isArray(parsed) ? parsed : []; } catch {}
+      }
+    }
+  }
+
+  const progress = paper.reading_progress ?? 0;
+
   return (
     <div
-      className="border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow bg-white dark:bg-gray-800 dark:border-gray-700"
-      onClick={() => navigate(`/paper/${paper.id}`)}
+      className="group border rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden cursor-pointer h-full"
+      onClick={handleCardClick}
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-gray-900 truncate flex-1">{paper.title}</h3>
-        <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${statusColor(paper.status)}`}>
-          {paper.status || "unread"}
-        </span>
-      </div>
-      {paper.authors && (
-        <p className="text-sm text-gray-500 mt-1 truncate">{paper.authors}</p>
-      )}
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center gap-3 text-xs text-gray-400">
-          {paper.page_count && <span>{paper.page_count} pages</span>}
-          {paper.year && <span>{paper.year}</span>}
+      {/* Status bar & year */}
+      <div className="flex items-center justify-between px-4 pt-3 pb-1.5">
+        <div className="flex items-center gap-1.5">
+          <span className={`w-2 h-2 rounded-full ${statusDot(paper.status)}`} />
+          <span className="text-xs text-gray-500">{statusLabel(paper.status)}</span>
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); navigate(`/reader/${paper.id}`); }}
-          className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-        >
-          Read
-        </button>
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          {paper.year && <span>{paper.year}</span>}
+          {paper.page_count != null && <span>{t("paperList.pages", { count: paper.page_count })}</span>}
+        </div>
       </div>
-      {/* Tags & Group */}
-      <div className="flex flex-wrap items-center gap-1 mt-1.5">
-        {paper.tags && paper.tags !== "[]" && ((() => { try { return JSON.parse(paper.tags); } catch { const m = paper.tags.match(/\[.*\]/s); return m ? JSON.parse(m[0]) : []; } })() as string[]).map((tag: string) => (
+
+      {/* Title */}
+      <div className="px-4 pb-1.5">
+        <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">
+          {paper.title || "Untitled"}
+        </h3>
+      </div>
+
+      {/* Authors & Journal */}
+      <div className="px-4 pb-2 space-y-0.5">
+        {paper.authors && (
+          <p className="text-xs text-gray-500 truncate">{paper.authors}</p>
+        )}
+        {paper.journal && (
+          <p className="text-xs text-gray-400 italic truncate">{paper.journal}</p>
+        )}
+      </div>
+
+      {/* Tags */}
+      <div className="px-4 pb-2 flex flex-wrap items-center gap-1 min-h-[20px]">
+        {tags.map((tag: string) => (
           <span key={tag} className="px-1.5 py-0.5 text-[10px] bg-blue-50 text-blue-700 rounded-full">
             {tag}
           </span>
@@ -55,23 +111,41 @@ export default function PaperCard({ paper, onClick, onEditTags }: Props) {
             {paper.group_name}
           </span>
         )}
-        <button
-          onClick={(e) => { e.stopPropagation(); onEditTags?.(paper); }}
-          className="px-1.5 py-0.5 text-[10px] text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-          title="Edit tags & group"
-        >
-          ✎
-        </button>
       </div>
-      {paper.reading_progress !== null && paper.reading_progress! > 0 && (
-        <div className="mt-2 w-full bg-gray-100 rounded-full h-1">
-          <div
-            className="bg-blue-500 h-1 rounded-full transition-all"
-            style={{ width: `${(paper.reading_progress || 0) * 100}%` }}
-          />
+
+      {/* Progress bar */}
+      {progress > 0 && (
+        <div className="px-4 pb-2">
+          <div className="w-full bg-gray-100 rounded-full h-1">
+            <div
+              className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+              style={{ width: `${Math.round(progress * 100)}%` }}
+            />
+          </div>
         </div>
       )}
+
+      {/* Action buttons */}
+      <div className="mt-auto px-4 pb-3 pt-1 flex gap-2">
+        <button
+          onClick={handleRead}
+          className="flex-1 px-2 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          {t("paperList.readButton")}
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onEditTags?.(paper); }}
+          className="flex-1 px-2 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+        >
+          {t("paperList.edit")}
+        </button>
+        <button
+          onClick={handleDetails}
+          className="flex-1 px-2 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+        >
+          {t("paperList.details")}
+        </button>
+      </div>
     </div>
   );
 }
-
