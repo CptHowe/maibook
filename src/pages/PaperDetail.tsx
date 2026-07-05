@@ -1,10 +1,9 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Paper } from "../types";
-import { shallow } from 'zustand/shallow';
 import { usePipelineStore, type SkillSlot } from "../stores/pipelineStore";
 
 function parseTags(tags: string | null): string[] {
@@ -25,7 +24,7 @@ export default function PaperDetail() {
 
   // Pipeline state from global store (survives navigation)
   // Use shallow compare to avoid infinite re-render when paper has no data yet
-  const paperData = usePipelineStore((s) => s.papers[paperId!], shallow);
+  const paperData = usePipelineStore((s) => s.papers[paperId!]);
   const loadSavedResults = usePipelineStore((s) => s.loadSavedResults);
   const startPipeline = usePipelineStore((s) => s.startPipeline);
   const slots: SkillSlot[] = paperData?.slots ?? [];

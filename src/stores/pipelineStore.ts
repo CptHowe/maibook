@@ -1,4 +1,4 @@
-﻿import { create } from "zustand";
+import { create } from "zustand";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
@@ -30,7 +30,7 @@ function setupListener(
   get: () => PipelineStore,
   set: (
     partial: PipelineStore | Partial<PipelineStore> | ((state: PipelineStore) => PipelineStore | Partial<PipelineStore>),
-    replace?: boolean
+    replace?: false | undefined
   ) => void
 ) {
   if (listenerSetup) return;

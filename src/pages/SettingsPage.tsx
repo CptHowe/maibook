@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore, type VendorConfig } from "../stores/settingsStore";
 import { invoke } from "@tauri-apps/api/core";
@@ -259,8 +259,8 @@ function VendorCard({
             <div className="relative">
               <input type={showKey ? "text" : "password"} value={vendor.apiKey}
                 onChange={e => onApiKeyChange(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Escape") handleCancelEdit(); if (e.key === "Enter" && isKeyDirty) handleSaveKey(); }}
                placeholder="sk-..." className={inputCls + " pr-10 text-xs"} spellCheck={false} autoComplete="off" autoFocus />
-                  onKeyDown={(e) => { if (e.key === "Escape") handleCancelEdit(); if (e.key === "Enter" && isKeyDirty) handleSaveKey(); }}
               <button type="button" onClick={() => setShowKey(!showKey)} tabIndex={-1} title={showKey ? t("settings.hideKey") : t("settings.showKey")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 {showKey ? (
