@@ -7,6 +7,7 @@ interface Props {
   paper: Paper;
   onClick: (id: string) => void;
   onEditTags?: (paper: Paper) => void;
+  onTrash?: (id: string) => void;
 }
 
 export default function PaperCard({ paper, onClick, onEditTags }: Props) {

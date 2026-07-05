@@ -1,4 +1,4 @@
-﻿use crate::models::*;
+use crate::models::*;
 use crate::repos;
 use tauri::Emitter;
 use futures_util::StreamExt;
@@ -103,6 +103,26 @@ pub fn delete_paper(state: State<'_, AppState>, id: String) -> Result<(), String
     let conn = state.db.lock().map_err(|e| e.to_string())?;
     repos::delete_paper(&conn, &id).map_err(|e| e.to_string())
 }
+#[tauri::command]
+pub fn trash_paper(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    let meta = PaperMeta { status: Some("trashed".to_string()), ..Default::default() };
+    repos::update_paper_meta(&conn, &id, &meta).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn restore_paper(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    let meta = PaperMeta { status: Some("unread".to_string()), ..Default::default() };
+    repos::update_paper_meta(&conn, &id, &meta).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_trashed_papers(state: State<'_, AppState>) -> Result<Vec<Paper>, String> {
+    let conn = state.db.lock().map_err(|e| e.to_string())?;
+    repos::get_papers_by_status(&conn, "trashed").map_err(|e| e.to_string())
+}
+
 
 #[tauri::command]
 pub fn update_paper_meta(

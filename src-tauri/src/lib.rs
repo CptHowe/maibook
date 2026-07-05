@@ -1,4 +1,4 @@
-﻿mod db;
+mod db;
 mod models;
 mod repos;
 mod commands;
@@ -47,6 +47,9 @@ pub fn run() {
           commands::get_papers_filtered,
           commands::import_pdf,
            commands::delete_paper,
+          commands::trash_paper,
+          commands::restore_paper,
+          commands::get_trashed_papers,
           commands::update_paper_meta,
           commands::get_all_tags,
           commands::get_all_groups,

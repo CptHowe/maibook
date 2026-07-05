@@ -250,4 +250,11 @@
         "typeHint": "Type keywords to search",
         "noResults": "No results found"
     }
+,
+  "trash": {
+    "title": "Trash",
+    "empty": "Trash is empty",
+    "restore": "Restore",
+    "delete": "Delete Permanently"
+  }
 }

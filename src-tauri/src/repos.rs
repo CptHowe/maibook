@@ -1,4 +1,4 @@
-﻿use rusqlite::{Connection, Result, params};
+use rusqlite::{Connection, Result, params};
 use crate::models::*;
 
 // ==================== Papers ====================
@@ -8,7 +8,7 @@ pub fn get_papers(conn: &Connection) -> Result<Vec<Paper>> {
         "SELECT id, title, authors, abstract_text, year, journal, doi, tags, group_name,
                 file_path, file_hash, page_count, status, metadata_source, reading_progress,
                 created_at, updated_at
-         FROM papers ORDER BY updated_at DESC"
+         FROM papers WHERE status != 'trashed' ORDER BY updated_at DESC"
     )?;
     let papers = stmt.query_map([], |row| {
         Ok(Paper {
@@ -159,7 +159,7 @@ pub fn get_recent_papers(conn: &Connection, limit: i64) -> Result<Vec<Paper>> {
         "SELECT id, title, authors, abstract_text, year, journal, doi, tags, group_name,
                 file_path, file_hash, page_count, status, metadata_source, reading_progress,
                 created_at, updated_at
-         FROM papers ORDER BY updated_at DESC LIMIT ?1"
+         FROM papers WHERE status != 'trashed' ORDER BY updated_at DESC LIMIT ?1"
     )?;
     let papers = stmt.query_map(params![limit], |row| {
         Ok(Paper {
@@ -233,6 +233,23 @@ pub fn delete_paper(conn: &Connection, id: &str) -> Result<()> {
     conn.execute("DELETE FROM papers WHERE id = ?1", params![id])?;
     Ok(())
 }
+pub fn get_papers_by_status(conn: &Connection, status: &str) -> Result<Vec<Paper>> {
+    let mut stmt = conn.prepare(
+        "SELECT id,title,authors,abstract_text,year,journal,doi,tags,group_name,file_path,file_hash,page_count,status,metadata_source,reading_progress,created_at,updated_at FROM papers WHERE status=?1 ORDER BY updated_at DESC"
+    )?;
+    let papers = stmt.query_map([status], |row| {
+        Ok(Paper {
+            id:row.get(0)?,title:row.get(1)?,authors:row.get(2)?,abstract_text:row.get(3)?,year:row.get(4)?,
+            journal:row.get(5)?,doi:row.get(6)?,tags:row.get(7)?,group_name:row.get(8)?,file_path:row.get(9)?,
+            file_hash:row.get(10)?,page_count:row.get(11)?,status:row.get(12)?,metadata_source:row.get(13)?,
+            reading_progress:row.get(14)?,created_at:row.get(15)?,updated_at:row.get(16)?,
+        })
+    })?;
+    let mut result = Vec::new();
+    for paper in papers { result.push(paper?); }
+    Ok(result)
+}
+
 
 pub fn update_reading_progress(conn: &Connection, id: &str, progress: f64) -> Result<()> {
     conn.execute(
