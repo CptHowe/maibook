@@ -253,9 +253,8 @@ export default function PaperList() {
               {renamingGroup === name ? (
                 <div className="px-3 py-1">
                   <input
-                    value={renameInput}
-                   onChange={e => setRenameInput(e.target.value)}
-                    onChange={e => { setRenameInput(e.target.value); setGroupError(null); }}
+                   value={renameInput}
+                   onChange={e => { setRenameInput(e.target.value); setGroupError(null); }}
                    onKeyDown={e => {
                       if (e.key === "Enter") handleRenameGroup();
                       if (e.key === "Escape") setRenamingGroup(null);
