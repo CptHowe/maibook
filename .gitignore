@@ -1,0 +1,38 @@
+﻿# Maibook .gitignore
+
+# Visual companion temp files
+.superpowers/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Rust build artifacts (for future Tauri project)
+target/
+
+# Node modules (for future React project)
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# Tauri specific
+src-tauri/target/
+
+# Rust toolchain (local copies inside project)
+.cargo/
+.rustup/
+
+# Reverse-engineered Moonlight Chrome extension source
+/outdoor/
