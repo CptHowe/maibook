@@ -5,7 +5,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import type { Paper } from "../types";
 import { useTranslation } from "react-i18next";
 import PaperCard from "../components/PaperCard";
-import TrashBin from "../components/TrashBin" from "../components/PaperCard";
+import TrashBin from "../components/TrashBin";
 
 function downloadBibtex(content: string, filename = "export.bib") {
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
@@ -77,6 +77,15 @@ export default function PaperList() {
 
   const handleCardClick = (id: string) => {
     navigate(`/reader/${id}`);
+  };
+
+  const handleTrash = async (paperId: string) => {
+    try {
+      await invoke("trash_paper", { id: paperId });
+      await loadPapers();
+    } catch (e) {
+      setError(String(e));
+    }
   };
 
   const handleEditTags = (paper: Paper) => {
@@ -212,7 +221,8 @@ export default function PaperList() {
                 <PaperCard
                   paper={paper}
                   onClick={handleCardClick}
-                  onEditTags={handleEditTags} onTrash={handleTrash}
+                  onEditTags={handleEditTags}
+                  onTrash={handleTrash}
                 />
               </div>
             ))}
@@ -220,12 +230,13 @@ export default function PaperList() {
         )}
       </div>
 
+      <TrashBin refreshLibrary={loadPapers} trashCount={0} />
+
       {/* Edit Tags Dialog */}
       {editingPaper && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setEditingPaper(null)}>
           <div className="bg-white rounded-xl shadow-xl p-5 w-[420px] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-sm font-semibold text-gray-800 mb-4">{t("paperList.tagDialogTitle")}</h3>
-            {/* Tag bubbles */}
             <div className="flex flex-wrap gap-1.5 mb-3 min-h-[32px] p-2 border rounded-lg bg-gray-50">
               {editTagsList.map((tag) => (
                 <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full">
@@ -242,7 +253,6 @@ export default function PaperList() {
                 <span className="text-xs text-gray-400">{t("paperList.noTags")}</span>
               )}
             </div>
-            {/* Add tag input */}
             <div className="flex gap-2">
               <input
                 type="text"
