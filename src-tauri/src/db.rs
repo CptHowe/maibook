@@ -1,9 +1,8 @@
-﻿use rusqlite::{Connection, Result, params};
+use rusqlite::{Connection, Result, params};
 
 /// Migration definitions: version -> SQL
 const MIGRATIONS: &[(u32, &str)] = &[
-    (1, r#"
-CREATE TABLE IF NOT EXISTS schema_migrations (
+    (1, r#"CREATE TABLE IF NOT EXISTS schema_migrations (
     version INTEGER PRIMARY KEY,
     applied_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -80,7 +79,19 @@ CREATE TABLE IF NOT EXISTS conversations (
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
+);"#),
+    (2, r#"
+CREATE TABLE IF NOT EXISTS skill_pipeline_results (
+    id TEXT PRIMARY KEY,
+    paper_id TEXT NOT NULL,
+    skill_id TEXT NOT NULL,
+    skill_name TEXT NOT NULL,
+    content TEXT,
+    error TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE INDEX IF NOT EXISTS idx_pipeline_results_paper_id ON skill_pipeline_results(paper_id);
 "#),
 ];
 

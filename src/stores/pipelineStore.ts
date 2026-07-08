@@ -21,7 +21,7 @@ interface PaperPipeline {
 interface PipelineStore {
   papers: Record<string, PaperPipeline>;
   loadSavedResults: (paperId: string) => Promise<void>;
-  startPipeline: (paperId: string) => Promise<void>;
+  startPipeline: (paperId: string, fullText?: string) => Promise<void>;
 }
 
 let listenerSetup = false;
@@ -146,12 +146,12 @@ const usePipelineStore = create<PipelineStore>()((set, get) => {
       }
     },
 
-    startPipeline: async (paperId: string) => {
+    startPipeline: async (paperId: string, fullText?: string) => {
       set((state) => ({
         papers: { ...state.papers, [paperId]: { slots: [], status: "running" as PipelineStatus, error: null } },
       }));
       try {
-        await invoke("start_skill_pipeline", { paperId });
+        await invoke("start_skill_pipeline", { paperId, fullText });
       } catch (e) {
         set((state) => ({
           papers: { ...state.papers, [paperId]: { slots: [], status: "idle" as PipelineStatus, error: String(e) } },

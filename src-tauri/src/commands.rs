@@ -317,9 +317,9 @@ fn extract_pdf_first_page_text(file_path: &str) -> Result<String, String> {
     let pages = doc.get_pages();
     if let Some((page_num, _)) = pages.iter().next() {
         let page_text = doc.extract_text(&[*page_num]).map_err(|e| format!("Failed to extract text: {}", e))?;
-        let cleaned: String = page_text
-            .chars()
-            .filter(|c| c.is_ascii_graphic() || c.is_ascii_whitespace())
+       let cleaned: String = page_text
+           .chars()
+           .filter(|c| !c.is_control() || c.is_whitespace())
             .collect();
         let cleaned = cleaned.split_whitespace().collect::<Vec<_>>().join(" ");
         let truncated: String = cleaned.chars().take(4000).collect();
@@ -349,7 +349,7 @@ fn get_vendor_label(endpoint: &str) -> &str {
 }
 
 fn format_ai_footer(endpoint: &str, model: &str) -> String {
-    format!("\n\n���ı���AI���ɣ���Ӧ����{}��ģ����{}��", get_vendor_label(endpoint), model)
+    format!("\n\n该文本由AI生成，请使用{}的模型{}", get_vendor_label(endpoint), model)
 }
 
 async fn call_api_completion(
@@ -362,8 +362,8 @@ async fn call_api_completion(
     let request_body = ChatCompletionRequest {
         model: model.to_string(),
         messages,
-        temperature: Some(0.7),
-        max_tokens: Some(2048),
+               temperature: Some(0.7),
+                max_tokens: Some(4096),
         stream: None,
     };
     let ep = endpoint.trim_end_matches('/').to_string();
@@ -1013,10 +1013,10 @@ fn extract_pdf_full_text(file_path: &str, max_chars: usize) -> Result<String, St
     let mut all_text = String::new();
     for page_num in page_nums {
         if all_text.len() >= max_chars { break; }
-        if let Ok(page_text) = doc.extract_text(&[page_num]) {
-            let cleaned: String = page_text
-                .chars()
-                .filter(|c| c.is_ascii_graphic() || c.is_ascii_whitespace())
+       if let Ok(page_text) = doc.extract_text(&[page_num]) {
+           let cleaned: String = page_text
+               .chars()
+               .filter(|c| !c.is_control() || c.is_whitespace())
                 .collect();
             let cleaned = cleaned.split_whitespace().collect::<Vec<_>>().join(" ");
             all_text.push_str(&cleaned);
@@ -1055,6 +1055,7 @@ pub async fn start_skill_pipeline(
     app: tauri::AppHandle,
     state: State<'_, AppState>,
     paper_id: String,
+    full_text: Option<String>,
 ) -> Result<(), String> {
     let (title, abstract_text, file_path) = {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
@@ -1074,8 +1075,12 @@ pub async fn start_skill_pipeline(
         return Ok(());
     }
 
-    let full_text = extract_pdf_full_text(&file_path, 30000)
-        .unwrap_or_else(|e| format!("(Text extraction error: {})", e));
+    let full_text = if let Some(provided) = full_text {
+        provided
+    } else {
+        extract_pdf_full_text(&file_path, 30000)
+            .map_err(|e| format!("PDF text extraction failed: {}. The frontend will try pdf.js as fallback.", e))?
+    };
 
     let (api_key, endpoint, model, language) = {
         let conn = state.db.lock().map_err(|e| e.to_string())?;
@@ -1124,7 +1129,7 @@ pub async fn start_skill_pipeline(
                     ChatMessage { role: "user".to_string(), content: user_prompt },
                 ],
                 temperature: Some(0.7),
-                max_tokens: Some(2048),
+                max_tokens: Some(4096),
                 stream: Some(true),
             };
 

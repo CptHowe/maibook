@@ -6,6 +6,8 @@ import remarkGfm from "remark-gfm";
 import type { Paper } from "../types";
 import { useTranslation } from "react-i18next";
 import { usePipelineStore, type SkillSlot } from "../stores/pipelineStore";
+import { pdfjs } from "react-pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = "//unpkg.com/pdfjs-dist@" + pdfjs.version + "/build/pdf.worker.min.mjs";
 
 function parseTags(tags: string | null): string[] {
   if (!tags || tags === "[]") return [];
@@ -24,6 +26,8 @@ export default function PaperDetail() {
   const [exporting, setExporting] = useState(false);
   const [autoTagging, setAutoTagging] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("");
+  const [extractingText, setExtractingText] = useState(false);
+  const [textExtractionError, setTextExtractionError] = useState<string | null>(null);
 
   const paperData = usePipelineStore((s) => s.papers[paperId!]);
   const loadSavedResults = usePipelineStore((s) => s.loadSavedResults);
@@ -103,6 +107,51 @@ export default function PaperDetail() {
       setAutoTagging(false);
     }
   };
+
+
+  const extractPdfText = useCallback(async (filePath: string): Promise<string | null> => {
+    try {
+      const b64 = await invoke<string>("read_pdf_base64", { filePath });
+      const binaryStr = atob(b64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      const pdf = await pdfjs.getDocument({ data: bytes }).promise;
+      const maxPages = Math.min(pdf.numPages, 30);
+      const texts: string[] = [];
+      for (let i = 1; i <= maxPages; i++) {
+        try {
+          const page = await pdf.getPage(i);
+          const tc = await page.getTextContent();
+          const pageText = tc.items.map((item: any) => item.str ?? "").join(" ");
+          texts.push(`[Page ${i}]\n${pageText}`);
+        } catch {}
+      }
+      return texts.join("\n\n");
+    } catch (e) {
+      console.error("pdf.js text extraction failed:", e);
+      return null;
+    }
+  }, []);
+
+  const handleRetryWithPdfJs = useCallback(async () => {
+    if (!paper || !paper.file_path) return;
+    setExtractingText(true);
+    setTextExtractionError(null);
+    try {
+      const text = await extractPdfText(paper.file_path);
+      if (text && text.length > 100) {
+        await startPipeline(paperId!, text);
+      } else {
+        setTextExtractionError("pdf.js also failed to extract meaningful text from this PDF. The file may be a scanned image without selectable text.");
+      }
+    } catch (e) {
+      setTextExtractionError(String(e));
+    } finally {
+      setExtractingText(false);
+    }
+  }, [paper, paperId, startPipeline, extractPdfText]);
 
   const renderContent = (s: SkillSlot) => {
     if (s.error) return (
@@ -220,7 +269,7 @@ export default function PaperDetail() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-gray-900">{t("paperDetail.skillAnalysis")}</h2>
             <button
-              onClick={() => startPipeline(paperId!)}
+              onClick={() => { setTextExtractionError(null); startPipeline(paperId!); }}
               disabled={pipelineStatus === "running"}
               className="px-4 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-40 transition-colors"
             >
@@ -229,9 +278,26 @@ export default function PaperDetail() {
           </div>
 
           {pipelineError && (
-            <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{pipelineError}</div>
+            <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              <p>{pipelineError}</p>
+              {pipelineError.includes("PDF text extraction failed") && !extractingText && (
+                <button
+                  onClick={handleRetryWithPdfJs}
+                  className="mt-2 px-3 py-1 text-xs font-medium bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                  Retry with browser PDF engine
+                </button>
+              )}
+            </div>
           )}
-
+          {extractingText && (
+            <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+              Extracting PDF text using browser engine...
+            </div>
+          )}
+          {textExtractionError && (
+            <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{textExtractionError}</div>
+          )}
           {slots.length === 0 && pipelineStatus === "idle" && (
             <div className="bg-white border rounded-lg p-8 text-center">
               <p className="text-sm text-gray-400">{t("paperDetail.noSkillsHint")}</p>
