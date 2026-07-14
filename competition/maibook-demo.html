@@ -35,6 +35,7 @@ tailwind.config = {
     --border-light:  #f3f4f6;
   }
   [data-theme="dark"] {
+    color-scheme: dark;
     --bg-app:        #16213e;
     --bg-surface:    #1a1a2e;
     --bg-surface-2:  #0f3460;
@@ -180,6 +181,20 @@ tailwind.config = {
   .pulse-dot { animation: pulse-dot 2s infinite; }
   .md-content strong { font-weight: 700; }
   .md-content blockquote { border-left: 3px solid #d1d5db; padding-left: 10px; margin: 0.4em 0; color: #6b7280; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .think-dot, .spinner, .pulse-dot { animation: none !important; }
+    .page-enter, .panel-enter, .selection-toolbar, .settings-section-enter { animation: none !important; }
+    .toggle-slider, .toggle-slider::before { transition: none !important; }
+  }
+
+  /* Modal scroll containment */
+  .modal-overlay { overscroll-behavior: contain; }
+
+  /* Keyboard focus for role="button" divs */
+  [role="button"]:focus-visible { outline: 2px solid #2563eb; outline-offset: -2px; border-radius: inherit; }
+  [role="button"] { outline: none; }
 </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900">
@@ -1094,11 +1109,11 @@ function renderLibrary() {
           </button>
           ${groupNames.length > 0 ? '<div class="mx-3 my-2 border-t border-gray-200"></div>' : ''}
           ${groupNames.map(name => `
-            <div class="group w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors cursor-pointer ${state.selectedGroup === name ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}" onclick="selectGroup('${esc(name)}')">
+            <div class="group w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors cursor-pointer ${state.selectedGroup === name ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}" role="button" tabindex="0" onclick="selectGroup('${esc(name)}')" onkeydown="if(event.key==='Enter')selectGroup('${esc(name)}')">
               <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
               <span class="truncate">${esc(name)}</span>
               <span class="ml-auto text-xs text-gray-400">${counts[name]}</span>
-              <button onclick="event.stopPropagation(); dissolveGroup('${esc(name)}')" class="opacity-60 group-hover:opacity-100 w-5 h-5 flex items-center justify-center text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-all" title="解散分组">×</button>
+              <button onclick="event.stopPropagation(); dissolveGroup('${esc(name)}')" class="opacity-60 group-hover:opacity-100 w-5 h-5 flex items-center justify-center text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="解散分组" aria-label="解散分组 ${esc(name)}">×</button>
             </div>
           `).join('')}
         </div>
@@ -1177,12 +1192,12 @@ function renderPaperCard(paper) {
   const tags = parseTags(paper.tags);
   const progress = paper.reading_progress ?? 0;
   return `
-    <div class="group border border-gray-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden cursor-pointer" onclick="openPaperDetail('${paper.id}')">
+    <div class="group border border-gray-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-colors duration-200 flex flex-col overflow-hidden cursor-pointer" role="button" tabindex="0" onclick="openPaperDetail('${paper.id}')" onkeydown="if(event.key==='Enter')openPaperDetail('${paper.id}')">
       <div class="flex items-center justify-between px-4 pt-3 pb-1.5">
         <div class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full ${getStatusDot(paper.status)} ring-2 ring-offset-1 ring-gray-100"></span>
           <span class="text-xs text-gray-500">${getStatusLabel(paper.status)}</span>
-          <button onclick="event.stopPropagation(); trashPaper('${paper.id}')" class="ml-auto w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="移至回收站">
+          <button onclick="event.stopPropagation(); trashPaper('${paper.id}')" class="ml-auto w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="移至回收站" aria-label="移至回收站">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
           </button>
         </div>
@@ -1205,7 +1220,7 @@ function renderPaperCard(paper) {
       ${progress > 0 ? `
         <div class="px-4 pb-2">
           <div class="w-full bg-gray-100 rounded-full h-1">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-400 h-1 rounded-full transition-all duration-300" style="width: ${Math.round(progress * 100)}%"></div>
+            <div class="bg-gradient-to-r from-blue-500 to-blue-400 h-1 rounded-full transition-colors duration-300" style="width: ${Math.round(progress * 100)}%"></div>
           </div>
         </div>
       ` : ''}
@@ -1296,17 +1311,17 @@ function renderChatPanel() {
       <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
         <div class="flex items-center gap-1.5">
           <h2 class="text-sm font-semibold text-gray-800">AI 对话</h2>
-          <button class="w-6 h-6 flex items-center justify-center text-sm border border-gray-200 rounded hover:bg-gray-50 text-gray-500 transition-colors" title="新建对话">+</button>
+          <button class="w-6 h-6 flex items-center justify-center text-sm border border-gray-200 rounded hover:bg-gray-50 text-gray-500 transition-colors" title="新建对话" aria-label="新建对话">+</button>
         </div>
-        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">×</button>
+        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors" aria-label="关闭面板">×</button>
       </div>
       <div class="flex flex-1 min-h-0">
         <div class="w-36 border-r border-gray-200 bg-gray-50 flex flex-col shrink-0">
           <div class="flex-1 overflow-auto">
             ${conversations.map(c => `
-              <div onclick="selectConversation('${c.id}')" class="group flex items-center justify-between px-3 py-2.5 text-xs cursor-pointer border-b border-gray-100 transition-colors ${c.id === state.activeConversation ? 'bg-blue-50 text-blue-700 font-medium border-l-2 border-l-blue-500' : 'text-gray-600 hover:bg-gray-100 border-l-2 border-l-transparent'}">
+              <button type="button" onclick="selectConversation('${c.id}')" class="group w-full flex items-center justify-between px-3 py-2.5 text-xs cursor-pointer border-b border-gray-100 transition-colors border-0 bg-transparent text-left ${c.id === state.activeConversation ? 'bg-blue-50 text-blue-700 font-medium border-l-2 border-l-blue-500' : 'text-gray-600 hover:bg-gray-100 border-l-2 border-l-transparent'}">
                 <span class="truncate flex-1 min-w-0">${esc(c.title)}</span>
-              </div>
+              </button>
             `).join('')}
           </div>
         </div>
@@ -1353,7 +1368,7 @@ function renderAnnotationPanel() {
     <div class="flex flex-col flex-1 min-h-0">
       <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
         <h2 class="text-sm font-semibold text-gray-800">标注</h2>
-        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">×</button>
+        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors" aria-label="关闭标注面板">×</button>
       </div>
       <div class="px-3 py-2 border-b border-gray-200 space-y-2">
         <div class="flex gap-1">
@@ -1373,7 +1388,7 @@ function renderAnnotationPanel() {
         <p class="text-xs text-gray-400 mb-1">共 ${filtered.length} 条</p>
         ${filtered.length === 0 ? '<p class="text-xs text-gray-400 text-center py-8">当前筛选条件下没有标注。</p>' : ''}
         ${filtered.map(a => `
-          <div class="p-2.5 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all cursor-pointer" onclick="jumpToPage(${a.page_number})">
+          <button type="button" class="p-2.5 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-colors cursor-pointer text-left w-full bg-transparent" onclick="jumpToPage(${a.page_number})">
             <div class="flex items-center gap-2 mb-1.5">
               <span class="px-1.5 py-0.5 text-[10px] rounded ${a.annotation_type === 'highlight' ? 'bg-yellow-50 text-yellow-600' : a.annotation_type === 'note' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'}">${typeLabels[a.annotation_type]}</span>
               <span class="w-2 h-2 rounded-full ${ANNOTATION_COLORS[a.color].dot}"></span>
@@ -1381,7 +1396,7 @@ function renderAnnotationPanel() {
             </div>
             ${a.selected_text ? `<p class="text-xs text-gray-500 italic mb-1 line-clamp-2">"${esc(a.selected_text)}"</p>` : ''}
             ${a.content ? `<p class="text-xs text-gray-700 mt-1">${esc(a.content)}</p>` : ''}
-          </div>
+          </button>
         `).join('')}
       </div>
     </div>
@@ -1393,7 +1408,7 @@ function renderSummaryPanel() {
     <div class="flex flex-col flex-1 min-h-0">
       <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
         <h2 class="text-sm font-semibold text-gray-800">AI 摘要</h2>
-        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">×</button>
+        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors" aria-label="关闭摘要面板">×</button>
       </div>
       <div class="flex-1 overflow-auto p-4">
         ${state.summaryLoading ? `
@@ -1443,7 +1458,7 @@ function renderTranslatePanel() {
     <div class="flex flex-col flex-1 min-h-0">
       <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
         <h2 class="text-sm font-semibold text-gray-800">页面翻译</h2>
-        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">×</button>
+        <button onclick="togglePanel(null)" class="w-6 h-6 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors" aria-label="关闭翻译面板">×</button>
       </div>
       <div class="flex-1 overflow-auto p-4">
         ${state.translateLoading ? `
@@ -1641,7 +1656,7 @@ function renderAIRecommendDialog() {
   const sortedGroups = Array.from(allGroupOptions).sort();
 
   return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="closeRecommendDialog()">
+    <div class="fixed inset-0 z-50 modal-overlay flex items-center justify-center bg-black/30" onclick="closeRecommendDialog()">
       <div class="bg-white rounded-xl shadow-xl p-5 w-[520px] max-w-[90vw] max-h-[80vh] flex flex-col" onclick="event.stopPropagation()">
         <div class="flex items-center gap-2 mb-1">
           <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
@@ -1680,7 +1695,7 @@ function renderEditDialog() {
   const allGroups = getAllGroupNames();
 
   return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="closeEditDialog()">
+    <div class="fixed inset-0 z-50 modal-overlay flex items-center justify-center bg-black/30" onclick="closeEditDialog()">
       <div class="bg-white rounded-xl shadow-xl p-5 w-[460px] max-w-[90vw] max-h-[85vh] overflow-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-semibold text-gray-800">编辑论文信息</h3>
@@ -1738,7 +1753,7 @@ function renderTrashBin() {
   const trashCount = state.trashedPapers.length;
   return `
     <!-- Floating trash button -->
-    <button onclick="openTrash()" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-white border border-gray-200 rounded-full shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center group" title="回收站">
+    <button onclick="openTrash()" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-white border border-gray-200 rounded-full shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center group" title="回收站" aria-label="打开回收站">
       <svg class="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
       </svg>
@@ -1750,7 +1765,7 @@ function renderTrashBin() {
 
 function renderTrashDialog() {
   return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="closeTrash()">
+    <div class="fixed inset-0 z-50 modal-overlay flex items-center justify-center bg-black/30" onclick="closeTrash()">
       <div class="bg-white rounded-xl shadow-xl w-[480px] max-h-[70vh] max-w-[90vw] flex flex-col" onclick="event.stopPropagation()">
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -1848,7 +1863,7 @@ function renderSkillCard(skill, isMarketplace) {
   const isInstalling = state.installingSkill === skill.id;
 
   return `
-    <div class="bg-white border border-gray-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-300 group cursor-pointer ${skill.installed && !skill.enabled ? 'opacity-60' : ''}" onclick="showSkillDetailDialog('${skill.id}')">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 transition-colors hover:shadow-md hover:border-blue-300 group cursor-pointer ${skill.installed && !skill.enabled ? 'opacity-60' : ''}" role="button" tabindex="0" onclick="showSkillDetailDialog('${skill.id}')" onkeydown="if(event.key==='Enter')showSkillDetailDialog('${skill.id}')">
       <div class="flex items-start gap-3 mb-2">
         <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-2xl shrink-0">${skill.icon}</div>
         <div class="flex-1 min-w-0">
@@ -1890,7 +1905,7 @@ function renderSkillDetail() {
   const skill = state.skills.find(s => s.id === state.showSkillDetail);
   if (!skill) return '';
   return `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.showSkillDetail=null; render()">
+    <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="state.showSkillDetail=null; render()">
       <div class="bg-white rounded-lg shadow-xl p-5 w-[500px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
@@ -1931,7 +1946,7 @@ function renderCreateSkillDialog() {
   const iconOptions = ['✨', '📄', '🌐', '💡', '📝', '📊', '🔍', '🤖', '⚡', '🎯', '🔬', '📐'];
   const categoryOptions = ['阅读辅助', '笔记管理', '写作辅助', '分析工具'];
   return `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.showCreateSkill=false; render()">
+    <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="state.showCreateSkill=false; render()">
       <div class="bg-white rounded-lg shadow-xl p-5 w-[420px] max-w-[90vw] max-h-[85vh] overflow-auto" onclick="event.stopPropagation()">
         <h2 class="text-sm font-semibold text-gray-800 mb-4">自建技能</h2>
         <div class="space-y-3">
@@ -2441,7 +2456,7 @@ function renderAboutModal() {
   }
 
   return `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="closeAboutModal()">
+    <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="closeAboutModal()">
       <div class="bg-white rounded-lg shadow-xl p-5 w-[480px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-base font-semibold text-gray-900">${title}</h2>
@@ -2635,7 +2650,7 @@ function executeConfirm() {
 
 function renderConfirmDialog() {
   return `
-    <div class="fixed inset-0 z-[200] flex items-center justify-center bg-black/30" onclick="dismissConfirm()">
+    <div class="fixed inset-0 z-[200] modal-overlay flex items-center justify-center bg-black/30" onclick="dismissConfirm()">
       <div class="bg-white rounded-xl shadow-2xl p-6 w-[400px] max-w-[90vw]" onclick="event.stopPropagation()">
         <div class="flex items-start gap-3 mb-4">
           <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
@@ -2758,7 +2773,7 @@ function renderDiscoveryInput() {
                   const displayName = gName === '__ungrouped__' ? '未分组' : gName;
                   return `
                     <div class="border border-gray-100 rounded-lg overflow-hidden">
-                      <div class="flex items-center gap-2 px-2.5 py-2 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" onclick="toggleDiscoveryGroupCollapse('${esc(gName)}')">
+                      <div class="flex items-center gap-2 px-2.5 py-2 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" role="button" tabindex="0" onclick="toggleDiscoveryGroupCollapse('${esc(gName)}')" onkeydown="if(event.key==='Enter')toggleDiscoveryGroupCollapse('${esc(gName)}')">
                         <svg class="w-3.5 h-3.5 transition-transform shrink-0 ${collapsed ? '' : 'rotate-90'}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                         <input type="checkbox" ${allSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleDiscoveryGroupSelect('${esc(gName)}')" class="rounded shrink-0">
                         <span class="text-sm font-medium text-gray-700">${esc(displayName)}</span>
@@ -2830,7 +2845,7 @@ function renderDiscoveryResults() {
           const relColor = r.relevance > 85 ? 'bg-green-500' : r.relevance >= 70 ? 'bg-blue-500' : 'bg-gray-400';
           const relTextColor = r.relevance > 85 ? 'text-green-600' : r.relevance >= 70 ? 'text-blue-600' : 'text-gray-400';
           return `
-            <div class="flex gap-3 px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer" onclick="toggleDiscoverySelect('${r.id}')">
+            <div class="flex gap-3 px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer" role="button" tabindex="0" onclick="toggleDiscoverySelect('${r.id}')" onkeydown="if(event.key==='Enter')toggleDiscoverySelect('${r.id}')">
               <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleDiscoverySelect('${r.id}')" class="mt-1 rounded shrink-0">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-0.5">
@@ -3002,7 +3017,7 @@ function renderIdeaUpgrading() {
         ${state.ideaUpgrades.map((u, i) => {
           const checked = state.ideaSelectedUpgrades.includes(i);
           return `
-            <div data-upgrade-idx="${i}" class="flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${checked ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}" onclick="toggleIdeaUpgrade(${i})">
+            <div data-upgrade-idx="${i}" class="flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors ${checked ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}" role="button" tabindex="0" onclick="toggleIdeaUpgrade(${i})" onkeydown="if(event.key==='Enter')toggleIdeaUpgrade(${i})">
               <div class="custom-checkbox w-4 h-4 mt-0.5 rounded border-2 ${checked ? 'border-blue-500 bg-blue-500' : 'border-gray-300'} flex items-center justify-center shrink-0 transition-all">
                 ${checked ? '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
               </div>
@@ -3069,8 +3084,8 @@ function renderIdeaDone() {
 function renderIdeaCard(idea) {
   const simColor = idea.similarity > 75 ? 'text-red-500' : idea.similarity > 60 ? 'text-orange-500' : 'text-green-500';
   return `
-    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group relative" onclick="viewIdeaDetail('${idea.id}')">
-      <button onclick="event.stopPropagation(); trashIdea('${idea.id}')" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center opacity-60 hover:opacity-100 transition-all" title="删除创意">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-colors cursor-pointer group relative" role="button" tabindex="0" onclick="viewIdeaDetail('${idea.id}')" onkeydown="if(event.key==='Enter')viewIdeaDetail('${idea.id}')">
+      <button onclick="event.stopPropagation(); trashIdea('${idea.id}')" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center opacity-60 hover:opacity-100 transition-colors" title="删除创意" aria-label="删除创意">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
       </button>
       <div class="flex items-center justify-between mb-2">
@@ -3093,7 +3108,7 @@ function renderIdeaDetailModal() {
   const idea = savedIdeas.find(i => i.id === state.ideaViewDetail);
   if (!idea) return '';
   return `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.ideaViewDetail=null; render()">
+    <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="state.ideaViewDetail=null; render()">
       <div class="bg-white rounded-lg shadow-xl w-[600px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
         <div class="flex items-start justify-between px-5 py-4 border-b border-gray-200 sticky top-0 bg-white">
           <div class="flex-1">
@@ -3367,8 +3382,8 @@ function renderMeetingDone() {
 
 function renderMeetingCard(m) {
   return `
-    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group relative" onclick="viewMeetingDetail('${m.id}')">
-      <button onclick="event.stopPropagation(); trashMeeting('${m.id}')" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center opacity-60 hover:opacity-100 transition-all" title="删除记录">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-colors cursor-pointer group relative" role="button" tabindex="0" onclick="viewMeetingDetail('${m.id}')" onkeydown="if(event.key==='Enter')viewMeetingDetail('${m.id}')">
+      <button onclick="event.stopPropagation(); trashMeeting('${m.id}')" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center opacity-60 hover:opacity-100 transition-colors" title="删除记录" aria-label="删除组会记录">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
       </button>
       <div class="flex items-center justify-between mb-2">
@@ -3392,7 +3407,7 @@ function renderMeetingDetailModal() {
   const skimPapers = m.papers.filter(p => p.type === 'skim');
 
   return `
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.meetingViewDetail=null; render()">
+    <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="state.meetingViewDetail=null; render()">
       <div class="bg-white rounded-lg shadow-xl w-[700px] max-w-[90vw] max-h-[85vh] overflow-auto" onclick="event.stopPropagation()">
         <div class="flex items-start justify-between px-5 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
           <div>
@@ -3501,7 +3516,7 @@ function confirmCreateGroup() {
 
 function renderCreateGroupDialog() {
   return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="cancelCreateGroup()">
+    <div class="fixed inset-0 z-50 modal-overlay flex items-center justify-center bg-black/30" onclick="cancelCreateGroup()">
       <div class="bg-white rounded-xl shadow-xl p-5 w-[400px] max-w-[90vw]" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-semibold text-gray-800">新建分组</h3>
@@ -4221,12 +4236,12 @@ function deleteIdeaPermanently(id) {
 
 function renderIdeaTrash() {
   return `
-    <button onclick="state.ideaTrashOpen = true; render()" class="fixed bottom-6 right-6 w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50" title="创意垃圾桶">
+    <button onclick="state.ideaTrashOpen = true; render()" class="fixed bottom-6 right-6 w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50" title="创意垃圾桶" aria-label="打开创意垃圾桶">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
       ${state.trashedIdeas.length > 0 ? `<span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">${state.trashedIdeas.length}</span>` : ''}
     </button>
     ${state.ideaTrashOpen ? `
-      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.ideaTrashOpen = false; render()">
+      <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="state.ideaTrashOpen = false; render()">
         <div class="bg-white rounded-xl shadow-xl p-5 w-[500px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-base font-semibold text-gray-900">创意垃圾桶</h2>
@@ -4510,12 +4525,12 @@ function deleteMeetingPermanently(id) {
 
 function renderMeetingTrash() {
   return `
-    <button onclick="state.meetingTrashOpen = true; render()" class="fixed bottom-6 right-6 w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50" title="组会垃圾桶">
+    <button onclick="state.meetingTrashOpen = true; render()" class="fixed bottom-6 right-6 w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50" title="组会垃圾桶" aria-label="打开组会垃圾桶">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
       ${state.trashedMeetings.length > 0 ? `<span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">${state.trashedMeetings.length}</span>` : ''}
     </button>
     ${state.meetingTrashOpen ? `
-      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.meetingTrashOpen = false; render()">
+      <div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center bg-black/20" onclick="state.meetingTrashOpen = false; render()">
         <div class="bg-white rounded-xl shadow-xl p-5 w-[500px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-base font-semibold text-gray-900">组会垃圾桶</h2>
@@ -4598,7 +4613,7 @@ function showSelectionToolbar(rect, text) {
 
   toolbar.innerHTML = `
     ${colors.map(c => `
-      <button onclick="highlightSelection('${c.color}')" class="w-7 h-7 rounded ${c.bg} hover:scale-110 transition-transform" title="${ANNOTATION_COLORS[c.color].label}高亮"></button>
+      <button onclick="highlightSelection('${c.color}')" class="w-7 h-7 rounded ${c.bg} hover:scale-110 transition-transform" title="${ANNOTATION_COLORS[c.color].label}高亮" aria-label="${ANNOTATION_COLORS[c.color].label}高亮"></button>
     `).join('')}
     <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
     <button onclick="selectionAction('note')" class="px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded flex items-center gap-1" title="添加笔记">
