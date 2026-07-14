@@ -21,6 +21,82 @@ tailwind.config = {
 }
 </script>
 <style>
+  /* ===== 主题变量 ===== */
+  :root {
+    --bg-app:        #f9fafb;
+    --bg-surface:    #ffffff;
+    --bg-surface-2:  #f3f4f6;
+    --text-primary:  #111827;
+    --text-secondary:#374151;
+    --text-tertiary: #4b5563;
+    --text-muted:    #6b7280;
+    --text-faint:    #9ca3af;
+    --border-default:#e5e7eb;
+    --border-light:  #f3f4f6;
+  }
+  [data-theme="dark"] {
+    --bg-app:        #16213e;
+    --bg-surface:    #1a1a2e;
+    --bg-surface-2:  #0f3460;
+    --text-primary:  #e2e8f0;
+    --text-secondary:#cbd5e1;
+    --text-tertiary: #b8c2d2;
+    --text-muted:    #94a3b8;
+    --text-faint:    #7b8aa0;
+    --border-default:#2d3748;
+    --border-light:  #1f2937;
+  }
+
+  /* ===== 深色模式：覆盖 Tailwind 中性工具类 ===== */
+  body[data-theme="dark"] { background-color: var(--bg-app) !important; color: var(--text-primary) !important; }
+  [data-theme="dark"] .bg-gray-50 { background-color: var(--bg-app) !important; }
+  [data-theme="dark"] .bg-white { background-color: var(--bg-surface) !important; }
+  [data-theme="dark"] .bg-gray-100 { background-color: var(--bg-surface-2) !important; }
+  [data-theme="dark"] .text-gray-900 { color: var(--text-primary) !important; }
+  [data-theme="dark"] .text-gray-800 { color: var(--text-primary) !important; }
+  [data-theme="dark"] .text-gray-700 { color: var(--text-secondary) !important; }
+  [data-theme="dark"] .text-gray-600 { color: var(--text-tertiary) !important; }
+  [data-theme="dark"] .text-gray-500 { color: var(--text-muted) !important; }
+  [data-theme="dark"] .text-gray-400 { color: var(--text-faint) !important; }
+  [data-theme="dark"] .border-gray-200 { border-color: var(--border-default) !important; }
+  [data-theme="dark"] .border-gray-100 { border-color: var(--border-light) !important; }
+  [data-theme="dark"] .divide-gray-100 > * + * { border-color: var(--border-light) !important; }
+  [data-theme="dark"] .divide-gray-200 > * + * { border-color: var(--border-default) !important; }
+
+  /* ===== 深色模式：次要样式微调 ===== */
+  [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #475569; }
+  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  [data-theme="dark"] .md-content code { background: #0f3460; color: #e2e8f0; }
+  [data-theme="dark"] .md-content pre { background: #16213e; border-color: #2d3748; }
+  [data-theme="dark"] .settings-field:hover { background: rgba(255,255,255,0.04); }
+  [data-theme="dark"] .bg-gradient-to-br.from-gray-900 { background-image: linear-gradient(to bottom right, #1e293b, #0f172a); }
+
+  /* ===== 深色模式：徽标底色 → 半透明深色 ===== */
+  [data-theme="dark"] .bg-blue-50    { background-color: rgba(59,130,246,0.16) !important; }
+  [data-theme="dark"] .bg-green-50   { background-color: rgba(34,197,94,0.16) !important; }
+  [data-theme="dark"] .bg-amber-50   { background-color: rgba(245,158,11,0.16) !important; }
+  [data-theme="dark"] .bg-red-50     { background-color: rgba(239,68,68,0.16) !important; }
+  [data-theme="dark"] .bg-orange-50  { background-color: rgba(249,115,22,0.16) !important; }
+  [data-theme="dark"] .bg-yellow-50  { background-color: rgba(234,179,8,0.16) !important; }
+  [data-theme="dark"] .bg-pink-50    { background-color: rgba(236,72,153,0.16) !important; }
+  [data-theme="dark"] .bg-blue-100   { background-color: rgba(59,130,246,0.24) !important; }
+  [data-theme="dark"] .bg-amber-100  { background-color: rgba(245,158,11,0.24) !important; }
+
+  /* ===== 深色模式：强调字调亮 ===== */
+  [data-theme="dark"] .text-blue-700,   [data-theme="dark"] .text-blue-600   { color: #93c5fd !important; }
+  [data-theme="dark"] .text-green-700,  [data-theme="dark"] .text-green-600  { color: #86efac !important; }
+  [data-theme="dark"] .text-amber-700,  [data-theme="dark"] .text-amber-600  { color: #fcd34d !important; }
+  [data-theme="dark"] .text-red-600,    [data-theme="dark"] .text-red-500    { color: #fca5a5 !important; }
+  [data-theme="dark"] .text-orange-600                                        { color: #fdba74 !important; }
+
+  /* ===== 深色模式：输入框与占位符 ===== */
+  [data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select { color: var(--text-primary) !important; background-color: var(--bg-surface) !important; border-color: var(--border-default) !important; }
+  [data-theme="dark"] input::placeholder, [data-theme="dark"] textarea::placeholder { color: #7b8aa0 !important; }
+
+  /* ===== 深色模式：残留浅色底/环 ===== */
+  [data-theme="dark"] .bg-gray-200  { background-color: #2d3748 !important; }
+  [data-theme="dark"] .ring-gray-100 { --tw-ring-color: #2d3748 !important; }
+
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   body { margin: 0; overflow: hidden; }
 
@@ -656,7 +732,8 @@ const mockPipelineResults = {
 
 const defaultPipelineResults = [
   { skill_id: 's1', skill_name: '论文摘要生成', content: '## 论文摘要\n\n**研究问题**：本文探讨的问题在相关领域中具有重要意义。\n\n**核心方法**：作者提出了一种新的方法框架，通过创新的技术手段解决上述问题。\n\n**关键发现**：实验结果表明，该方法在多个基准数据集上取得了显著的性能提升。\n\n**结论**：本文的方法为该领域提供了新的研究思路和方向。' },
-  { skill_id: 's3', skill_name: '论文深度解释', content: '## 概念解释\n\n本文涉及的核心概念和方法已在摘要中概述。建议结合论文原文进行深入阅读，以获得更全面的理解。' },
+  { skill_id: 's2', skill_name: '论文翻译助手', content: '## 中文翻译\n\n**摘要**\n\n本文探讨了相关领域中一个重要问题。作者提出了一种新的方法框架，在多个基准数据集上取得了显著性能提升，为该领域提供了新的研究思路和方向。\n\n**引言**\n\n近年来，该领域的研究取得了显著进展，但仍存在一些关键挑战。本文旨在通过创新的方法设计来解决这些挑战。' },
+  { skill_id: 's3', skill_name: '论文深度解释', content: '## 概念解释\n\n本文涉及的核心概念和方法已在摘要中概述。建议结合论文原文进行深入阅读，以获得更全面的理解。\n\n### 核心方法要点\n- 方法框架的设计考虑了效率与效果的平衡\n- 实验验证覆盖了多个场景和数据集\n- 结果表明方法具有良好的泛化能力' },
 ];
 
 // ===================== STATE =====================
@@ -730,8 +807,36 @@ const state = {
   editGroup: '',
   editTagsList: [],
   newTagInput: '',
+  customGroups: [],
+  newGroupDialogOpen: false,
+  newGroupName: '',
   // Settings
   settingsTab: 'api',
+  // Settings - API
+  apiConfig: {
+    provider: 'OpenAI', endpoint: 'https://api.openai.com/v1',
+    apiKey: 'sk-xxxxxxxxxxxxxxxxxxxxxxxx', model: 'gpt-4o', showApiKey: false,
+  },
+  apiTesting: false, apiTestResult: null,
+  // Settings - General
+  generalSettings: {
+    language: '简体中文', theme: 'light', translateTarget: '中文',
+    autoSummary: true, autoSaveProgress: true,
+  },
+  settingsSaving: false, settingsSaved: false,
+  aboutModal: null,
+  // Discovery - grouped source papers
+  discoveryCollapsedGroups: [],
+  // Confirm dialog
+  confirmAction: null,
+  // Idea trash
+  trashedIdeas: [],
+  ideaTrashOpen: false,
+  // Meeting trash
+  trashedMeetings: [],
+  meetingTrashOpen: false,
+  // API latency (random)
+  apiLatency: null,
 };
 
 // ===================== UTILITIES =====================
@@ -739,6 +844,68 @@ const state = {
 function esc(str) {
   if (str == null) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===================== i18n =====================
+
+const I18N_STRINGS = {
+  nav: {
+    library:   { zh: '论文库',   en: 'Library' },
+    discovery: { zh: '检索',     en: 'Discover' },
+    idealab:   { zh: '创意',     en: 'Ideas' },
+    meeting:   { zh: '一键组会', en: 'Meeting' },
+    skills:    { zh: '技能',     en: 'Skills' },
+    settings:  { zh: '设置',     en: 'Settings' },
+    about:     { zh: '关于',     en: 'About' },
+  },
+  brand: {
+    tagline:   { zh: 'AI 学术论文阅读助手', en: 'AI Paper Reading Assistant' },
+    localMode: { zh: '本地模式', en: 'Local Mode' },
+  },
+  settings: {
+    title:    { zh: '设置', en: 'Settings' },
+    subtitle: { zh: '配置 Maibook 的各项偏好', en: 'Configure Maibook preferences' },
+    navLabel: { zh: '偏好设置', en: 'Preferences' },
+    save:     { zh: '保存设置', en: 'Save' },
+    saving:   { zh: '保存中...', en: 'Saving...' },
+    saved:    { zh: '已保存', en: 'Saved' },
+    sections: {
+      api:     { label: { zh: 'API 配置', en: 'API Config' },  desc: { zh: '配置 AI 模型接口', en: 'Configure AI model interface' } },
+      general: { label: { zh: '通用', en: 'General' },          desc: { zh: '语言、主题与阅读偏好', en: 'Language, theme & reading' } },
+      data:    { label: { zh: '数据管理', en: 'Data' },         desc: { zh: '导入与导出论文数据', en: 'Import & export paper data' } },
+    },
+  },
+  general: {
+    title:          { zh: '通用', en: 'General' },
+    subtitle:       { zh: '自定义界面语言、主题外观与翻译偏好。', en: 'Customize language, theme and translation.' },
+    language:       { zh: '界面语言', en: 'Interface Language' },
+    languageDesc:   { zh: '应用显示语言', en: 'App display language' },
+    theme:          { zh: '主题外观', en: 'Theme' },
+    themeDesc:      { zh: '浅色或深色模式', en: 'Light or dark mode' },
+    themeLight:     { zh: '浅色', en: 'Light' },
+    themeDark:      { zh: '深色', en: 'Dark' },
+    translate:      { zh: '翻译目标语言', en: 'Translation Target' },
+    translateDesc:  { zh: '阅读器内翻译功能的目标语言', en: 'Target language for reader translation' },
+    autoSummary:    { zh: '自动生成摘要', en: 'Auto Summary' },
+    autoSummaryDesc:{ zh: '打开论文时自动调用摘要技能', en: 'Auto-run summary skill on open' },
+    autoSave:       { zh: '自动保存阅读进度', en: 'Auto-save Progress' },
+    autoSaveDesc:   { zh: '翻页时自动记录当前位置', en: 'Record position on page turn' },
+  },
+  about: {
+    title:    { zh: '关于', en: 'About' },
+    subtitle: { zh: '版本信息与相关资源', en: 'Version info & resources' },
+  },
+};
+
+function getI18nStrings() { return I18N_STRINGS; }
+
+function t(key) {
+  var lang = (state.generalSettings.language === 'English') ? 'en' : 'zh';
+  var node = key.split('.').reduce(function(acc, p) {
+    return (acc && acc[p] !== undefined) ? acc[p] : undefined;
+  }, getI18nStrings());
+  if (node && typeof node === 'object' && node[lang]) return node[lang];
+  return key;
 }
 
 function renderMarkdown(text) {
@@ -812,7 +979,14 @@ function getGroupCounts() {
       ungrouped++;
     }
   });
+  state.customGroups.forEach(g => { if (!(g in counts)) counts[g] = 0; });
   return { counts, ungrouped };
+}
+
+function getAllGroupNames() {
+  const set = new Set(papers.map(p => p.group_name).filter(Boolean));
+  state.customGroups.forEach(g => set.add(g));
+  return Array.from(set).sort();
 }
 
 function matchAIResponse(input) {
@@ -831,12 +1005,13 @@ function matchAIResponse(input) {
 
 function renderShell() {
   const navItems = [
-    { page: 'library', label: '论文库', icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>` },
-    { page: 'discovery', label: '检索', icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>` },
-    { page: 'idealab', label: '创意', icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>` },
-    { page: 'meeting', label: '一键组会', icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>` },
-    { page: 'skills', label: '技能', icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>` },
-    { page: 'settings', label: '设置', icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>` },
+    { page: 'library', label: t('nav.library'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>` },
+    { page: 'discovery', label: t('nav.discovery'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>` },
+    { page: 'idealab', label: t('nav.idealab'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>` },
+    { page: 'meeting', label: t('nav.meeting'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>` },
+    { page: 'skills', label: t('nav.skills'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>` },
+    { page: 'settings', label: t('nav.settings'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>` },
+    { page: 'about', label: t('nav.about'), icon: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
   ];
 
   return `
@@ -849,7 +1024,7 @@ function renderShell() {
             </div>
             <div>
               <h1 class="text-base font-bold text-gray-900 leading-tight">Maibook</h1>
-              <p class="text-[10px] text-gray-400 leading-tight">AI 学术论文阅读助手</p>
+              <p class="text-[10px] text-gray-400 leading-tight">${t('brand.tagline')}</p>
             </div>
           </div>
         </div>
@@ -866,7 +1041,7 @@ function renderShell() {
             <div class="w-7 h-7 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white text-xs font-bold">R</div>
             <div class="text-xs">
               <p class="text-gray-700 font-medium">Researcher</p>
-              <p class="text-gray-400">本地模式</p>
+              <p class="text-gray-400">${t('brand.localMode')}</p>
             </div>
           </div>
         </div>
@@ -874,6 +1049,7 @@ function renderShell() {
       <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
         ${renderPage()}
       </main>
+      ${state.confirmAction ? renderConfirmDialog() : ''}
     </div>
   `;
 }
@@ -888,6 +1064,7 @@ function renderPage() {
     case 'meeting': return renderMeeting();
     case 'skills': return renderSkills();
     case 'settings': return renderSettings();
+    case 'about': return renderAboutPage();
     default: return renderLibrary();
   }
 }
@@ -901,7 +1078,7 @@ function renderLibrary() {
 
   return `
     <div class="h-full flex page-enter">
-      <aside class="w-52 border-r border-gray-200 bg-gray-50/50 flex flex-col shrink-0">
+      <aside class="w-52 border-r border-gray-200 bg-gray-50 flex flex-col shrink-0">
         <div class="px-3 py-3 border-b border-gray-200">
           <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">论文库</h2>
         </div>
@@ -917,15 +1094,16 @@ function renderLibrary() {
           </button>
           ${groupNames.length > 0 ? '<div class="mx-3 my-2 border-t border-gray-200"></div>' : ''}
           ${groupNames.map(name => `
-            <button onclick="selectGroup('${esc(name)}')" class="w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${state.selectedGroup === name ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}">
+            <div class="group w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors cursor-pointer ${state.selectedGroup === name ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}" onclick="selectGroup('${esc(name)}')">
               <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
               <span class="truncate">${esc(name)}</span>
               <span class="ml-auto text-xs text-gray-400">${counts[name]}</span>
-            </button>
+              <button onclick="event.stopPropagation(); dissolveGroup('${esc(name)}')" class="opacity-60 group-hover:opacity-100 w-5 h-5 flex items-center justify-center text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-all" title="解散分组">×</button>
+            </div>
           `).join('')}
         </div>
         <div class="px-3 pb-3 pt-1 border-t border-gray-200">
-          <button class="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors">
+          <button onclick="openCreateGroupDialog()" class="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             <span>新建分组</span>
           </button>
@@ -952,11 +1130,22 @@ function renderLibrary() {
                 `}
               </button>
             ` : ''}
-            <button class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1.5">
+            ${state.selectedGroup === null ? `
+              <button onclick="handleAIRecommend()" ${state.recommending ? 'disabled' : ''} class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center gap-1.5">
+                ${state.recommending ? `
+                  <svg class="w-4 h-4 spinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                  AI 分析中...
+                ` : `
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
+                  AI 自动分组
+                `}
+              </button>
+            ` : ''}
+            <button onclick="exportAllBibtex()" class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1.5">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               导出 BibTeX
             </button>
-            <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5">
+            <button onclick="importPdfMock()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
               导入 PDF
             </button>
@@ -978,6 +1167,7 @@ function renderLibrary() {
       </div>
       ${state.recommendOpen ? renderAIRecommendDialog() : ''}
       ${state.editingPaperId ? renderEditDialog() : ''}
+      ${state.newGroupDialogOpen ? renderCreateGroupDialog() : ''}
       ${renderTrashBin()}
     </div>
   `;
@@ -1487,8 +1677,7 @@ function renderAIRecommendDialog() {
 // ===================== RENDER: EDIT PAPER DIALOG =====================
 
 function renderEditDialog() {
-  const { counts } = getGroupCounts();
-  const existingGroups = Object.keys(counts).sort();
+  const allGroups = getAllGroupNames();
 
   return `
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="closeEditDialog()">
@@ -1509,10 +1698,10 @@ function renderEditDialog() {
         <!-- Group -->
         <div class="mb-4">
           <label class="block text-xs font-medium text-gray-500 mb-1.5">分组</label>
-          <input type="text" value="${esc(state.editGroup)}" oninput="setEditGroup(this.value)" list="edit-group-options" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-shadow" placeholder="输入或选择分组名称（留空则不分组）">
-          <datalist id="edit-group-options">
-            ${existingGroups.map(g => `<option value="${esc(g)}">`).join('')}
-          </datalist>
+          <select onchange="setEditGroup(this.value)" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-shadow bg-white">
+            <option value="">（不分组）</option>
+            ${allGroups.map(g => `<option value="${esc(g)}" ${state.editGroup === g ? 'selected' : ''}>${esc(g)}</option>`).join('')}
+          </select>
         </div>
 
         <!-- Tags -->
@@ -1529,7 +1718,7 @@ function renderEditDialog() {
           </div>
           <div class="flex gap-2">
             <input type="text" value="${esc(state.newTagInput)}" oninput="setNewTagInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditTag();}" placeholder="输入标签后按回车添加" class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-shadow">
-            <button onclick="addEditTag()" ${!state.newTagInput.trim() ? 'disabled' : ''} class="px-3 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 transition-colors">添加</button>
+            <button onclick="addEditTag()" class="px-3 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">添加</button>
           </div>
         </div>
 
@@ -1618,7 +1807,7 @@ function renderSkills() {
       <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shrink-0">
         <h1 class="text-lg font-bold text-gray-900">技能</h1>
         <div class="flex items-center gap-2">
-          ${state.skillTab === 'installed' ? `<button onclick="state.showCreateSkill=true; render()" class="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">+ 自建技能</button>` : ''}
+          <button onclick="state.showCreateSkill=true; render()" class="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">+ 自建技能</button>
         </div>
       </div>
       <div class="flex bg-white border-b border-gray-200 px-6 shrink-0">
@@ -1666,7 +1855,8 @@ function renderSkillCard(skill, isMarketplace) {
           <h3 class="text-sm font-semibold text-gray-900">${esc(skill.name)}</h3>
           <span class="inline-block mt-1 px-1.5 py-0.5 text-xs rounded ${CATEGORY_COLORS[skill.category] || 'bg-gray-100 text-gray-500'}">${skill.category}</span>
         </div>
-        ${isInstalled ? `<span class="px-1.5 py-0.5 text-xs rounded bg-green-50 text-green-600 shrink-0">✓</span>` : ''}
+        ${skill.is_custom ? `<span class="px-1.5 py-0.5 text-xs rounded bg-purple-50 text-purple-600 shrink-0">自建</span>` : ''}
+        ${isInstalled && !skill.is_custom ? `<span class="px-1.5 py-0.5 text-xs rounded bg-green-50 text-green-600 shrink-0">✓</span>` : ''}
       </div>
       <p class="text-xs text-gray-500 line-clamp-2 mb-2">${esc(skill.description)}</p>
       <div class="flex flex-wrap gap-1 mb-3">
@@ -1738,33 +1928,50 @@ function renderSkillDetail() {
 }
 
 function renderCreateSkillDialog() {
+  const iconOptions = ['✨', '📄', '🌐', '💡', '📝', '📊', '🔍', '🤖', '⚡', '🎯', '🔬', '📐'];
+  const categoryOptions = ['阅读辅助', '笔记管理', '写作辅助', '分析工具'];
   return `
     <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.showCreateSkill=false; render()">
-      <div class="bg-white rounded-lg shadow-xl p-5 w-[420px] max-w-[90vw]" onclick="event.stopPropagation()">
+      <div class="bg-white rounded-lg shadow-xl p-5 w-[420px] max-w-[90vw] max-h-[85vh] overflow-auto" onclick="event.stopPropagation()">
         <h2 class="text-sm font-semibold text-gray-800 mb-4">自建技能</h2>
         <div class="space-y-3">
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">名称 *</label>
-            <input type="text" placeholder="例如：论文摘要" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <input type="text" id="custom-skill-name" placeholder="例如：论文摘要" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">描述</label>
-            <textarea placeholder="这个技能有什么用？" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none min-h-16"></textarea>
+            <textarea id="custom-skill-desc" placeholder="这个技能有什么用？" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none min-h-16"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">图标</label>
+            <div class="flex flex-wrap gap-1.5" id="custom-skill-icon-grid">
+              ${iconOptions.map((icon, i) => `
+                <button type="button" onclick="document.querySelectorAll('#custom-skill-icon-grid button').forEach(b => b.classList.remove('border-blue-500','bg-blue-50')); this.classList.add('border-blue-500','bg-blue-50'); document.getElementById('custom-skill-icon').value='${icon}'" class="w-8 h-8 rounded border-2 ${i === 0 ? 'border-blue-500 bg-blue-50' : 'border-gray-200'} hover:border-blue-300 transition-colors flex items-center justify-center text-lg">${icon}</button>
+              `).join('')}
+            </div>
+            <input type="hidden" id="custom-skill-icon" value="✨">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">分类</label>
+            <select id="custom-skill-category" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+              ${categoryOptions.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
           </div>
           <div class="flex gap-3">
             <div class="flex-1">
               <label class="block text-xs font-medium text-gray-600 mb-1">版本</label>
-              <input type="text" placeholder="1.0.0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <input type="text" id="custom-skill-version" placeholder="1.0.0" value="1.0.0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
             </div>
             <div class="flex-1">
               <label class="block text-xs font-medium text-gray-600 mb-1">作者</label>
-              <input type="text" placeholder="姓名或组织" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <input type="text" id="custom-skill-author" placeholder="姓名或组织" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
             </div>
           </div>
         </div>
         <div class="flex justify-end gap-2 mt-4">
           <button onclick="state.showCreateSkill=false; render()" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">取消</button>
-          <button onclick="state.showCreateSkill=false; render()" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">创建</button>
+          <button onclick="createCustomSkill()" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">创建</button>
         </div>
       </div>
     </div>
@@ -1775,29 +1982,35 @@ function renderCreateSkillDialog() {
 
 function renderSettings() {
   const sections = [
-    { id: 'api', label: 'API 配置', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z', desc: '配置 AI 模型接口' },
-    { id: 'general', label: '通用', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', desc: '语言、主题与阅读偏好' },
-    { id: 'data', label: '数据管理', icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4', desc: '导入与导出论文数据' },
-    { id: 'about', label: '关于', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', desc: '版本信息与帮助' },
+    { id: 'api', label: t('settings.sections.api.label'), icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z', desc: t('settings.sections.api.desc') },
+    { id: 'general', label: t('settings.sections.general.label'), icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', desc: t('settings.sections.general.desc') },
+    { id: 'data', label: t('settings.sections.data.label'), icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4', desc: t('settings.sections.data.desc') },
   ];
 
   let contentHTML = '';
   if (state.settingsTab === 'api') contentHTML = renderSettingsAPI();
   else if (state.settingsTab === 'general') contentHTML = renderSettingsGeneral();
   else if (state.settingsTab === 'data') contentHTML = renderSettingsData();
-  else if (state.settingsTab === 'about') contentHTML = renderSettingsAbout();
 
   return `
     <div class="h-full flex flex-col bg-gray-50 page-enter">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shrink-0">
         <div>
-          <h1 class="text-lg font-bold text-gray-900">设置</h1>
-          <p class="text-xs text-gray-500 mt-0.5">配置 Maibook 的各项偏好</p>
+          <h1 class="text-lg font-bold text-gray-900">${t('settings.title')}</h1>
+          <p class="text-xs text-gray-500 mt-0.5">${t('settings.subtitle')}</p>
         </div>
-        <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5" onclick="showToast('设置已保存')">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-          保存设置
+        <button class="px-4 py-2 ${state.settingsSaved ? 'bg-green-600' : 'bg-blue-600'} text-white text-sm font-medium rounded-lg hover:${state.settingsSaved ? 'bg-green-700' : 'bg-blue-700'} transition-colors flex items-center gap-1.5" onclick="saveSettings()">
+          ${state.settingsSaving ? `
+            <svg class="w-4 h-4 spinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            ${t('settings.saving')}
+          ` : state.settingsSaved ? `
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            ${t('settings.saved')}
+          ` : `
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            ${t('settings.save')}
+          `}
         </button>
       </div>
 
@@ -1806,7 +2019,7 @@ function renderSettings() {
         <!-- Sidebar nav -->
         <nav class="w-56 shrink-0 border-r border-gray-200 bg-white py-4 overflow-y-auto">
           <div class="px-4 mb-3">
-            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">偏好设置</span>
+            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">${t('settings.navLabel')}</span>
           </div>
           <div class="space-y-0.5 px-2">
             ${sections.map((s, i) => `
@@ -1834,6 +2047,22 @@ function renderSettings() {
   `;
 }
 
+function saveSettings() {
+  if (state.settingsSaving) return;
+  state.settingsSaving = true;
+  render();
+  setTimeout(() => {
+    state.settingsSaving = false;
+    state.settingsSaved = true;
+    showToast('设置已保存');
+    render();
+    setTimeout(() => {
+      state.settingsSaved = false;
+      render();
+    }, 2000);
+  }, 800);
+}
+
 function renderSettingsAPI() {
   return `
     <!-- Section header -->
@@ -1846,11 +2075,13 @@ function renderSettingsAPI() {
     </div>
 
     <!-- Connection status -->
-    <div class="flex items-center gap-2.5 mb-6 px-4 py-3 bg-green-50 border border-green-100 rounded-lg">
-      <span class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></span>
-      <span class="text-sm text-green-700 font-medium">已连接</span>
-      <span class="text-xs text-green-500">gpt-4o · 延迟 238ms</span>
-      <button class="ml-auto text-xs text-green-600 hover:text-green-800 underline underline-offset-2">测试连接</button>
+    <div class="flex items-center gap-2.5 mb-6 px-4 py-3 ${state.apiTestResult === 'fail' ? 'bg-red-50 border border-red-100' : 'bg-green-50 border border-green-100'} rounded-lg">
+      <span class="w-2 h-2 rounded-full ${state.apiTestResult === 'fail' ? 'bg-red-500' : 'bg-green-500 pulse-dot'}"></span>
+      <span class="text-sm ${state.apiTestResult === 'fail' ? 'text-red-700' : 'text-green-700'} font-medium">${state.apiTestResult === 'fail' ? '连接失败' : '已连接'}</span>
+      ${state.apiTestResult !== 'fail' ? `<span class="text-xs text-green-500">${esc(state.apiConfig.model)} · 延迟 ${state.apiLatency || '238'}ms</span>` : ''}
+      <button onclick="testApiConnection()" class="ml-auto text-xs ${state.apiTestResult === 'fail' ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} underline underline-offset-2 flex items-center gap-1">
+        ${state.apiTesting ? `<svg class="w-3 h-3 spinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>测试中...` : '测试连接'}
+      </button>
     </div>
 
     <!-- Fields -->
@@ -1862,11 +2093,8 @@ function renderSettingsAPI() {
             <label class="block text-sm font-medium text-gray-800">API 供应商</label>
             <p class="text-xs text-gray-400 mt-0.5">选择模型服务提供商</p>
           </div>
-          <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[180px]">
-            <option>OpenAI</option>
-            <option>DeepSeek</option>
-            <option>通义千问</option>
-            <option>自定义</option>
+          <select onchange="updateApiConfig('provider', this.value)" class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[180px]">
+            ${['OpenAI', 'DeepSeek', '通义千问', '自定义'].map(p => `<option ${state.apiConfig.provider === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -1878,7 +2106,7 @@ function renderSettingsAPI() {
             <label class="block text-sm font-medium text-gray-800">API 地址</label>
             <p class="text-xs text-gray-400 mt-0.5">模型服务的接口端点</p>
           </div>
-          <input type="text" value="https://api.openai.com/v1" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[280px] font-mono text-xs">
+          <input type="text" value="${esc(state.apiConfig.endpoint)}" oninput="state.apiConfig.endpoint=this.value" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[280px] font-mono text-xs">
         </div>
       </div>
 
@@ -1891,8 +2119,8 @@ function renderSettingsAPI() {
               <p class="text-xs text-gray-400 mt-0.5">以 sk- 开头的密钥字符串</p>
             </div>
             <div class="flex gap-2">
-              <input type="password" value="sk-xxxxxxxxxxxxxxxxxxxxxxxx" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[240px] font-mono text-xs">
-              <button class="px-3 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">显示</button>
+              <input type="${state.apiConfig.showApiKey ? 'text' : 'password'}" value="${esc(state.apiConfig.apiKey)}" oninput="state.apiConfig.apiKey=this.value" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[240px] font-mono text-xs">
+              <button onclick="toggleApiKeyVisibility()" class="px-3 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">${state.apiConfig.showApiKey ? '隐藏' : '显示'}</button>
             </div>
           </div>
         </div>
@@ -1905,11 +2133,8 @@ function renderSettingsAPI() {
             <label class="block text-sm font-medium text-gray-800">模型</label>
             <p class="text-xs text-gray-400 mt-0.5">影响生成质量和速度</p>
           </div>
-          <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[180px]">
-            <option>gpt-4o</option>
-            <option>gpt-4o-mini</option>
-            <option>deepseek-chat</option>
-            <option>qwen-plus</option>
+          <select onchange="updateApiConfig('model', this.value)" class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[180px]">
+            ${getModelsForProvider(state.apiConfig.provider).map(m => `<option ${state.apiConfig.model === m ? 'selected' : ''}>${m}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -1917,14 +2142,62 @@ function renderSettingsAPI() {
   `;
 }
 
+function getModelsForProvider(provider) {
+  var models = {
+    'OpenAI': ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+    'DeepSeek': ['deepseek-chat', 'deepseek-coder', 'deepseek-reasoner'],
+    '通义千问': ['qwen-plus', 'qwen-turbo', 'qwen-max'],
+    '自定义': ['custom-model'],
+  };
+  return models[provider] || ['custom-model'];
+}
+
+function updateApiConfig(field, value) {
+  state.apiConfig[field] = value;
+  if (field === 'provider') {
+    const presets = {
+      'OpenAI': { endpoint: 'https://api.openai.com/v1', model: 'gpt-4o' },
+      'DeepSeek': { endpoint: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+      '通义千问': { endpoint: 'https://dashscope.aliyuncs.com/api/v1', model: 'qwen-plus' },
+    };
+    if (presets[value]) {
+      state.apiConfig.endpoint = presets[value].endpoint;
+      state.apiConfig.model = presets[value].model;
+    }
+  }
+  state.apiTestResult = null;
+  state.apiLatency = null;
+  render();
+}
+
+function toggleApiKeyVisibility() {
+  state.apiConfig.showApiKey = !state.apiConfig.showApiKey;
+  render();
+}
+
+function testApiConnection() {
+  if (state.apiTesting) return;
+  state.apiTesting = true;
+  state.apiTestResult = null;
+  render();
+  setTimeout(() => {
+    state.apiTesting = false;
+    state.apiTestResult = state.apiConfig.apiKey && state.apiConfig.apiKey.length > 5 ? 'success' : 'fail';
+    if (state.apiTestResult === 'success') {
+      state.apiLatency = Math.floor(Math.random() * 200 + 80);
+    }
+    render();
+  }, 1500);
+}
+
 function renderSettingsGeneral() {
   return `
     <div class="mb-6">
       <div class="flex items-center gap-2 mb-1">
         <span class="text-[10px] font-mono text-blue-400">02</span>
-        <h2 class="text-xl font-serif font-semibold text-gray-900">通用</h2>
+        <h2 class="text-xl font-serif font-semibold text-gray-900">${t('general.title')}</h2>
       </div>
-      <p class="text-sm text-gray-500 ml-7">自定义界面语言、主题外观与翻译偏好。</p>
+      <p class="text-sm text-gray-500 ml-7">${t('general.subtitle')}</p>
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
@@ -1932,12 +2205,11 @@ function renderSettingsGeneral() {
       <div class="settings-field px-5 py-4">
         <div class="flex items-center justify-between gap-4">
           <div class="shrink-0">
-            <label class="block text-sm font-medium text-gray-800">界面语言</label>
-            <p class="text-xs text-gray-400 mt-0.5">应用显示语言</p>
+            <label class="block text-sm font-medium text-gray-800">${t('general.language')}</label>
+            <p class="text-xs text-gray-400 mt-0.5">${t('general.languageDesc')}</p>
           </div>
-          <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[160px]">
-            <option>简体中文</option>
-            <option>English</option>
+          <select onchange="state.generalSettings.language=this.value; render()" class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[160px]">
+            ${['简体中文', 'English'].map(l => `<option ${state.generalSettings.language === l ? 'selected' : ''}>${l}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -1946,12 +2218,12 @@ function renderSettingsGeneral() {
       <div class="settings-field px-5 py-4">
         <div class="flex items-center justify-between gap-4">
           <div class="shrink-0">
-            <label class="block text-sm font-medium text-gray-800">主题外观</label>
-            <p class="text-xs text-gray-400 mt-0.5">浅色或深色模式</p>
+            <label class="block text-sm font-medium text-gray-800">${t('general.theme')}</label>
+            <p class="text-xs text-gray-400 mt-0.5">${t('general.themeDesc')}</p>
           </div>
           <div class="flex gap-1.5 p-1 bg-gray-100 rounded-lg">
-            <button class="px-4 py-1.5 text-sm font-medium bg-white text-blue-700 rounded-md shadow-sm">浅色</button>
-            <button class="px-4 py-1.5 text-sm font-medium text-gray-500 rounded-md hover:text-gray-700">深色</button>
+            <button onclick="setTheme('light')" class="px-4 py-1.5 text-sm font-medium rounded-md transition-all ${state.generalSettings.theme === 'light' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}">${t('general.themeLight')}</button>
+            <button onclick="setTheme('dark')" class="px-4 py-1.5 text-sm font-medium rounded-md transition-all ${state.generalSettings.theme === 'dark' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}">${t('general.themeDark')}</button>
           </div>
         </div>
       </div>
@@ -1960,13 +2232,11 @@ function renderSettingsGeneral() {
       <div class="settings-field px-5 py-4">
         <div class="flex items-center justify-between gap-4">
           <div class="shrink-0">
-            <label class="block text-sm font-medium text-gray-800">翻译目标语言</label>
-            <p class="text-xs text-gray-400 mt-0.5">阅读器内翻译功能的目标语言</p>
+            <label class="block text-sm font-medium text-gray-800">${t('general.translate')}</label>
+            <p class="text-xs text-gray-400 mt-0.5">${t('general.translateDesc')}</p>
           </div>
-          <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[160px]">
-            <option>中文</option>
-            <option>English</option>
-            <option>日本語</option>
+          <select onchange="state.generalSettings.translateTarget=this.value; showToast('翻译目标已设为 ' + this.value)" class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[160px]">
+            ${['中文', 'English', '日本語'].map(l => `<option ${state.generalSettings.translateTarget === l ? 'selected' : ''}>${l}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -1975,11 +2245,11 @@ function renderSettingsGeneral() {
       <div class="settings-field px-5 py-4">
         <div class="flex items-center justify-between gap-4">
           <div class="shrink-0">
-            <label class="block text-sm font-medium text-gray-800">自动生成摘要</label>
-            <p class="text-xs text-gray-400 mt-0.5">打开论文时自动调用摘要技能</p>
+            <label class="block text-sm font-medium text-gray-800">${t('general.autoSummary')}</label>
+            <p class="text-xs text-gray-400 mt-0.5">${t('general.autoSummaryDesc')}</p>
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" checked>
+            <input type="checkbox" ${state.generalSettings.autoSummary ? 'checked' : ''} onchange="state.generalSettings.autoSummary=this.checked">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -1989,14 +2259,197 @@ function renderSettingsGeneral() {
       <div class="settings-field px-5 py-4">
         <div class="flex items-center justify-between gap-4">
           <div class="shrink-0">
-            <label class="block text-sm font-medium text-gray-800">自动保存阅读进度</label>
-            <p class="text-xs text-gray-400 mt-0.5">翻页时自动记录当前位置</p>
+            <label class="block text-sm font-medium text-gray-800">${t('general.autoSave')}</label>
+            <p class="text-xs text-gray-400 mt-0.5">${t('general.autoSaveDesc')}</p>
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" checked>
+            <input type="checkbox" ${state.generalSettings.autoSaveProgress ? 'checked' : ''} onchange="state.generalSettings.autoSaveProgress=this.checked">
             <span class="toggle-slider"></span>
           </label>
         </div>
+      </div>
+    </div>
+  `;
+}
+
+function setTheme(theme) {
+  state.generalSettings.theme = theme;
+  document.body.setAttribute('data-theme', theme);
+  render();
+}
+
+function exportData() {
+  const data = {
+    version: '0.9.3',
+    exported_at: new Date().toISOString(),
+    papers: papers,
+    annotations: annotations,
+    skills: state.skills.filter(s => s.installed),
+    conversations: conversations,
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'maibook-backup-' + Date.now() + '.maibook';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('数据已导出（' + papers.length + ' 篇论文，' + annotations.length + ' 条标注）');
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.maibook,.json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.papers || !Array.isArray(data.papers)) {
+          showToast('导入失败：文件格式不正确（需要 .maibook 格式）');
+          return;
+        }
+        let importedPapers = 0;
+        let importedAnnotations = 0;
+        data.papers.forEach(function(p) {
+          if (!papers.find(function(existing) { return existing.id === p.id || existing.title === p.title; })) {
+            papers.push(p);
+            importedPapers++;
+          }
+        });
+        if (data.annotations && Array.isArray(data.annotations)) {
+          data.annotations.forEach(function(a) {
+            if (!annotations.find(function(existing) { return existing.id === a.id; })) {
+              annotations.push(a);
+              importedAnnotations++;
+            }
+          });
+        }
+        showToast('成功导入 ' + importedPapers + ' 篇论文，' + importedAnnotations + ' 条标注');
+        render();
+      } catch(err) {
+        showToast('导入失败：文件格式不正确（需要 .maibook 格式）');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function showAboutModal(type) {
+  state.aboutModal = type;
+  render();
+  // For 'update' type, simulate checking after 1.5s
+  if (type === 'update') {
+    setTimeout(function() {
+      if (state.aboutModal !== 'update') return;
+      var modalBody = document.getElementById('about-modal-body');
+      if (modalBody) {
+        modalBody.innerHTML = `
+          <div class="flex flex-col items-center py-6">
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <p class="text-sm font-medium text-gray-700 mb-1">已是最新版本</p>
+            <p class="text-xs text-gray-400">当前版本 v0.9.3 · Build 2026.7.12</p>
+          </div>
+        `;
+      }
+    }, 1500);
+  }
+}
+
+function closeAboutModal() {
+  state.aboutModal = null;
+  render();
+}
+
+function renderAboutModal() {
+  const type = state.aboutModal;
+  let title = '', content = '';
+
+  if (type === 'docs') {
+    title = '使用文档';
+    content = `
+      <div class="space-y-3 text-sm text-gray-600">
+        <div><strong class="text-gray-800">论文库</strong>：导入 PDF 后自动解析元数据，支持分组管理、状态标记和 BibTeX 导出。</div>
+        <div><strong class="text-gray-800">阅读器</strong>：选中文本可高亮、添加笔记和评论，侧边栏支持 AI 对话、摘要和翻译。</div>
+        <div><strong class="text-gray-800">检索</strong>：输入关键词或选择已有论文，AI 自动检索相关文献。</div>
+        <div><strong class="text-gray-800">创意工坊</strong>：描述创意，AI 检索相似论文并提供升级建议。</div>
+        <div><strong class="text-gray-800">一键组会</strong>：输入主题，AI 自动检索论文并生成演讲稿和 PPT 大纲。</div>
+        <div><strong class="text-gray-800">技能</strong>：安装或自建技能，在论文详情页一键运行 AI 技能流水线。</div>
+      </div>
+    `;
+  } else if (type === 'feedback') {
+    title = '问题反馈';
+    content = `
+      <div class="space-y-3 text-sm text-gray-600">
+        <p>感谢您使用 Maibook！如有任何问题或建议，请通过以下方式反馈：</p>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"><span>GitHub Issues:</span><a href="https://github.com/CptHowe" target="_blank" class="text-blue-600 hover:underline">github.com/CptHowe</a></div>
+          <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"><span>邮箱:</span><span class="text-blue-600">feedback@maibook.app</span></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">反馈时请附上操作步骤和截图，以便我们更快定位问题。</p>
+      </div>
+    `;
+  } else if (type === 'changelog') {
+    title = '更新日志';
+    content = `
+      <div class="space-y-4 text-sm text-gray-600 max-h-60 overflow-auto">
+        <div>
+          <p class="font-semibold text-gray-800">v0.9.3 <span class="text-xs text-gray-400 font-normal ml-2">2026-07-12</span></p>
+          <ul class="list-disc pl-5 mt-1 space-y-0.5 text-xs">
+            <li>新增标注持久化：动态高亮在页面重渲染后保留</li>
+            <li>新增分组解散功能</li>
+            <li>检索/创意/组会页面改为分屏布局</li>
+            <li>设置页 API 配置、通用设置全面可交互</li>
+            <li>支持数据导出/导入 .maibook 格式</li>
+            <li>组会支持 PPT 下载</li>
+            <li>支持自建技能</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-800">v0.9.2 <span class="text-xs text-gray-400 font-normal ml-2">2026-07-05</span></p>
+          <ul class="list-disc pl-5 mt-1 space-y-0.5 text-xs">
+            <li>新增一键组会功能</li>
+            <li>新增创意工坊相似论文检测</li>
+            <li>优化阅读器选中文本工具栏</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-800">v0.9.1 <span class="text-xs text-gray-400 font-normal ml-2">2026-06-20</span></p>
+          <ul class="list-disc pl-5 mt-1 space-y-0.5 text-xs">
+            <li>初始版本发布</li>
+            <li>支持论文导入、阅读、标注、AI 对话</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  } else if (type === 'update') {
+    title = '检查更新';
+    content = `
+      <div class="flex flex-col items-center py-6">
+        <div class="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full spinner mb-4"></div>
+        <p class="text-sm font-medium text-gray-700 mb-1">正在检查更新...</p>
+        <p class="text-xs text-gray-400">当前版本 v0.9.3</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="closeAboutModal()">
+      <div class="bg-white rounded-lg shadow-xl p-5 w-[480px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-semibold text-gray-900">${title}</h2>
+          <button onclick="closeAboutModal()" class="text-gray-400 hover:text-gray-600">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="about-modal-body">${content}</div>
       </div>
     </div>
   `;
@@ -2022,7 +2475,7 @@ function renderSettingsData() {
           <h3 class="text-sm font-semibold text-gray-800">导出数据</h3>
           <p class="text-xs text-gray-500 mt-1">将全部论文、标注和笔记导出为 <code class="text-xs px-1 py-0.5 bg-gray-100 rounded font-mono">.maibook</code> 格式文件，可用于备份或迁移。</p>
         </div>
-        <button class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shrink-0" onclick="showToast('导出中...')">导出 .maibook</button>
+        <button class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shrink-0" onclick="exportData()">导出 .maibook</button>
       </div>
     </div>
 
@@ -2036,7 +2489,7 @@ function renderSettingsData() {
           <h3 class="text-sm font-semibold text-gray-800">导入数据</h3>
           <p class="text-xs text-gray-500 mt-1">从 <code class="text-xs px-1 py-0.5 bg-gray-100 rounded font-mono">.maibook</code> 文件恢复数据。已有论文不会被覆盖，仅追加新内容。</p>
         </div>
-        <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shrink-0" onclick="showToast('导入中...')">导入 .maibook</button>
+        <button class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shrink-0" onclick="importData()">导入 .maibook</button>
       </div>
     </div>
 
@@ -2061,16 +2514,8 @@ function renderSettingsData() {
   `;
 }
 
-function renderSettingsAbout() {
+function renderAboutContent() {
   return `
-    <div class="mb-6">
-      <div class="flex items-center gap-2 mb-1">
-        <span class="text-[10px] font-mono text-blue-400">04</span>
-        <h2 class="text-xl font-serif font-semibold text-gray-900">关于</h2>
-      </div>
-      <p class="text-sm text-gray-500 ml-7">版本信息与相关资源。</p>
-    </div>
-
     <!-- Brand card -->
     <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 mb-4 text-white">
       <div class="flex items-center gap-3 mb-3">
@@ -2097,37 +2542,58 @@ function renderSettingsAbout() {
 
     <!-- Links -->
     <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-      <a href="#" class="settings-field flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors">
+      <button onclick="showAboutModal('docs')" class="settings-field w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
         <div class="flex items-center gap-3">
           <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           <span class="text-sm text-gray-700">使用文档</span>
         </div>
         <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </a>
-      <a href="#" class="settings-field flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors">
+      </button>
+      <button onclick="showAboutModal('feedback')" class="settings-field w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
         <div class="flex items-center gap-3">
           <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           <span class="text-sm text-gray-700">问题反馈</span>
         </div>
         <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </a>
-      <a href="#" class="settings-field flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors">
+      </button>
+      <button onclick="showAboutModal('changelog')" class="settings-field w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
         <div class="flex items-center gap-3">
           <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="text-sm text-gray-700">更新日志</span>
         </div>
         <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </a>
-      <a href="#" class="settings-field flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors">
+      </button>
+      <button onclick="showAboutModal('update')" class="settings-field w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors text-left">
         <div class="flex items-center gap-3">
           <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          <span class="text-sm text-gray-700">开源许可</span>
+          <span class="text-sm text-gray-700">检查更新</span>
         </div>
         <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </a>
+      </button>
     </div>
 
     <p class="text-center text-xs text-gray-400 mt-6 font-serif italic">Crafted for researchers, by researchers.</p>
+  `;
+}
+
+function renderAboutPage() {
+  return `
+    <div class="h-full flex flex-col bg-gray-50 page-enter">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shrink-0">
+        <div>
+          <h1 class="text-lg font-bold text-gray-900">${t('about.title')}</h1>
+          <p class="text-xs text-gray-500 mt-0.5">${t('about.subtitle')}</p>
+        </div>
+      </div>
+      <!-- Content -->
+      <div class="flex-1 overflow-auto">
+        <div class="max-w-2xl mx-auto px-8 py-8">
+          ${renderAboutContent()}
+        </div>
+      </div>
+    </div>
+    ${state.aboutModal ? renderAboutModal() : ''}
   `;
 }
 
@@ -2149,13 +2615,61 @@ function showToast(msg) {
   }, 2000);
 }
 
+function confirmAction(message, onConfirm) {
+  state.confirmAction = { message: message, onConfirm: onConfirm };
+  render();
+}
+
+function dismissConfirm() {
+  state.confirmAction = null;
+  render();
+}
+
+function executeConfirm() {
+  if (state.confirmAction && state.confirmAction.onConfirm) {
+    state.confirmAction.onConfirm();
+  }
+  state.confirmAction = null;
+  render();
+}
+
+function renderConfirmDialog() {
+  return `
+    <div class="fixed inset-0 z-[200] flex items-center justify-center bg-black/30" onclick="dismissConfirm()">
+      <div class="bg-white rounded-xl shadow-2xl p-6 w-[400px] max-w-[90vw]" onclick="event.stopPropagation()">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+          </div>
+          <p class="text-sm text-gray-700 pt-1">${esc(state.confirmAction.message)}</p>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button onclick="dismissConfirm()" class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+          <button onclick="executeConfirm()" class="px-4 py-2 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">确认</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // ===================== RENDER: DISCOVERY =====================
 
 function renderDiscovery() {
-  let wizardContent = '';
-  if (state.discoveryStep === 'input') wizardContent = renderDiscoveryInput();
-  else if (state.discoveryStep === 'loading') wizardContent = renderDiscoveryLoading();
-  else if (state.discoveryStep === 'results') wizardContent = renderDiscoveryResults();
+  const showSplit = state.discoveryStep !== 'input';
+  let rightContent = '';
+  if (state.discoveryStep === 'input') {
+    rightContent = `
+      <div class="flex flex-col items-center justify-center h-full text-gray-400">
+        <svg class="w-16 h-16 mb-4 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <p class="text-sm">输入关键词或选择论文后点击检索</p>
+        <p class="text-xs mt-1">结果将显示在此处</p>
+      </div>
+    `;
+  } else if (state.discoveryStep === 'loading') {
+    rightContent = renderDiscoveryLoading();
+  } else {
+    rightContent = renderDiscoveryResults();
+  }
 
   return `
     <div class="h-full flex flex-col bg-gray-50 page-enter">
@@ -2164,11 +2678,16 @@ function renderDiscovery() {
           <h1 class="text-lg font-bold text-gray-900">检索</h1>
           <p class="text-xs text-gray-500 mt-0.5">AI 驱动的论文发现与导入</p>
         </div>
-        ${state.discoveryStep !== 'input' ? `<button onclick="resetDiscovery()" class="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">新建检索</button>` : ''}
+        ${showSplit ? `<button onclick="resetDiscovery()" class="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消检索/返回</button>` : ''}
       </div>
-      <div class="flex-1 overflow-auto p-6">
-        <div class="max-w-3xl mx-auto">
-          ${wizardContent}
+      <div class="flex-1 overflow-hidden flex">
+        <div class="w-[420px] shrink-0 border-r border-gray-200 overflow-auto p-6 bg-white">
+          ${renderDiscoveryInput()}
+        </div>
+        <div class="flex-1 overflow-auto p-6">
+          <div class="max-w-3xl mx-auto">
+            ${rightContent}
+          </div>
         </div>
       </div>
     </div>
@@ -2176,8 +2695,27 @@ function renderDiscovery() {
 }
 
 function renderDiscoveryInput() {
+  // Status bar based on discovery step
+  let statusBar = '';
+  if (state.discoveryStep === 'loading') {
+    statusBar = `
+      <div class="mt-5 px-3 py-2 bg-blue-50 rounded-lg text-xs text-blue-600 flex items-center gap-2">
+        <svg class="w-3.5 h-3.5 spinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+        检索进行中... 结果显示在右侧
+      </div>
+    `;
+  } else if (state.discoveryStep === 'results') {
+    const resultCount = state.discoveryResults ? state.discoveryResults.length : 0;
+    statusBar = `
+      <div class="mt-5 px-3 py-2 bg-green-50 rounded-lg text-xs text-green-600 flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        检索完成，找到 ${resultCount} 篇论文
+      </div>
+    `;
+  }
+
   return `
-    <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+    <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm border-0 shadow-none">
       <h2 class="text-sm font-semibold text-gray-700 mb-4">选择检索方式</h2>
       <div class="flex gap-3 mb-5">
         <button onclick="state.discoveryMode='keyword'; render()" class="flex-1 px-4 py-3 rounded-lg border-2 transition-all ${state.discoveryMode === 'keyword' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}">
@@ -2202,16 +2740,48 @@ function renderDiscoveryInput() {
       ` : `
         <div>
           <label class="block text-sm font-medium text-gray-600 mb-2">从论文库选择参考论文（AI 将分析这些论文并检索相似文献）</label>
-          <div class="space-y-2 max-h-48 overflow-auto border border-gray-200 rounded-lg p-2">
-            ${papers.map(p => `
-              <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer">
-                <input type="checkbox" ${state.discoverySourcePapers.includes(p.id) ? 'checked' : ''} onchange="toggleDiscoverySourcePaper('${p.id}')" class="rounded">
-                <span class="text-sm text-gray-700 truncate flex-1">${esc(p.title)}</span>
-                <span class="text-xs text-gray-400">${p.year || ''}</span>
-              </label>
-            `).join('')}
-          </div>
-          <p class="text-xs text-gray-400 mt-1">已选择 ${state.discoverySourcePapers.length} 篇论文</p>
+          ${(() => {
+            const groupedPapers = {};
+            papers.forEach(p => {
+              const g = p.group_name || '__ungrouped__';
+              if (!groupedPapers[g]) groupedPapers[g] = [];
+              groupedPapers[g].push(p);
+            });
+            const groupNames = Object.keys(groupedPapers);
+            return `
+              <div class="space-y-2 max-h-64 overflow-auto border border-gray-200 rounded-lg p-2">
+                ${groupNames.map(gName => {
+                  const groupPapers = groupedPapers[gName];
+                  const selectedCount = groupPapers.filter(p => state.discoverySourcePapers.includes(p.id)).length;
+                  const allSelected = selectedCount === groupPapers.length;
+                  const collapsed = state.discoveryCollapsedGroups.includes(gName);
+                  const displayName = gName === '__ungrouped__' ? '未分组' : gName;
+                  return `
+                    <div class="border border-gray-100 rounded-lg overflow-hidden">
+                      <div class="flex items-center gap-2 px-2.5 py-2 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" onclick="toggleDiscoveryGroupCollapse('${esc(gName)}')">
+                        <svg class="w-3.5 h-3.5 transition-transform shrink-0 ${collapsed ? '' : 'rotate-90'}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        <input type="checkbox" ${allSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleDiscoveryGroupSelect('${esc(gName)}')" class="rounded shrink-0">
+                        <span class="text-sm font-medium text-gray-700">${esc(displayName)}</span>
+                        <span data-group-selected="${esc(gName)}" class="text-xs text-gray-400 ml-auto">${selectedCount}/${groupPapers.length} 篇</span>
+                      </div>
+                      ${!collapsed ? `
+                        <div class="divide-y divide-gray-50">
+                          ${groupPapers.map(p => `
+                            <label class="flex items-center gap-2 px-2.5 py-1.5 hover:bg-gray-50 cursor-pointer">
+                              <input type="checkbox" ${state.discoverySourcePapers.includes(p.id) ? 'checked' : ''} onchange="toggleDiscoverySourcePaper('${p.id}')" class="rounded shrink-0">
+                              <span class="text-sm text-gray-700 truncate flex-1">${esc(p.title)}</span>
+                              <span class="text-xs text-gray-400 shrink-0">${p.year || ''}</span>
+                            </label>
+                          `).join('')}
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <p class="text-xs text-gray-400 mt-1">已选择 ${state.discoverySourcePapers.length} 篇论文</p>
+            `;
+          })()}
         </div>
       `}
       <div class="mt-5 flex justify-end">
@@ -2220,6 +2790,7 @@ function renderDiscoveryInput() {
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
       </div>
+      ${statusBar}
     </div>
   `;
 }
@@ -2263,7 +2834,8 @@ function renderDiscoveryResults() {
               <input type="checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleDiscoverySelect('${r.id}')" class="mt-1 rounded shrink-0">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-0.5">
-                  <span class="text-sm font-medium text-gray-900 line-clamp-1">${esc(r.title)}</span>
+                  <span class="text-sm font-medium ${r.inLibrary ? 'text-gray-400' : 'text-gray-900'} line-clamp-1">${esc(r.title)}</span>
+                  ${r.inLibrary ? '<span class="px-1.5 py-0.5 text-[10px] bg-green-100 text-green-700 rounded-full shrink-0">已在论文库</span>' : ''}
                 </div>
                 <p class="text-xs text-gray-500 mb-1">${esc(r.authors)} · ${r.year} · ${esc(r.journal)}</p>
                 <p class="text-xs text-gray-400 line-clamp-2 mb-2">${esc(r.abstract_text)}</p>
@@ -2291,12 +2863,38 @@ function renderDiscoveryResults() {
 
 function renderIdeaLab() {
   let wizardContent = '';
-  if (state.ideaStep === 'input') wizardContent = renderIdeaInput();
-  else if (state.ideaStep === 'analyzing') wizardContent = renderIdeaAnalyzing();
+  if (state.ideaStep === 'analyzing') wizardContent = renderIdeaAnalyzing();
   else if (state.ideaStep === 'similar') wizardContent = renderIdeaSimilar();
   else if (state.ideaStep === 'upgrading') wizardContent = renderIdeaUpgrading();
   else if (state.ideaStep === 'generating') wizardContent = renderIdeaGenerating();
   else if (state.ideaStep === 'done') wizardContent = renderIdeaDone();
+
+  const showSplit = state.ideaStep !== 'input';
+
+  // Right panel content
+  let rightContent = '';
+  if (state.ideaStep === 'input') {
+    rightContent = `
+      <div>
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">已保存的创意</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          ${savedIdeas.length > 0 ? savedIdeas.map(idea => renderIdeaCard(idea)).join('') : '<p class="text-sm text-gray-400 col-span-3 text-center py-8">暂无保存的创意</p>'}
+        </div>
+      </div>
+    `;
+  } else {
+    rightContent = `
+      ${wizardContent}
+      ${state.ideaStep === 'done' ? `
+        <div>
+          <h2 class="text-sm font-semibold text-gray-700 mb-3">已保存的创意</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${savedIdeas.map(idea => renderIdeaCard(idea)).join('')}
+          </div>
+        </div>
+      ` : ''}
+    `;
+  }
 
   return `
     <div class="h-full flex flex-col bg-gray-50 page-enter">
@@ -2305,23 +2903,27 @@ function renderIdeaLab() {
           <h1 class="text-lg font-bold text-gray-900">创意工坊</h1>
           <p class="text-xs text-gray-500 mt-0.5">AI 辅助创意发现与升级</p>
         </div>
-        ${state.ideaStep !== 'input' ? `<button onclick="resetIdeaWizard()" class="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">新创意</button>` : ''}
+        ${showSplit ? `<button onclick="resetIdeaWizard()" class="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消/返回</button>` : ''}
       </div>
-      <div class="flex-1 overflow-auto p-6">
-        <div class="max-w-3xl mx-auto space-y-6">
-          ${wizardContent}
-          ${state.ideaStep === 'input' || state.ideaStep === 'done' ? `
-            <div>
-              <h2 class="text-sm font-semibold text-gray-700 mb-3">已保存的创意</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${savedIdeas.map(idea => renderIdeaCard(idea)).join('')}
-              </div>
+      <div class="flex-1 overflow-hidden flex">
+        <div class="w-[400px] shrink-0 border-r border-gray-200 overflow-auto p-6 bg-white">
+          ${renderIdeaInput()}
+          ${showSplit ? `
+            <div class="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-4">
+              <h3 class="text-xs font-semibold text-blue-600 uppercase mb-2">原始创意</h3>
+              <p class="text-sm text-gray-700 whitespace-pre-wrap">${esc(state.ideaInput)}</p>
             </div>
           ` : ''}
+        </div>
+        <div class="flex-1 overflow-auto p-6">
+          <div class="max-w-3xl mx-auto space-y-6">
+            ${rightContent}
+          </div>
         </div>
       </div>
     </div>
     ${state.ideaViewDetail ? renderIdeaDetailModal() : ''}
+    ${renderIdeaTrash()}
   `;
 }
 
@@ -2400,8 +3002,10 @@ function renderIdeaUpgrading() {
         ${state.ideaUpgrades.map((u, i) => {
           const checked = state.ideaSelectedUpgrades.includes(i);
           return `
-            <label class="flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${checked ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}" onclick="toggleIdeaUpgrade(${i})">
-              <input type="checkbox" ${checked ? 'checked' : ''} class="mt-0.5 rounded shrink-0">
+            <div data-upgrade-idx="${i}" class="flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${checked ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}" onclick="toggleIdeaUpgrade(${i})">
+              <div class="custom-checkbox w-4 h-4 mt-0.5 rounded border-2 ${checked ? 'border-blue-500 bg-blue-500' : 'border-gray-300'} flex items-center justify-center shrink-0 transition-all">
+                ${checked ? '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
+              </div>
               <div class="flex-1">
                 <div class="flex items-center gap-1.5 mb-0.5">
                   <span>${u.icon}</span>
@@ -2409,7 +3013,7 @@ function renderIdeaUpgrading() {
                 </div>
                 <p class="text-xs text-gray-500">${esc(u.content)}</p>
               </div>
-            </label>
+            </div>
           `;
         }).join('')}
       </div>
@@ -2465,7 +3069,10 @@ function renderIdeaDone() {
 function renderIdeaCard(idea) {
   const simColor = idea.similarity > 75 ? 'text-red-500' : idea.similarity > 60 ? 'text-orange-500' : 'text-green-500';
   return `
-    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group" onclick="viewIdeaDetail('${idea.id}')">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group relative" onclick="viewIdeaDetail('${idea.id}')">
+      <button onclick="event.stopPropagation(); trashIdea('${idea.id}')" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center opacity-60 hover:opacity-100 transition-all" title="删除创意">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+      </button>
       <div class="flex items-center justify-between mb-2">
         <span class="text-lg">${idea.upgrades[0]?.icon || '💡'}</span>
         <span class="text-xs ${simColor} font-medium">${idea.similarity}% 相似</span>
@@ -2546,9 +3153,34 @@ function renderIdeaDetailModal() {
 
 function renderMeeting() {
   let wizardContent = '';
-  if (state.meetingStep === 'input') wizardContent = renderMeetingInput();
-  else if (state.meetingStep === 'loading') wizardContent = renderMeetingLoading();
+  if (state.meetingStep === 'loading') wizardContent = renderMeetingLoading();
   else if (state.meetingStep === 'done') wizardContent = renderMeetingDone();
+
+  const showSplit = state.meetingStep !== 'input';
+
+  let rightContent = '';
+  if (state.meetingStep === 'input') {
+    rightContent = `
+      <div>
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">历史组会记录</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          ${savedMeetings.length > 0 ? savedMeetings.map(m => renderMeetingCard(m)).join('') : '<p class="text-sm text-gray-400 col-span-2 text-center py-8">暂无历史组会记录</p>'}
+        </div>
+      </div>
+    `;
+  } else {
+    rightContent = `
+      ${wizardContent}
+      ${state.meetingStep === 'done' ? `
+        <div>
+          <h2 class="text-sm font-semibold text-gray-700 mb-3">历史组会记录</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            ${savedMeetings.map(m => renderMeetingCard(m)).join('')}
+          </div>
+        </div>
+      ` : ''}
+    `;
+  }
 
   return `
     <div class="h-full flex flex-col bg-gray-50 page-enter">
@@ -2557,23 +3189,40 @@ function renderMeeting() {
           <h1 class="text-lg font-bold text-gray-900">一键组会</h1>
           <p class="text-xs text-gray-500 mt-0.5">AI 自动检索论文、生成演讲稿与 PPT</p>
         </div>
-        ${state.meetingStep !== 'input' ? `<button onclick="resetMeetingWizard()" class="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">新建组会</button>` : ''}
+        ${showSplit ? `<button onclick="resetMeetingWizard()" class="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消/返回</button>` : ''}
       </div>
-      <div class="flex-1 overflow-auto p-6">
-        <div class="max-w-3xl mx-auto space-y-6">
-          ${wizardContent}
-          ${state.meetingStep === 'input' ? `
-            <div>
-              <h2 class="text-sm font-semibold text-gray-700 mb-3">历史组会记录</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                ${savedMeetings.map(m => renderMeetingCard(m)).join('')}
+      <div class="flex-1 overflow-hidden flex">
+        <div class="w-[400px] shrink-0 border-r border-gray-200 overflow-auto p-6 bg-white">
+          ${renderMeetingInput()}
+          ${showSplit ? `
+            <div class="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-4 space-y-2">
+              <h3 class="text-xs font-semibold text-blue-600 uppercase">组会参数</h3>
+              <div>
+                <p class="text-xs text-gray-400">研究主题</p>
+                <p class="text-sm text-gray-700">${esc(state.meetingTopic || '未命名主题')}</p>
+              </div>
+              <div class="flex gap-4">
+                <div>
+                  <p class="text-xs text-gray-400">精读篇数</p>
+                  <p class="text-sm font-semibold text-gray-800">${state.meetingIntensiveCount}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-400">略读篇数</p>
+                  <p class="text-sm font-semibold text-gray-800">${state.meetingSkimCount}</p>
+                </div>
               </div>
             </div>
           ` : ''}
         </div>
+        <div class="flex-1 overflow-auto p-6">
+          <div class="max-w-3xl mx-auto space-y-6">
+            ${rightContent}
+          </div>
+        </div>
       </div>
     </div>
     ${state.meetingViewDetail ? renderMeetingDetailModal() : ''}
+    ${renderMeetingTrash()}
   `;
 }
 
@@ -2591,7 +3240,7 @@ function renderMeetingInput() {
             <label class="block text-sm font-medium text-gray-600 mb-1.5">精读篇数</label>
             <div class="flex items-center gap-2">
               <button onclick="setMeetingCount('intensive', -1)" class="w-8 h-8 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition-colors">&minus;</button>
-              <span class="w-8 text-center text-sm font-semibold text-gray-800">${state.meetingIntensiveCount}</span>
+              <span id="meeting-intensive-count" class="w-8 text-center text-sm font-semibold text-gray-800">${state.meetingIntensiveCount}</span>
               <button onclick="setMeetingCount('intensive', 1)" class="w-8 h-8 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition-colors">+</button>
             </div>
           </div>
@@ -2599,7 +3248,7 @@ function renderMeetingInput() {
             <label class="block text-sm font-medium text-gray-600 mb-1.5">略读篇数</label>
             <div class="flex items-center gap-2">
               <button onclick="setMeetingCount('skim', -1)" class="w-8 h-8 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition-colors">&minus;</button>
-              <span class="w-8 text-center text-sm font-semibold text-gray-800">${state.meetingSkimCount}</span>
+              <span id="meeting-skim-count" class="w-8 text-center text-sm font-semibold text-gray-800">${state.meetingSkimCount}</span>
               <button onclick="setMeetingCount('skim', 1)" class="w-8 h-8 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition-colors">+</button>
             </div>
           </div>
@@ -2703,6 +3352,10 @@ function renderMeetingDone() {
 
       <div class="flex justify-end gap-2">
         <button onclick="resetMeetingWizard()" class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">重新开始</button>
+        <button onclick="downloadMeetingPPT()" class="px-4 py-2 text-sm text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          下载PPT
+        </button>
         <button onclick="saveMeeting()" class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
           保存组会
@@ -2714,7 +3367,10 @@ function renderMeetingDone() {
 
 function renderMeetingCard(m) {
   return `
-    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer" onclick="viewMeetingDetail('${m.id}')">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group relative" onclick="viewMeetingDetail('${m.id}')">
+      <button onclick="event.stopPropagation(); trashMeeting('${m.id}')" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center opacity-60 hover:opacity-100 transition-all" title="删除记录">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+      </button>
       <div class="flex items-center justify-between mb-2">
         <span class="text-lg">📋</span>
         <span class="text-xs text-gray-400">${m.created_at}</span>
@@ -2772,6 +3428,14 @@ function renderMeetingDetailModal() {
             <div class="p-4 bg-gray-50 rounded-lg max-h-[350px] overflow-auto">
               <div class="md-content text-sm text-gray-700">${renderMarkdown(state.meetingDetailTab === 'speech' ? m.speech_draft : m.ppt_outline)}</div>
             </div>
+            ${state.meetingDetailTab === 'ppt' ? `
+              <div class="flex justify-end mt-2">
+                <button onclick="downloadMeetingPPTById('${m.id}')" class="px-3 py-1.5 text-xs text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  下载PPT
+                </button>
+              </div>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -2787,6 +3451,7 @@ function navigate(page) {
   if (page !== 'discovery') { state.discoveryStep = 'input'; }
   if (page !== 'idealab') { state.ideaStep = 'input'; state.ideaViewDetail = null; }
   if (page !== 'meeting') { state.meetingStep = 'input'; state.meetingViewDetail = null; }
+  if (page !== 'about') { state.aboutModal = null; }
   render();
 }
 
@@ -2795,8 +3460,75 @@ function selectGroup(group) {
   render();
 }
 
+function dissolveGroup(groupName) {
+  confirmAction('确定解散分组 "' + groupName + '"？组内论文将变为未分组。', function() {
+    papers.forEach(p => {
+      if (p.group_name === groupName) p.group_name = null;
+    });
+    state.customGroups = state.customGroups.filter(g => g !== groupName);
+    if (state.selectedGroup === groupName) state.selectedGroup = null;
+    showToast('已解散分组 "' + groupName + '"');
+    render();
+  });
+}
+
+function openCreateGroupDialog() {
+  state.newGroupDialogOpen = true;
+  state.newGroupName = '';
+  render();
+}
+
+function cancelCreateGroup() {
+  state.newGroupDialogOpen = false;
+  state.newGroupName = '';
+  render();
+}
+
+function setNewGroupName(v) { state.newGroupName = v; }
+
+function confirmCreateGroup() {
+  const name = state.newGroupName.trim();
+  if (!name) { showToast('请输入分组名称'); return; }
+  const all = getAllGroupNames();
+  if (all.includes(name)) { showToast('该分组已存在'); return; }
+  state.customGroups.push(name);
+  state.newGroupDialogOpen = false;
+  state.newGroupName = '';
+  state.selectedGroup = name;
+  showToast('已创建分组 "' + name + '"');
+  render();
+}
+
+function renderCreateGroupDialog() {
+  return `
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onclick="cancelCreateGroup()">
+      <div class="bg-white rounded-xl shadow-xl p-5 w-[400px] max-w-[90vw]" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-gray-800">新建分组</h3>
+          <button onclick="cancelCreateGroup()" class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="mb-4">
+          <label class="block text-xs font-medium text-gray-500 mb-1.5">分组名称</label>
+          <input type="text" value="${esc(state.newGroupName)}" oninput="setNewGroupName(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmCreateGroup();}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-shadow" placeholder="输入分组名称" autofocus>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+          <button onclick="cancelCreateGroup()" class="px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">取消</button>
+          <button onclick="confirmCreateGroup()" class="px-4 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">创建</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function openReader(paperId) {
   state.selectedPaperId = paperId;
+  const paper = papers.find(p => p.id === paperId);
+  if (paper && paper.status === 'unread') {
+    paper.status = 'reading';
+    if (!paper.reading_progress) paper.reading_progress = 0.01;
+  }
   state.currentPage = 'reader';
   state.pageNumber = 1;
   state.scale = 1.0;
@@ -2855,6 +3587,56 @@ function exportPaperBibtex(paperId) {
   showToast('BibTeX 已导出');
 }
 
+function exportAllBibtex() {
+  const fp = getFilteredPapers();
+  if (fp.length === 0) { showToast('当前没有论文可导出'); return; }
+  const all = fp.map(p => `@article{${p.id},
+  title = {${p.title}},
+  author = {${p.authors || 'Unknown'}},
+  journal = {${p.journal || ''}},
+  year = {${p.year || ''}},
+  doi = {${p.doi || ''}}
+}`).join('\n\n');
+  const blob = new Blob([all], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'maibook_export.bib';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('已导出 ' + fp.length + ' 篇论文的 BibTeX');
+}
+
+function importPdfMock() {
+  showToast('模拟导入：正在解析 PDF 元数据...');
+  setTimeout(() => {
+    const mockTitles = [
+      { title: 'Scaling Laws for Neural Language Models', authors: 'Jared Kaplan, Sam McCandlish, et al.', journal: 'arXiv', year: 2020, tags: ['大语言模型','缩放定律'] },
+      { title: 'Constitutional AI: Harmlessness from AI Feedback', authors: 'Yuntao Bai, Andy Jones, et al.', journal: 'arXiv', year: 2022, tags: ['AI安全','对齐'] },
+      { title: 'Mamba: Linear-Time Sequence Modeling with Selective State Spaces', authors: 'Albert Gu, Tri Dao', journal: 'arXiv', year: 2023, tags: ['序列模型','状态空间'] },
+    ];
+    const pick = mockTitles[Math.floor(Math.random() * mockTitles.length)];
+    const newPaper = {
+      id: 'p' + Date.now(),
+      title: pick.title,
+      authors: pick.authors,
+      journal: pick.journal,
+      year: pick.year,
+      page_count: Math.floor(Math.random() * 20) + 8,
+      tags: pick.tags,
+      status: 'unread',
+      reading_progress: 0,
+      group_name: null,
+      created_at: new Date().toISOString(),
+      abstract_text: 'This paper presents a novel approach to ' + pick.tags[0] + '. The authors propose a scalable framework that achieves state-of-the-art results on multiple benchmarks. Key contributions include a new architectural design, improved training methodology, and comprehensive empirical evaluation demonstrating significant performance gains over prior work.',
+      doi: '10.1234/mock.' + Date.now().toString(36),
+    };
+    papers.unshift(newPaper);
+    showToast('已导入：' + pick.title);
+    render();
+  }, 1500);
+}
+
 function startPipeline(paperId) {
   const paper = papers.find(p => p.id === paperId);
   if (!paper) return;
@@ -2863,13 +3645,21 @@ function startPipeline(paperId) {
   state.activeSkillTab = '';
   render();
 
-  const results = mockPipelineResults[paperId] || defaultPipelineResults;
+  const results = mockPipelineResults[paperId] || null;
   const enabledSkills = state.skills.filter(s => s.installed && s.enabled);
-  // Filter results to only include enabled skills
-  const applicableResults = results.filter(r =>
-    enabledSkills.some(es => es.id === r.skill_id)
-  );
-  const slotsToAdd = applicableResults.length > 0 ? applicableResults : results.slice(0, 2);
+  let slotsToAdd;
+  if (results) {
+    const applicableResults = results.filter(r =>
+      enabledSkills.some(es => es.id === r.skill_id)
+    );
+    slotsToAdd = applicableResults.length > 0 ? applicableResults : results;
+  } else {
+    slotsToAdd = enabledSkills.map(s => ({
+      skill_id: s.id,
+      skill_name: s.name,
+      content: '## ' + s.name + '\n\n正在为当前论文生成' + s.name + '结果。这是 ' + s.name + ' 技能的默认输出。\n\n建议在设置中配置 API 密钥后，获取更精准的 AI 分析结果。'
+    }));
+  }
 
   // Simulate progressive skill loading
   let delay = 600;
@@ -2972,12 +3762,16 @@ function applyRecommendations() {
 // ===================== TRASH ACTIONS =====================
 
 function trashPaper(paperId) {
-  const idx = papers.findIndex(p => p.id === paperId);
-  if (idx === -1) return;
-  const paper = papers.splice(idx, 1)[0];
-  state.trashedPapers.push(paper);
-  showToast('已移至回收站');
-  render();
+  const paper = papers.find(p => p.id === paperId);
+  if (!paper) return;
+  confirmAction('确定将论文 "' + paper.title + '" 移至回收站？', function() {
+    const idx = papers.findIndex(p => p.id === paperId);
+    if (idx === -1) return;
+    const paper = papers.splice(idx, 1)[0];
+    state.trashedPapers.push(paper);
+    showToast('已移至回收站');
+    render();
+  });
 }
 
 function restorePaper(paperId) {
@@ -2990,9 +3784,11 @@ function restorePaper(paperId) {
 }
 
 function deletePaperPermanently(paperId) {
-  state.trashedPapers = state.trashedPapers.filter(p => p.id !== paperId);
-  showToast('已永久删除');
-  render();
+  confirmAction('确定永久删除此论文？此操作不可撤销。', function() {
+    state.trashedPapers = state.trashedPapers.filter(p => p.id !== paperId);
+    showToast('已永久删除');
+    render();
+  });
 }
 
 function openTrash() {
@@ -3163,6 +3959,36 @@ function uninstallSkill(skillId) {
   render();
 }
 
+function createCustomSkill() {
+  const name = document.getElementById('custom-skill-name').value.trim();
+  if (!name) { showToast('请输入技能名称'); return; }
+  const description = document.getElementById('custom-skill-desc').value.trim() || '暂无描述';
+  const icon = document.getElementById('custom-skill-icon').value || '✨';
+  const category = document.getElementById('custom-skill-category').value;
+  const version = document.getElementById('custom-skill-version').value.trim() || '1.0.0';
+  const author = document.getElementById('custom-skill-author').value.trim() || '自建';
+
+  // Determine installed state based on current tab
+  var isInstalled = state.skillTab === 'installed';
+  const newSkill = {
+    id: 'custom_' + Date.now(),
+    name: name,
+    icon: icon,
+    category: category,
+    tags: ['自建'],
+    description: description,
+    enabled: isInstalled,
+    installed: isInstalled,
+    version: version,
+    author: author,
+    is_custom: true,
+  };
+  state.skills.unshift(newSkill);
+  state.showCreateSkill = false;
+  showToast(isInstalled ? '技能 "' + name + '" 创建成功，已添加到已安装' : '技能 "' + name + '" 创建成功，需手动安装');
+  render();
+}
+
 function toggleSkill(skillId) {
   state.skills = state.skills.map(s =>
     s.id === skillId ? { ...s, enabled: !s.enabled } : s
@@ -3181,13 +4007,68 @@ function toggleDiscoverySourcePaper(id) {
   const idx = state.discoverySourcePapers.indexOf(id);
   if (idx > -1) state.discoverySourcePapers.splice(idx, 1);
   else state.discoverySourcePapers.push(id);
+  // Local update: update count text without full render
+  var countEl = document.querySelector('#discovery-input .text-xs.text-gray-400.mt-1');
+  if (countEl) countEl.textContent = '已选择 ' + state.discoverySourcePapers.length + ' 篇论文';
+  // Update group counts
+  var groupCounts = document.querySelectorAll('[data-group-selected]');
+  groupCounts.forEach(function(el) {
+    var gName = el.dataset.groupSelected;
+    var groupPapers = papers.filter(function(p) { return (p.group_name || '__ungrouped__') === gName; });
+    var selected = groupPapers.filter(function(p) { return state.discoverySourcePapers.includes(p.id); }).length;
+    el.textContent = selected + '/' + groupPapers.length + ' 篇';
+  });
+}
+
+function toggleDiscoveryGroupCollapse(groupName) {
+  const idx = state.discoveryCollapsedGroups.indexOf(groupName);
+  if (idx > -1) state.discoveryCollapsedGroups.splice(idx, 1);
+  else state.discoveryCollapsedGroups.push(groupName);
+  render();
+}
+
+function toggleDiscoveryGroupSelect(groupName) {
+  const groupedPapers = {};
+  papers.forEach(p => {
+    const g = p.group_name || '__ungrouped__';
+    if (!groupedPapers[g]) groupedPapers[g] = [];
+    groupedPapers[g].push(p);
+  });
+  const groupPapers = groupedPapers[groupName] || [];
+  const allSelected = groupPapers.every(p => state.discoverySourcePapers.includes(p.id));
+  if (allSelected) {
+    groupPapers.forEach(p => {
+      const idx = state.discoverySourcePapers.indexOf(p.id);
+      if (idx > -1) state.discoverySourcePapers.splice(idx, 1);
+    });
+  } else {
+    groupPapers.forEach(p => {
+      if (!state.discoverySourcePapers.includes(p.id)) state.discoverySourcePapers.push(p.id);
+    });
+  }
+  render();
 }
 
 function startDiscovery() {
+  if (state.discoveryMode === 'keyword') {
+    if (!state.discoveryKeyword || !state.discoveryKeyword.trim()) {
+      showToast('请输入检索关键词'); return;
+    }
+  } else {
+    if (state.discoverySourcePapers.length === 0) {
+      showToast('请至少选择一篇论文'); return;
+    }
+  }
   state.discoveryStep = 'loading';
   render();
   setTimeout(() => {
-    state.discoveryResults = [...discoveryResultPool].sort((a,b) => b.relevance - a.relevance);
+    state.discoveryResults = discoveryResultPool.map(r => ({
+      ...r,
+      inLibrary: papers.some(p => p.title === r.title)
+    })).sort((a, b) => {
+      if (a.inLibrary !== b.inLibrary) return a.inLibrary ? 1 : -1;
+      return b.relevance - a.relevance;
+    });
     state.discoverySelectedIds = [];
     state.discoveryStep = 'results';
     render();
@@ -3245,10 +4126,20 @@ function resetDiscovery() {
 // ===================== IDEA LAB ACTIONS =====================
 
 function startIdeaAnalysis() {
+  if (!state.ideaInput || !state.ideaInput.trim()) {
+    showToast('请输入创意内容');
+    return;
+  }
   state.ideaStep = 'analyzing';
   render();
   setTimeout(() => {
-    state.ideaSimilarPapers = [...ideaSimilarPaperPool].sort((a,b) => b.similarity - a.similarity);
+    // Randomize similarity values
+    state.ideaSimilarPapers = ideaSimilarPaperPool.map(p => {
+      var baseSim = p.similarity;
+      var randomOffset = Math.floor(Math.random() * 20 - 10); // ±10
+      var newSim = Math.max(20, Math.min(95, baseSim + randomOffset));
+      return { ...p, similarity: newSim };
+    }).sort((a,b) => b.similarity - a.similarity);
     state.ideaStep = 'similar';
     render();
   }, 2000);
@@ -3290,7 +4181,7 @@ function saveIdea() {
     title: state.ideaInput.slice(0, 30) + (state.ideaInput.length > 30 ? '...' : ''),
     description: state.ideaInput,
     created_at: '2026-07-12',
-    similarity: state.ideaSimilarPapers[0]?.similarity || 0,
+    similarity: Math.floor(Math.random() * 30 + 50),
     similar_papers: state.ideaSimilarPapers,
     upgrades: state.ideaSelectedUpgrades.map(i => state.ideaUpgrades[i]),
     upgraded_content: state.ideaUpgradedContent,
@@ -3298,6 +4189,66 @@ function saveIdea() {
   savedIdeas.unshift(newIdea);
   showToast('创意已保存');
   resetIdeaWizard();
+}
+
+function trashIdea(id) {
+  confirmAction('确定将此创意移至垃圾桶？', function() {
+    var idx = savedIdeas.findIndex(function(i) { return i.id === id; });
+    if (idx === -1) return;
+    var idea = savedIdeas.splice(idx, 1)[0];
+    state.trashedIdeas.push(idea);
+    showToast('创意已移至垃圾桶');
+    render();
+  });
+}
+
+function restoreIdea(id) {
+  var idx = state.trashedIdeas.findIndex(function(i) { return i.id === id; });
+  if (idx === -1) return;
+  var idea = state.trashedIdeas.splice(idx, 1)[0];
+  savedIdeas.unshift(idea);
+  showToast('创意已恢复');
+  render();
+}
+
+function deleteIdeaPermanently(id) {
+  confirmAction('确定永久删除此创意？此操作不可撤销。', function() {
+    state.trashedIdeas = state.trashedIdeas.filter(function(i) { return i.id !== id; });
+    showToast('已永久删除');
+    render();
+  });
+}
+
+function renderIdeaTrash() {
+  return `
+    <button onclick="state.ideaTrashOpen = true; render()" class="fixed bottom-6 right-6 w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50" title="创意垃圾桶">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+      ${state.trashedIdeas.length > 0 ? `<span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">${state.trashedIdeas.length}</span>` : ''}
+    </button>
+    ${state.ideaTrashOpen ? `
+      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.ideaTrashOpen = false; render()">
+        <div class="bg-white rounded-xl shadow-xl p-5 w-[500px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-gray-900">创意垃圾桶</h2>
+            <button onclick="state.ideaTrashOpen = false; render()" class="text-gray-400 hover:text-gray-600">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          ${state.trashedIdeas.length === 0 ? '<p class="text-sm text-gray-400 text-center py-8">垃圾桶为空</p>' : state.trashedIdeas.map(idea => `
+            <div class="flex items-center gap-3 p-3 border border-gray-100 rounded-lg mb-2 hover:bg-gray-50 transition-colors">
+              <span class="text-lg">${idea.upgrades[0]?.icon || '💡'}</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-700 truncate">${esc(idea.title)}</p>
+                <p class="text-xs text-gray-400">${idea.similarity}% 相似 · ${idea.created_at}</p>
+              </div>
+              <button onclick="restoreIdea('${idea.id}')" class="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors">恢复</button>
+              <button onclick="deleteIdeaPermanently('${idea.id}')" class="px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">永久删除</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
 }
 
 function viewIdeaDetail(id) {
@@ -3321,10 +4272,18 @@ function resetIdeaWizard() {
 function setMeetingCount(type, delta) {
   if (type === 'intensive') state.meetingIntensiveCount = Math.max(1, Math.min(5, state.meetingIntensiveCount + delta));
   else state.meetingSkimCount = Math.max(0, Math.min(8, state.meetingSkimCount + delta));
-  render();
+  // Local update without full render
+  var intensiveEl = document.getElementById('meeting-intensive-count');
+  var skimEl = document.getElementById('meeting-skim-count');
+  if (intensiveEl) intensiveEl.textContent = state.meetingIntensiveCount;
+  if (skimEl) skimEl.textContent = state.meetingSkimCount;
 }
 
 function startMeetingGen() {
+  if (!state.meetingTopic || !state.meetingTopic.trim()) {
+    showToast('请输入研究主题');
+    return;
+  }
   state.meetingStep = 'loading';
   state.meetingProgress = '检索相关论文...';
   state.meetingProgressSteps = [];
@@ -3406,6 +4365,179 @@ function resetMeetingWizard() {
   state.meetingPptOutline = null;
   state.meetingRetrievedPapers = [];
   render();
+}
+
+function parsePptOutlineToSlides(outline) {
+  const slides = [];
+  const sections = outline.split(/^### /m);
+  sections.shift();
+  sections.forEach(section => {
+    const lines = section.trim().split('\n');
+    const title = lines[0].trim();
+    const content = lines.slice(1)
+      .filter(l => l.trim())
+      .map(l => l.replace(/^[-•\d+\.]+\s*/, '').trim());
+    slides.push({ title, content });
+  });
+  return slides;
+}
+
+function generatePPTHTML(topic, slides) {
+  const slidesHTML = slides.map((s, i) => `
+    <section class="slide ${i === 0 ? 'title-slide' : ''}" id="slide-${i}">
+      <h1>${s.title}</h1>
+      <ul>${s.content.map(c => `<li>${c}</li>`).join('')}</ul>
+    </section>
+  `).join('');
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>${topic} - 组会PPT</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .slide { width: 100vw; height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 80px; }
+  .slide.active { display: flex; }
+  .slide h1 { font-size: 2.2rem; margin-bottom: 2rem; color: #1e3a5f; text-align: center; }
+  .slide ul { font-size: 1.4rem; line-height: 2.2; list-style: none; }
+  .slide ul li::before { content: "\\2022"; color: #2563eb; font-weight: bold; margin-right: 12px; }
+  .slide:nth-child(even) { background: #f8fafc; }
+  .slide:nth-child(odd) { background: #ffffff; }
+  .nav { position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; align-items: center; gap: 12px; background: white; padding: 8px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .nav button { padding: 6px 14px; cursor: pointer; border: 1px solid #d1d5db; border-radius: 4px; background: white; font-size: 14px; }
+  .nav button:hover { background: #f3f4f6; }
+  .slide-num { font-size: 14px; color: #6b7280; }
+  .title-slide { background: linear-gradient(135deg, #1e3a5f, #2563eb) !important; }
+  .title-slide h1 { color: white !important; }
+</style>
+</head>
+<body>
+  ${slidesHTML}
+  <div class="nav">
+    <button onclick="prevSlide()">&#9664;</button>
+    <span class="slide-num" id="slide-num">1 / ${slides.length}</span>
+    <button onclick="nextSlide()">&#9654;</button>
+  </div>
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    if (slides.length > 0) slides[0].classList.add('active');
+    function showSlide(n) {
+      currentSlide = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+      document.getElementById('slide-num').textContent = (currentSlide + 1) + ' / ' + slides.length;
+    }
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+  <\/script>
+</body>
+</html>`;
+}
+
+function downloadMeetingPPT() {
+  const topic = state.meetingTopic || '组会演示';
+  const slides = parsePptOutlineToSlides(state.meetingPptOutline || '');
+  if (slides.length === 0) {
+    showToast('PPT 大纲为空，无法导出');
+    return;
+  }
+  const html = generatePPTHTML(topic, slides);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = topic + '-PPT.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('PPT 已下载（HTML 格式，可用浏览器打开演示）');
+}
+
+function downloadMeetingPPTById(id) {
+  var m = savedMeetings.find(function(i) { return i.id === id; });
+  if (!m || !m.ppt_outline) {
+    showToast('PPT 大纲为空，无法导出');
+    return;
+  }
+  var slides = parsePptOutlineToSlides(m.ppt_outline);
+  if (slides.length === 0) {
+    showToast('PPT 大纲为空，无法导出');
+    return;
+  }
+  var html = generatePPTHTML(m.topic, slides);
+  var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = m.topic + '-PPT.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('PPT 已下载（HTML 格式，可用浏览器打开演示）');
+}
+
+function trashMeeting(id) {
+  confirmAction('确定将此组会记录移至垃圾桶？', function() {
+    var idx = savedMeetings.findIndex(function(m) { return m.id === id; });
+    if (idx === -1) return;
+    var m = savedMeetings.splice(idx, 1)[0];
+    state.trashedMeetings.push(m);
+    showToast('组会记录已移至垃圾桶');
+    render();
+  });
+}
+
+function restoreMeeting(id) {
+  var idx = state.trashedMeetings.findIndex(function(m) { return m.id === id; });
+  if (idx === -1) return;
+  var m = state.trashedMeetings.splice(idx, 1)[0];
+  savedMeetings.unshift(m);
+  showToast('组会记录已恢复');
+  render();
+}
+
+function deleteMeetingPermanently(id) {
+  confirmAction('确定永久删除此组会记录？此操作不可撤销。', function() {
+    state.trashedMeetings = state.trashedMeetings.filter(function(m) { return m.id !== id; });
+    showToast('已永久删除');
+    render();
+  });
+}
+
+function renderMeetingTrash() {
+  return `
+    <button onclick="state.meetingTrashOpen = true; render()" class="fixed bottom-6 right-6 w-12 h-12 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50" title="组会垃圾桶">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+      ${state.trashedMeetings.length > 0 ? `<span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">${state.trashedMeetings.length}</span>` : ''}
+    </button>
+    ${state.meetingTrashOpen ? `
+      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/20" onclick="state.meetingTrashOpen = false; render()">
+        <div class="bg-white rounded-xl shadow-xl p-5 w-[500px] max-w-[90vw] max-h-[80vh] overflow-auto" onclick="event.stopPropagation()">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-gray-900">组会垃圾桶</h2>
+            <button onclick="state.meetingTrashOpen = false; render()" class="text-gray-400 hover:text-gray-600">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          ${state.trashedMeetings.length === 0 ? '<p class="text-sm text-gray-400 text-center py-8">垃圾桶为空</p>' : state.trashedMeetings.map(m => `
+            <div class="flex items-center gap-3 p-3 border border-gray-100 rounded-lg mb-2 hover:bg-gray-50 transition-colors">
+              <span class="text-lg">📋</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-700 truncate">${esc(m.topic)}</p>
+                <p class="text-xs text-gray-400">${m.created_at} · ${m.papers.length} 篇论文</p>
+              </div>
+              <button onclick="restoreMeeting('${m.id}')" class="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors">恢复</button>
+              <button onclick="deleteMeetingPermanently('${m.id}')" class="px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">永久删除</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
 }
 
 // ===================== TEXT SELECTION =====================
@@ -3502,12 +4634,13 @@ function hideSelectionPopup() {
 
 function highlightSelection(color) {
   if (!currentSelectionRange || !currentSelectionText) return;
+  const annId = 'a' + Date.now();
 
   try {
     const range = currentSelectionRange;
     const mark = document.createElement('mark');
     mark.className = 'hl-' + color;
-    mark.dataset.annotationId = 'a' + Date.now();
+    mark.dataset.aid = annId;
 
     // Use extractContents + insertNode to handle cross-element selections
     const fragment = range.extractContents();
@@ -3519,7 +4652,7 @@ function highlightSelection(color) {
 
   // Save annotation
   const newAnnotation = {
-    id: 'a' + Date.now(),
+    id: annId,
     paper_id: state.selectedPaperId,
     annotation_type: 'highlight',
     page_number: state.pageNumber,
@@ -3592,8 +4725,9 @@ function saveNoteComment(type) {
     return;
   }
 
+  const annId = 'a' + Date.now();
   const newAnnotation = {
-    id: 'a' + Date.now(),
+    id: annId,
     paper_id: state.selectedPaperId,
     annotation_type: type,
     page_number: state.pageNumber,
@@ -3608,6 +4742,7 @@ function saveNoteComment(type) {
     try {
       const mark = document.createElement('mark');
       mark.className = 'hl-' + (type === 'note' ? 'blue' : 'pink');
+      mark.dataset.aid = annId;
       const fragment = currentSelectionRange.extractContents();
       mark.appendChild(fragment);
       currentSelectionRange.insertNode(mark);
@@ -3735,6 +4870,64 @@ function generateMockExplanation(text) {
   return '## AI 解释\n\n**选中内容分析**\n\n这段内容涉及论文中的关键概念。AI 会根据上下文提供详细解释，包括：\n\n1. **概念定义**：该术语或方法的核心含义\n2. **技术细节**：具体的实现方式和数学表达\n3. **上下文关联**：与论文其他部分的关系\n\n建议结合论文原文和 AI 技能分析（摘要、深度解释）进行更全面的理解。';
 }
 
+function reapplyReaderAnnotations() {
+  if (state.currentPage !== 'reader' || !state.selectedPaperId) return;
+  const readerArea = document.getElementById('reader-content-area');
+  if (!readerArea) return;
+
+  const paperAnnotations = annotations.filter(a =>
+    a.paper_id === state.selectedPaperId &&
+    a.page_number === state.pageNumber &&
+    a.selected_text
+  );
+
+  paperAnnotations.forEach(ann => {
+    // Skip annotations already in DOM (e.g., hardcoded in paperContent)
+    if (readerArea.querySelector('mark[data-aid="' + ann.id + '"]')) return;
+    // Also skip the initial hardcoded annotations that match by ID pattern
+    if (readerArea.querySelector('mark[data-annotation-id="' + ann.id + '"]')) return;
+
+    const walker = document.createTreeWalker(
+      readerArea, NodeFilter.SHOW_TEXT, null, false
+    );
+
+    let textNode;
+    while ((textNode = walker.nextNode())) {
+      // Skip text already inside a mark tag
+      if (textNode.parentElement && textNode.parentElement.tagName === 'MARK') continue;
+
+      const text = textNode.nodeValue;
+      const idx = text.indexOf(ann.selected_text);
+      if (idx !== -1) {
+        try {
+          const range = document.createRange();
+          range.setStart(textNode, idx);
+          range.setEnd(textNode, idx + ann.selected_text.length);
+
+          const mark = document.createElement('mark');
+          mark.className = 'hl-' + ann.color;
+          mark.dataset.aid = ann.id;
+          range.surroundContents(mark);
+        } catch (e) {
+          // Cross-element match, try extract+insert
+          try {
+            const range2 = document.createRange();
+            range2.setStart(textNode, idx);
+            range2.setEnd(textNode, idx + ann.selected_text.length);
+            const mark2 = document.createElement('mark');
+            mark2.className = 'hl-' + ann.color;
+            mark2.dataset.aid = ann.id;
+            const fragment = range2.extractContents();
+            mark2.appendChild(fragment);
+            range2.insertNode(mark2);
+          } catch (e2) { /* skip */ }
+        }
+        break; // Only wrap first occurrence
+      }
+    }
+  });
+}
+
 // ===================== MAIN RENDER =====================
 
 function render() {
@@ -3745,6 +4938,8 @@ function render() {
   if (chatMessages) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
+  // Reapply dynamic annotations in reader
+  reapplyReaderAnnotations();
 }
 
 // ===================== INIT =====================
@@ -3757,7 +4952,8 @@ document.addEventListener('mousedown', (e) => {
   }
 });
 
-// Init: render the app
+// Init: apply theme then render
+document.body.setAttribute('data-theme', state.generalSettings.theme);
 render();
 </script>
 </body>
